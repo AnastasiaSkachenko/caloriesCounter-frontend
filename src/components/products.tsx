@@ -3,6 +3,8 @@ import { fetchProducts } from "../utils/caloriesCounter";
 import ProductForm from "./ProductForm"
 import { useState } from "react";
 import { usePopProduct } from "../hooks/caloriesCounter";
+import { useNavigate } from "react-router-dom";
+
 
 
 const CaloriesCounterProducts: React.FC = () => {
@@ -16,6 +18,8 @@ const CaloriesCounterProducts: React.FC = () => {
   const [editProduct, setEditProduct] = useState<string| null>(null)
   const [addProduct, setAddProduct] = useState(false)
   const [searchQuery, setSearchQuery] = useState<string>('');  
+	const navigate = useNavigate()
+
 
   const { popProduct } = usePopProduct();
 
@@ -41,6 +45,9 @@ const CaloriesCounterProducts: React.FC = () => {
 
 	return (
 		<>
+			<button onClick={() => navigate('/')}>Back to Diary</button>
+      <button onClick={() => navigate('/dishes')}>Dishes</button>
+			<h3>Products</h3>
 		  {addProduct ? (
 			<ProductForm onSubmitSuccess={() => setAddProduct(false)} onCancel={() => setAddProduct(false)}/>
 	  ): (

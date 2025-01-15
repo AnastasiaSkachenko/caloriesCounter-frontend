@@ -3,15 +3,15 @@ import { useQuery } from '@tanstack/react-query';
 import { Product } from './interfaces';
 import { fetchProducts } from '../utils/caloriesCounter';
 import { usePutProduct, useSetProduct } from '../hooks/caloriesCounter';
-import '../styles/dish.css'
 
 interface AddProductProps {
   onSubmitSuccess: (product: Product) => void;
   onCancel?: () => void;  
   product?: Product,
+  productName?: string
  }
 
-const ProductForm: React.FC<AddProductProps> = ({ onSubmitSuccess, onCancel, product}) => {
+const ProductForm: React.FC<AddProductProps> = ({ onSubmitSuccess, onCancel, product, productName}) => {
  
 
   const {
@@ -23,7 +23,7 @@ const ProductForm: React.FC<AddProductProps> = ({ onSubmitSuccess, onCancel, pro
 
   const [formState, setFormState] = useState<Product>(product ??{
     id: 0,
-    name: '',
+    name: productName ?? '',
     image: '',
     calories: 0,
     protein: 0,
@@ -156,9 +156,9 @@ const ProductForm: React.FC<AddProductProps> = ({ onSubmitSuccess, onCancel, pro
       };
     
       console.log(product)
-      await setProduct({product})
+      const returnedProduct = await setProduct({product})
  
-      onSubmitSuccess(product)
+      onSubmitSuccess(returnedProduct)
 
     }
    

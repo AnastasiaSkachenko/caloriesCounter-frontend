@@ -1,5 +1,5 @@
 import { useQueryClient, useMutation } from "@tanstack/react-query"
-import {  DiaryRecordInput, DishInput, Ingredient, IngredientInput, PopInput, Product, ProductInput } from "../compotents/interfaces"
+import {  DiaryRecordInput, DishInput, Ingredient, IngredientInput, PopInput, Product, ProductInput } from "../components/interfaces"
 import { deleteDiaryRecord, deleteDish, deleteIngredient, deleteProduct, editDiaryRecord, editDish, editIngredient, editProduct, saveDiaryRecord, saveDish, saveIngredient, saveProduct } from "../utils/caloriesCounter"
 
 

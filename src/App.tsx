@@ -1,7 +1,7 @@
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
-import Dishes from "./compotents/dishes";
-import CaloriesCounterProducts from "./compotents/products";
-import CaloriesCounter from "./compotents/main-page";
+import Dishes from "./components/dishes";
+import CaloriesCounterProducts from "./components/products";
+import CaloriesCounter from "./components/main-page";
 
 
 function App() {

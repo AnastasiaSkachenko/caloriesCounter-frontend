@@ -3,7 +3,6 @@ import { useQuery } from '@tanstack/react-query';
 import { Product, Ingredient } from './interfaces';
 import { fetchIngredient, fetchProductNames, fetchProducts } from '../utils/caloriesCounter';
 import ProductForm from './ProductForm';
-import '../styles/dish.css'
 
 interface IngredientFormProps {
   onSuccess: (ingredient:Ingredient) => void
@@ -35,9 +34,8 @@ const IngredientForm: React.FC<IngredientFormProps> = ({onSuccess, onCancel, ing
  
 
     const [filteredSuggestions, setFilteredSuggestions] = useState<string[]>([''])
-    const [CreatingNewProduct, setCreatingNewProduct] = useState<boolean>(false);
+    const [CreatingNewProduct, setCreatingNewProduct] = useState<string | null>(null);
     const [validationError, setValidationError] = useState<string | null>(null)
-    const productGrossInput = useRef<HTMLInputElement>(null); 
      
  
     const [ingredient, setIngredient] = useState<Ingredient>(ingredientData??{
@@ -85,23 +83,23 @@ const IngredientForm: React.FC<IngredientFormProps> = ({onSuccess, onCancel, ing
 
   //in case when editing ingredient and there just id send to form
   useEffect(() => { 
-    const fetchAndSetTCProduct = async () => {
+    const fetchAndSetIngredient = async () => {
       if (ingredient.id == 0 && ingredientId) { 
         const fetchedIngredient = await fetchIngredient(ingredientId); 
         setFilteredSuggestions(prevFiltered =>
-          prevFiltered.filter(suggestion => suggestion !== fetchedIngredient.name)
+          prevFiltered.filter(suggestion => suggestion !== fetchedIngredient.product.name)
         ); 
-        setIngredient(fetchedIngredient)
+        setIngredient(fetchedIngredient.ingredient)
+        setIngredient((prevIngredient) => ({...prevIngredient, name:fetchedIngredient.product.name}))
+        setCurrentProduct(fetchedIngredient.product)
        } 
     };
-    fetchAndSetTCProduct();
+    fetchAndSetIngredient();
   }, [ingredient.id, ingredientId]);
-  
-  
-    
+
     useEffect(()=> {
       if (ingredientId){
-        setCreatingNewProduct(false); 
+        setCreatingNewProduct(null); 
 
       }
     }, [ingredientId] )
@@ -113,22 +111,19 @@ const IngredientForm: React.FC<IngredientFormProps> = ({onSuccess, onCancel, ing
   ];
       
  
-
- 
-
  
     const handleProductInputFocus = () => { 
-      setCreatingNewProduct(false) 
+      setCreatingNewProduct(null) 
     };
 
     const handleIngredientChange = (field: 'weight' | 'calories' | 'protein' | 'carbohydrate' | 'fat', value: string | number) => {
       setIngredient((prevIngredient) => {
-        console.log(typeof value)
-        if (field == 'weight' && currentProduct) {
+        console.log(value)
+        if (field == 'weight' && currentProduct && Number(value)>0) {
           value = Number(value)
           return {
             ...prevIngredient,
-            [field]: value,
+            weight: value,
             calories: Math.round(value * currentProduct.calories / 100),
             protein: Math.round(value * currentProduct.protein / 100),
             carbohydrate: Math.round(value * currentProduct.carbohydrate / 100),
@@ -168,15 +163,12 @@ const IngredientForm: React.FC<IngredientFormProps> = ({onSuccess, onCancel, ing
         }));  
         setCurrentProduct(product)
         setFilteredSuggestions([])
-        if (productGrossInput.current) { 
-          productGrossInput.current.focus();
-        }
       }   
     }
 
  
     const handleProductNameChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-     const value = e.target.value.toLowerCase();
+     const value = e.target.value.trim().toLowerCase();
       if (usedProducts.includes(value)) {
         setValidationError('You cant use this product. It already exists in this dish')
         setIngredient((prevIngredient) => ({
@@ -189,18 +181,23 @@ const IngredientForm: React.FC<IngredientFormProps> = ({onSuccess, onCancel, ing
         setValidationError(null)
       }
 
+      if (currentProduct) {
+        setCurrentProduct(null)
+      }
+
       if (value.startsWith('add "') && value.endsWith('" to my products')) { 
           setIngredient((prevIngredient) => ({
               ...prevIngredient,
               name: '',  
           }));  
-          setCreatingNewProduct(true);
+
+          setCreatingNewProduct(value.slice(5, -16));
         } else {
           setIngredient((prevIngredient) => ({
               ...prevIngredient,
               name: value 
           }));
-          setCreatingNewProduct(false);
+          setCreatingNewProduct(null);
       }
       const filterSuggestions = suggestions.filter(product => product.toLowerCase().startsWith(value));
       const NotUsed = filterSuggestions.filter(product => !usedProducts.includes(product))
@@ -212,20 +209,26 @@ const IngredientForm: React.FC<IngredientFormProps> = ({onSuccess, onCancel, ing
       }
       setFilteredSuggestions(NotUsed);
       getProduct(value) 
+      console.log(currentProduct, 'cp')
    };
  
 
   const handleSubmit = async () => {  
+    if (!currentProduct){
+      setValidationError('Choose product you want to add to dish')
+    }
+
     if ( ingredient.weight < 1) {
-      setValidationError('Net must be greater than 0.');
+      setValidationError('Weight must be greater than 0.');
       return;
     }  
     if ( ingredient.name == '') {
       setValidationError('Product name cant be empty.');
       return;
     }  
-  
-     onSuccess(ingredient)
+
+   
+    onSuccess(ingredient)
 
   }
  
@@ -234,17 +237,18 @@ const IngredientForm: React.FC<IngredientFormProps> = ({onSuccess, onCancel, ing
     setIngredient((prevIngredient) => ({
       ...prevIngredient,
       name: product.name,
-      image: product.image
+      image: product.image,
+      product: product.id
     }));
 
     setCurrentProduct(product)
   
-    setCreatingNewProduct(false); 
+    setCreatingNewProduct(null); 
     setValidationError(null);
   };
 
   const handleProductCancel = () => { 
-    setCreatingNewProduct(false); 
+    setCreatingNewProduct(null); 
   }
  
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, next?:RefObject<HTMLInputElement>) => { 
@@ -298,7 +302,7 @@ const IngredientForm: React.FC<IngredientFormProps> = ({onSuccess, onCancel, ing
             ))}  
             </datalist> 
             {CreatingNewProduct && (
-              <ProductForm onSubmitSuccess={(product) => handleProductSubmit(product)} onCancel={handleProductCancel} />
+              <ProductForm onSubmitSuccess={(product) => handleProductSubmit(product)} onCancel={handleProductCancel} productName={CreatingNewProduct} />
             )}
              
      
@@ -306,32 +310,32 @@ const IngredientForm: React.FC<IngredientFormProps> = ({onSuccess, onCancel, ing
           <div>
             <label>
               Weight (g):
-              <input type="number" value={ingredient.weight } ref={inputRefs[1]} onChange={(e) => handleIngredientChange('weight', e.target.value)} onKeyDown={(e) => handleKeyDown(e)}   onFocus={(e) => e.target.select()} />
+              <input type="number" value={ingredient.weight } ref={inputRefs[1]} onChange={(e) => handleIngredientChange('weight', e.target.value)} onKeyDown={(e) => handleKeyDown(e)}   onFocus={(e) => e.target.select()} disabled={!currentProduct} />
             </label>
             <br/>
 
             <label>
               Calories (g):
-              <input type="number" value={ingredient.calories } ref={inputRefs[2]} onChange={(e) => handleIngredientChange('calories', e.target.value)} onKeyDown={(e) => handleKeyDown(e)}   onFocus={(e) => e.target.select()} />
+              <input type="number" value={ingredient.weight? ingredient.calories : '0'} ref={inputRefs[2]} onChange={(e) => handleIngredientChange('calories', e.target.value)} onKeyDown={(e) => handleKeyDown(e)}   onFocus={(e) => e.target.select()} disabled={!currentProduct}/>
             </label>
             <br/>
 
 
             <label>
               Protein (g):
-              <input type="number" value={ingredient.protein } ref={inputRefs[3]} onChange={(e) => handleIngredientChange('protein', e.target.value)} onKeyDown={(e) => handleKeyDown(e)}   onFocus={(e) => e.target.select()} />
+              <input type="number" value={ingredient.weight? ingredient.protein : '0'} ref={inputRefs[3]} onChange={(e) => handleIngredientChange('protein', e.target.value)} onKeyDown={(e) => handleKeyDown(e)}   onFocus={(e) => e.target.select()} disabled={!currentProduct}/>
             </label>
             <br/>
 
             <label>
               Carbohydrates (g):
-              <input type="number" value={ingredient.carbohydrate } ref={inputRefs[4]} onChange={(e) => handleIngredientChange('carbohydrate', e.target.value)} onKeyDown={(e) => handleKeyDown(e)}   onFocus={(e) => e.target.select()} />
+              <input type="number" value={ingredient.weight? ingredient.carbohydrate : '0' } ref={inputRefs[4]} onChange={(e) => handleIngredientChange('carbohydrate', e.target.value)} onKeyDown={(e) => handleKeyDown(e)}   onFocus={(e) => e.target.select()} disabled={!currentProduct}/>
             </label>
             <br/>
 
             <label>
               Fat (g):
-              <input type="number" value={ingredient.fat } ref={inputRefs[5]} onChange={(e) => handleIngredientChange('fat', e.target.value)} onKeyDown={(e) => handleKeyDown(e)}   onFocus={(e) => e.target.select()} />
+              <input type="number" value={ingredient.weight? ingredient.fat : '0' } ref={inputRefs[5]} onChange={(e) => handleIngredientChange('fat', e.target.value)} onKeyDown={(e) => handleKeyDown(e)}   onFocus={(e) => e.target.select()} disabled={!currentProduct}/>
             </label>
             <br/>
           </div>
