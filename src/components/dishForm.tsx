@@ -223,7 +223,7 @@ const DishForm: React.FC<AddDishProps> = ({onSuccess,onSuccessEdit, onCancel, di
       <div className="form-check form-switch ms-3">
         <label className="form-check-label">
           Enter ingredients
-          <input className="form-check-input" type="checkbox" checked={dishInfo.type=='own'} onChange={(event) => handleToggle(event)}/>
+          <input className="form-check-input" type="checkbox" checked={dishInfo.type=='own'} onChange={(event) => handleToggle(event)} disabled={dishToEdit? true: false}/>
         </label>
       </div>
 

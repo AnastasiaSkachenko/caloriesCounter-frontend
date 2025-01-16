@@ -6,6 +6,8 @@ import { useQuery } from "@tanstack/react-query";
 import { fetchDiaryRecords } from "../utils/caloriesCounter";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { usePopDiaryRecord } from "../hooks/caloriesCounter";
+import '../../styles/style.css';
+import '../index.css'
 
 
 
@@ -46,7 +48,7 @@ const CaloriesCounter: React.FC = () => {
 
   return (
     <div className="vh-100">
-      <button onClick={() => navigate('/dishes')}>Dishes</button>
+      <button className="btn btn-primary" onClick={() => navigate('/dishes')}>Dishes</button>
       <button onClick={() => navigate('/products')}>Products</button>
       <h3>Food Diary</h3>
 

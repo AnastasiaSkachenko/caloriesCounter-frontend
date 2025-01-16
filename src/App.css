@@ -2,15 +2,14 @@
   width: 100%;
   display: block;
   margin: 0 auto;
-  padding: 2rem; 
-}
 
-.edit-button {
-  background-color: rgb(147, 108, 7);
-}
+  --bs-primary: #535C91;   /* Custom primary color */
+  --bs-secondary: #9290C3; /* Custom secondary color */
+  --bs-success: #1B1A55;   /* Custom success color */
+  --bs-danger: #872341;    /* Custom danger color */
+  --bs-warning: #c39919;   /* Custom warning color */
+  --bs-info: #17a2b8;      /* Custom info color */
+  --bs-dark: #070F2B;      /* Custom dark color */
 
-.delete-button {
-  background-color: rgb(138, 1, 1);
 }
-
  

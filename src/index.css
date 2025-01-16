@@ -11,6 +11,25 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+
+
+  --bs-primary: #535C91;   /* Custom primary color */
+  --bs-secondary: #9290C3; /* Custom secondary color */
+  --bs-success: #1B1A55;   /* Custom success color */
+  --bs-danger: #872341;    /* Custom danger color */
+  --bs-warning: #c39919;   /* Custom warning color */
+  --bs-info: #17a2b8;      /* Custom info color */
+  --bs-dark: #070F2B;      /* Custom dark color */
+  
+  
+}
+
+.create-label {
+  width: 100%;
+}
+
+.create-input {
+  width: 100%;;
 }
 
 a {
@@ -27,6 +46,7 @@ input {
   color: black
 }
  
+
 
 button {
   border-radius: 8px;
