@@ -174,34 +174,35 @@ const EditProductForm: React.FC<EditProductProps> = ({ onSubmitSuccess, onCancel
   if (statusProducts === 'error') return <h1>{JSON.stringify(errorProducts)}</h1>;
 
   return (
-    <div  >
-      <h3>Edit product</h3>
-      <label className='form-label my-2'  > Product Name:
-      <input className='form-control form-control-sm' ref={inputRefs[0]} type="text"  name="name" value={formState.name} required  
+    <div className='px-3' >
+      <h3 className='text-center'>Edit product</h3>
+      <label className='form-label my-2 d-block' > Product Name:
+      <input className='form-control form-control-sm my-2'  ref={inputRefs[0]} type="text"  name="name" value={formState.name} required  
         onChange={(e) => handleInputChange(e, e.target.value)}
         onKeyDown={(e) => handleKeyDown(e, 0)}/>
       </label>
-      <label className='  mt-2'  >
+      <hr/>
+      <label className='d-flex justify-content-between align-items-center mt-2'  >
         Calories for 100 g:
-      <input className='p-5' ref={inputRefs[1]} type="number" step="1" name="calories" value={formState.calories} required onFocus={(e) => e.target.select()}
+      <input className='border border-light rounded p-2 mx-2' ref={inputRefs[1]} type="number" step="1" name="calories" value={formState.calories} required onFocus={(e) => e.target.select()}
         onChange={(e) => handleInputChange(e)}
         onKeyDown={(e) => handleKeyDown(e, 1)}/>
       </label>
-      <label  className='form-label my-2'> 
+      <label  className='d-flex justify-content-between align-items-center mt-2'> 
         Protein for 100 g: 
-        <input className='form-control form-control-sm' ref={inputRefs[2]} type="number" step="1"  name="protein" value={formState.protein} required onFocus={(e) => e.target.select()}
+        <input className='border border-light rounded p-2 mx-2' ref={inputRefs[2]} type="number" step="1"  name="protein" value={formState.protein} required onFocus={(e) => e.target.select()}
           onChange={(e) => handleInputChange(e)}
           onKeyDown={(e) => handleKeyDown(e, 1)}/>
       </label>
-      <label className='form-label my-2'  >
+      <label className='d-flex justify-content-between align-items-center mt-2'  >
         Carbohydrate for 100 g: 
-        <input className='form-control form-control-sm' ref={inputRefs[3]} type="number" step="1"   name="carbohydrate" value={formState.carbohydrate} required onFocus={(e) => e.target.select()}
+        <input className='border border-light rounded p-2 mx-2' ref={inputRefs[3]} type="number" step="1"   name="carbohydrate" value={formState.carbohydrate} required onFocus={(e) => e.target.select()}
           onChange={(e) => handleInputChange(e)}
           onKeyDown={(e) => handleKeyDown(e, 1)}/>
       </label>
-      <label className='form-label mt-2'> 
+      <label className='d-flex justify-content-between align-items-center mt-2'> 
         Fat for 100 g:
-        <input className='form-control form-control-sm my-2' ref={inputRefs[4]} type="number" step="1"  name="fat" value={formState.fat} required onFocus={(e) => e.target.select()}
+        <input className='border border-light rounded p-2 mx-2' ref={inputRefs[4]} type="number" step="1"  name="fat" value={formState.fat} required onFocus={(e) => e.target.select()}
           onChange={(e) => handleInputChange(e)}
           onKeyDown={(e) => handleKeyDown(e, 1)}/>
       </label>

@@ -50,43 +50,50 @@ const CaloriesCounterProducts: React.FC = () => {
 	return (
 		<div className="bg-dark text-white">
 			<button className="btn btn-primary" onClick={() => navigate('/')}>Back to Diary</button>
-      <button onClick={() => navigate('/dishes')}>Dishes</button>
+      <button className="btn btn-primary" onClick={() => navigate('/dishes')}>Dishes</button>
 			<h3>Products</h3>
  
-			<button className="btn btn-primary" data-bs-toggle='modal' data-bs-target='#modal' >Add product</button>
+			<button onClick={() => setEditProduct(null)} className="btn btn-primary" data-bs-toggle='modal' data-bs-target='#modal' >Add product</button>
 
 			<div className=' modal fade  form p-2 m-2 ' id='modal'> 
 				<div className='  modal-dialog modal-dialog-centered' >
 					<div className='bg-secondary text-black modal-content'>
 						<h3 className='modal-header'>Create new product</h3>
-						<ProductForm/>
+						<ProductForm onSubmitSuccess={() => setEditProduct(null)} onCancel={() => setEditProduct(null)}/>
 					</div>
 				</div>
 			</div>
-
-
-	  	<input
-			  type="text"
-			  placeholder="Search products..."
-			  value={searchQuery}
-			  onChange={(e) => setSearchQuery(e.target.value)}
-		  />
-		
-		  { filteredProducts ? filteredProducts?.map((product, index) => (
-			<div key={index}>
-			  <p>{product.name} calories: {product.calories} protein: {product.protein} carbohydrates: {product.carbohydrate} fat: {product.fat}</p>
-			  <button onClick={() => setEditProduct(product.id)} className="btn btn-primary">Edit</button>
-				<button onClick={() => handleDeleteProduct(product.id)}>Delete</button>
-				{editProduct == product.id &&  
-					<div className="d-flex   justify-content-center "  >
-						<div className='bg-secondary border rounded p-3' style={{maxWidth: '600px'}}>
-							<EditProductForm onCancel={() => setEditProduct(null)} product={product}/>
-						</div>
-					</div>}
+	  	<input className="form-control form-control-sm" style={{'maxWidth': '20em'}} type="text" placeholder="Search products..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)}/>
+			
+			<div className="container">
+				{filteredProducts&& filteredProducts.length > 0 ? (
+					<div className="row gy-4">
+						{filteredProducts.map((product, index) => (
+							<div className="col-md-3 col-sm-6 col-lg-2" key={index}>
+								<div className="card" style={{ width: '100%' }}>
+									<img className="card-img-top" src="/public/food.jpg" style={{ maxWidth: '100%', height: 'auto' }}alt={product.name}/>
+									<div className="card-body">
+										<p>{product.name}</p>
+										<div>
+											<button onClick={() => setEditProduct(product.id)} className="btn btn-primary me-2">Edit</button>
+											<button onClick={() => handleDeleteProduct(product.id)}className="btn btn-danger">Delete</button>
+										</div>
+										{editProduct === product.id && (
+											<div className="d-flex justify-content-center mt-3">
+												<div className="bg-secondary text-black border rounded p-3" style={{ maxWidth: '450px' }}>
+													<EditProductForm onCancel={() => setEditProduct(null)} product={product}/>
+												</div>
+											</div>
+										)}
+									</div>
+								</div>
+							</div>
+						))}
+					</div>
+				) : (
+					<p>No products match your search</p>
+				)}
 			</div>
-		  )) : (
-			<p>No products match your search</p>
-		  )}
 		</div>
 	)
 }
