@@ -7,10 +7,12 @@ import DishForm from "./dishForm";
 import IngredientForm from "./ingredientForm";
 import { useNavigate } from "react-router-dom";
 import '../../styles/style.css';
-import '../index.css'
- 
+import '../index.css' 
+import 'bootstrap-icons/font/bootstrap-icons.css';
+
 
 const Dishes: React.FC = () => {
+  console.log('back to dishes')
   const {
     status, error, isLoading, refetch, data: dishesRaw
   } = useQuery({
@@ -21,16 +23,12 @@ const Dishes: React.FC = () => {
   const dishes = dishesRaw?.filter(dish => dish.product == null)
 
   const {
-    status: statusIngredients, error: errorIngredients, isLoading: isLoadingIngredients,  data: dishIngredients
+    status: statusIngredients, error: errorIngredients, isLoading: isLoadingIngredients, refetch:refetchIngredients,  data: dishIngredients
   } = useQuery({
       queryKey: ['dishIngredients'], 
       queryFn: () =>fetchDishIngredients(), 
   });
-
-
-
- 
-  const [createDish, setCreateDish] = useState(false)
+  
   const [dishName, setDishName] = useState<{name: string, id: number}>({name: '', id: 0})
   const [dishPortions, setDishPortion] = useState<string | null>()
   const [editDishPortions, setEditDishPortions] = useState(false)
@@ -62,24 +60,47 @@ const Dishes: React.FC = () => {
  
 
 	const handleEditDish = (dish:Dish) => {
-      if (dishName) {
-        dish.name = dishName.name
-      } else if (dishPortions) {
-        const dishPortionNumber = Number(dishPortions);
-        if (dishPortionNumber > 0 && !isNaN(dishPortionNumber)) {
-          dish.portions = dishPortionNumber;
-          dish.portion = Math.round(dish.weight / dish.portions)
-          setValidatePortions(null)
-          setDishPortion(null)
-          setEditDishPortions(false)
-    
-        } else {
-          setValidatePortions('Portions should be a positive number')
-        }
-      }
-      putDish({dish})
+    const formData = new FormData()
+    formData.append('calories', dish.calories.toString())
+    formData.append('protein', dish.protein.toString())
+    formData.append('name', dish.name.slice(0,1).toUpperCase() + dish.name.slice(1))
+    formData.append('carbohydrate', dish.carbohydrate.toString())
+    formData.append('fat', dish.fat.toString())
+    formData.append('calories_100', dish.calories_100.toString())
+    formData.append('protein_100', dish.protein_100.toString())
+    formData.append('carbohydrate_100', dish.carbohydrate_100.toString())
+    formData.append('fat_100', dish.fat_100.toString())
+    formData.append('weight', dish.weight.toString())
+    formData.append('drink', String(false))
+    formData.append('portion', dish.portion.toString())
+    formData.append('portions', dish.portions.toString())
+    formData.append('type', dish.type)
+
+    console.log(dishPortions, 'portions')
+    if (dishName.name != '') {
+      formData.append('name', dishName.name.slice(0,1).toUpperCase() + dishName.name.slice(1))
+
+      putDish({dish: formData, id: dish.id})
       refetch()
-      setDishName({name: '', id: 0})
+      setDishName({name: '', id: 0})  
+    } else if (dishPortions) {
+      console.log(dish, 'dish')
+
+      const dishPortionNumber = Number(dishPortions);
+      if (dishPortionNumber > 0 && !isNaN(dishPortionNumber)) {
+        console.log(dish, 'dish without name')
+        formData.append('portions', dishPortionNumber.toString())
+        formData.append('portion', (Math.round(dish.weight / dishPortionNumber)).toString())
+        setValidatePortions(null)
+        setDishPortion(null)
+        setEditDishPortions(false)
+  
+        putDish({dish: formData, id: dish.id})
+        refetch()    
+      } else {
+        setValidatePortions('Portions should be a positive number')
+      }
+    }
 	}
 
 	const handleNewIngredient = async (ingredient: Ingredient, dishId:number) => {
@@ -120,7 +141,8 @@ const Dishes: React.FC = () => {
     }
     refetch();
   }
-
+  console.log(filteredDishes?.length, 'filtered dishes')
+  console.log(dishIngredients?.length, 'dishIngredients')
 
   if (isLoading) return <h1>Loading...</h1>;
   if (status === 'error') return <h1>{JSON.stringify(error)}</h1>;
@@ -129,19 +151,13 @@ const Dishes: React.FC = () => {
   if (statusIngredients === 'error') return <h1>{JSON.stringify(errorIngredients)}</h1>;
  
   return (
-    
-
 		<div className="bg-dark text-secondary " > 
       <button className="btn btn-primary" onClick={() => navigate('/')}>Back to Diary</button>
       <button className="btn btn-primary" onClick={() => navigate('/products')}>Products</button>
       <h2>Dishes</h2>
-      {createDish  ? (
-        <div className='d-flex justify-content-center w-100'>
-          <DishForm onSuccess={() => setCreateDish(false)} onCancel={() => setCreateDish(false)} />
-        </div>
-      ) : (
-          <button className="btn btn-primary" onClick={() => setCreateDish(true)}>Create dish</button>
-      )}
+      <button className="btn btn-primary"  data-bs-toggle='modal' data-bs-target='#modalDish'>Create dish</button>
+      <DishForm  onSuccess={() => {refetch(); refetchIngredients(); }} />
+
       <br/>
       <input type="text" placeholder="Search dishes..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)}/>
       <br />
@@ -175,7 +191,7 @@ const Dishes: React.FC = () => {
                   {showIngredients == dish.id ? (
                     <div>
                       <ul>
-                        {dishIngredients[dish.id]?.map((ingredient: Ingredient) => (
+                        { dishIngredients[dish.id]?.map((ingredient: Ingredient) => (
                           <li className="d-flex gap-1" key={ingredient.id}>
                             <p>{ingredient.name} {ingredient.weight} g </p>
                             <p>{ingredient.weight} g </p>
@@ -226,7 +242,7 @@ const Dishes: React.FC = () => {
 
                   ): (
                     <div>
-                      <p>{dishIngredients[dish.id].map((ingredient: Ingredient) => `${ingredient.name}: ${ingredient.weight}g`).join(", ")}.</p>
+                      <p>{dishIngredients[dish.id] && dishIngredients[dish.id].map((ingredient: Ingredient) => `${ingredient.name}: ${ingredient.weight}g`).join(", ")}.</p>
                       <button onClick={() => setShowIngredients(dish.id)}>Edit dish</button>
                     </div>
                   )}
@@ -263,7 +279,7 @@ const Dishes: React.FC = () => {
                   )}
                   <br/>
                   {editDish == dish.id ? (
-                    <DishForm  onSuccess={() => setEditDish(null)}  onSuccessEdit={(modifiedDish) => {putDish({dish:modifiedDish}); setEditDish(null)}} onCancel={() => setEditDish(null)} dishToEdit={dish}/>
+                    <DishForm  onSuccess={() => setEditDish(null)}  onCancel={() => setEditDish(null)} dishToEdit={dish}/>
                   ): (
                     <button onClick={() => setEditDish(dish.id)}>Edit dish</button>
                   )}      

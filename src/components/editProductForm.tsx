@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useQuery } from '@tanstack/react-query'; 
 import { Product } from './interfaces';
 import { fetchProducts } from '../utils/caloriesCounter';
-import { usePutProduct, useSetProduct } from '../hooks/caloriesCounter';
+import { usePutProduct} from '../hooks/caloriesCounter';
 import '../../styles/style.css';
 import '../index.css'
 
@@ -11,7 +11,7 @@ import '../index.css'
 interface EditProductProps {
   onSubmitSuccess?: (product: Product) => void;
   onCancel?: () => void;  
-  product?: Product,
+  product: Product,
  }
 
 const EditProductForm: React.FC<EditProductProps> = ({ onSubmitSuccess, onCancel, product}) => {
@@ -27,7 +27,6 @@ const EditProductForm: React.FC<EditProductProps> = ({ onSubmitSuccess, onCancel
     const [formState, setFormState] = useState<Product>(product ??{
       id: 0,
       name:  '',
-      image: '',
       calories: 0,
       protein: 0,
       carbohydrate: 0,
@@ -37,7 +36,7 @@ const EditProductForm: React.FC<EditProductProps> = ({ onSubmitSuccess, onCancel
 
   const [validationError, setValidationError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
-  const { setProduct } = useSetProduct()
+  const [preview, setPreview] = useState<string | ArrayBuffer | null>(null)
   const { putProduct } = usePutProduct()
  
   const inputRefs = [
@@ -49,9 +48,7 @@ const EditProductForm: React.FC<EditProductProps> = ({ onSubmitSuccess, onCancel
     useRef<HTMLInputElement>(null)
   ];
 
- 
 
- 
   useEffect(() => { 
     if (!product && inputRefs[0].current && formState.name == ''  && !validationError) {
       inputRefs[0].current.focus();
@@ -97,6 +94,20 @@ const EditProductForm: React.FC<EditProductProps> = ({ onSubmitSuccess, onCancel
     }
   };
 
+  const handleImageChange = (e:React.ChangeEvent<HTMLInputElement>) => {
+    const target = e.target as HTMLInputElement & {
+      files: FileList
+    }
+    setFormState((prevFormSate) => ({...prevFormSate, image: target.files[0]}))
+    const file = new FileReader()
+    file.onload = function () {
+      setPreview(file.result)
+    }
+    file.readAsDataURL(target.files[0])
+    console.log(formState)
+  }
+  
+
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, index: number) => {
     if (e.key === 'Enter') {
       e.preventDefault();
@@ -120,8 +131,6 @@ const EditProductForm: React.FC<EditProductProps> = ({ onSubmitSuccess, onCancel
         (product: Product) => product.name.toLowerCase() === name.toLowerCase()
     );
 
- 
-  
     if (nameExists && nameExists?.id != product?.id) {
       setValidationError('Product with this name already exists');
       return; 
@@ -129,42 +138,20 @@ const EditProductForm: React.FC<EditProductProps> = ({ onSubmitSuccess, onCancel
       setValidationError(null);
     }
 
-    if (product?.id) {
-  
-      const productCurrent: Product = {
-        id: product.id,
-        name: name.charAt(0).toUpperCase() + name.slice(1),
-        image,
-        calories,
-        protein,
-        carbohydrate,
-        fat
-      };
-    
-      putProduct({product:productCurrent})
-      if (onSubmitSuccess) {
-        onSubmitSuccess(productCurrent) 
-      }
+    const formData = new FormData()
+    if (typeof image == 'object') formData.append('image', image)
+      formData.append('id', product.id.toString())
+      formData.append('name', name.charAt(0).toUpperCase() + name.slice(1))
+      formData.append('calories', calories.toString())
+      formData.append('protein', protein.toString())
+      formData.append('carbohydrate', carbohydrate.toString())
+      formData.append('fat', fat.toString())
 
-    } else {
-      const product: Product = {
-        id: 0,
-        name: name.charAt(0).toUpperCase() + name.slice(1),
-        image,
-        calories,
-        protein,
-        carbohydrate,
-        fat
-      };
-    
-      console.log(product)
-      const returnedProduct = await setProduct({product})
- 
-      if (onSubmitSuccess) {
-        onSubmitSuccess(returnedProduct) 
-      }
-
+    putProduct({product:formData, id: product.id})
+    if (onSubmitSuccess) {
+      onSubmitSuccess({...formState, name: name.slice(0,1).toUpperCase() + name.slice(1)}) 
     }
+
    
     refetchProducts()
     console.log('products refetched')
@@ -181,6 +168,18 @@ const EditProductForm: React.FC<EditProductProps> = ({ onSubmitSuccess, onCancel
         onChange={(e) => handleInputChange(e, e.target.value)}
         onKeyDown={(e) => handleKeyDown(e, 0)}/>
       </label>
+      <label className='form-label create-label my-2'>
+        <input type='file' name='image' accept='image/png, image/jpg, image/jpeg' onChange={(e) => handleImageChange(e)} />
+        <img className='m-1' style={{width: '80px'}} src={ 
+          preview
+          ? (typeof preview == 'string' ? preview: undefined )
+          : typeof formState.image === "string" // Check if the current value is a string
+          ? formState.image // If it's a string, use it as the src
+          : 'products/food.jpg'
+        }
+ />
+      </label>
+
       <hr/>
       <label className='d-flex justify-content-between align-items-center mt-2'  >
         Calories for 100 g:

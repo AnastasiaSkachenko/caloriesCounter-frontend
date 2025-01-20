@@ -1,10 +1,8 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import RecordForm from "./recordForm";
-import 'bootstrap/dist/css/bootstrap.min.css';
 import { useQuery } from "@tanstack/react-query";
 import { fetchDiaryRecords } from "../utils/caloriesCounter";
-import 'bootstrap/dist/css/bootstrap.min.css';
 import { usePopDiaryRecord } from "../hooks/caloriesCounter";
 import '../../styles/style.css';
 import '../index.css'

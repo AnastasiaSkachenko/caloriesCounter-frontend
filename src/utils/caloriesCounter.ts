@@ -1,4 +1,4 @@
-import { DiaryRecord, DiaryRecordInput, Dish, DishInput, Ingredient, IngredientInput, PopInput, Product, ProductInput } from "../components/interfaces";
+import { DiaryRecord, DiaryRecordInput, Dish, DishEditInput, DishInput, Ingredient, IngredientInput, PopInput, Product, ProductEditInput, ProductInput } from "../components/interfaces";
 import Cookies from "universal-cookie"; 
 
 const cookies = new Cookies();
@@ -35,10 +35,9 @@ export const saveProduct = async ({product}: ProductInput): Promise<Product> => 
   const response = await fetch(`${baseUrl}/api/product/`, {
     method: "POST",
     headers: {
-      "Content-Type": "application/json",
       "X-CSRFToken": cookies.get("csrftoken"),
     },
-    body: JSON.stringify(product),
+    body:product,
   });
 
   if (!response.ok) {
@@ -48,14 +47,13 @@ export const saveProduct = async ({product}: ProductInput): Promise<Product> => 
 
 }
  
-export const editProduct = async ({product}: ProductInput): Promise<void> => {
-  const response = await fetch(`${baseUrl}/api/product/${product.id}/`, {
+export const editProduct = async ({product, id}: ProductEditInput): Promise<void> => {
+  const response = await fetch(`${baseUrl}/api/product/${id}/`, {
     method: "PUT",
     headers: {
-      "Content-Type": "application/json",
       "X-CSRFToken": cookies.get("csrftoken"),
     },
-    body: JSON.stringify(product),
+    body:product,
   });
 
 if (!response.ok) {
@@ -241,10 +239,9 @@ export const saveDish = async ({dish}: DishInput): Promise<number> => {
   const response = await fetch(`${baseUrl}/api/dish/`, {
     method: "POST",
     headers: {
-      "Content-Type": "application/json",
       "X-CSRFToken": cookies.get("csrftoken"),
     },
-    body: JSON.stringify(dish),
+    body: dish,
 
   });
 
@@ -252,25 +249,24 @@ export const saveDish = async ({dish}: DishInput): Promise<number> => {
       throw new Error("Failed to save dish data");
   }
 
-  dish = await response.json()
+  const id = await response.json()
 
 
-  return  dish.id
+  return  id
 
 }
   
-export const editDish = async ({dish}: DishInput): Promise<void> => {
-  const response = await fetch(`${baseUrl}/api/dish/${dish.id}/`, {
+export const editDish = async ({dish, id}: DishEditInput): Promise<void> => {
+  const response = await fetch(`${baseUrl}/api/dish/${id}/`, {
     method: "PUT",
     headers: {
-      "Content-Type": "application/json",
       "X-CSRFToken": cookies.get("csrftoken"),
     },
-    body: JSON.stringify(dish),
+    body: dish,
   });
 
 if (!response.ok) {
-    throw new Error("Failed to save dish data");
+    throw new Error("Failed to edit dish data");
 }
 }
   

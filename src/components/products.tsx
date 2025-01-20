@@ -18,6 +18,8 @@ const CaloriesCounterProducts: React.FC = () => {
 		queryFn: () =>  fetchProducts()  , 
 	});
 
+	console.log(products)
+
   const [searchQuery, setSearchQuery] = useState<string>('');  
 	const [editProduct, setEditProduct] = useState<number | null>(null);
  
@@ -48,22 +50,18 @@ const CaloriesCounterProducts: React.FC = () => {
 	if (statusProducts === 'error') return <h1>{JSON.stringify(errorProducts)}</h1>;
 
 	return (
-		<div className="bg-dark text-white">
+		<div className="bg-dark text-white p-3">
 			<button className="btn btn-primary" onClick={() => navigate('/')}>Back to Diary</button>
       <button className="btn btn-primary" onClick={() => navigate('/dishes')}>Dishes</button>
-			<h3>Products</h3>
+			<h3 className="ms-3">Products</h3>
  
 			<button onClick={() => setEditProduct(null)} className="btn btn-primary" data-bs-toggle='modal' data-bs-target='#modal' >Add product</button>
 
-			<div className=' modal fade  form p-2 m-2 ' id='modal'> 
-				<div className='  modal-dialog modal-dialog-centered' >
-					<div className='bg-secondary text-black modal-content'>
-						<h3 className='modal-header'>Create new product</h3>
-						<ProductForm onSubmitSuccess={() => setEditProduct(null)} onCancel={() => setEditProduct(null)}/>
-					</div>
-				</div>
+			<ProductForm onSubmitSuccess={() => setEditProduct(null)} onCancel={() => setEditProduct(null)}/>
+			<div className="d-flex justify-content-center">
+	  		<input className="form-control  my-3" style={{'maxWidth': '40em'}} type="text" placeholder="Search products..." 
+						value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)}/>
 			</div>
-	  	<input className="form-control form-control-sm" style={{'maxWidth': '20em'}} type="text" placeholder="Search products..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)}/>
 			
 			<div className="container">
 				{filteredProducts&& filteredProducts.length > 0 ? (
@@ -71,7 +69,34 @@ const CaloriesCounterProducts: React.FC = () => {
 						{filteredProducts.map((product, index) => (
 							<div className="col-md-3 col-sm-6 col-lg-2" key={index}>
 								<div className="card" style={{ width: '100%' }}>
-									<img className="card-img-top" src="/public/food.jpg" style={{ maxWidth: '100%', height: 'auto' }}alt={product.name}/>
+									<div className="card-img-container position-relative" style={{ height: '150px', overflow: 'hidden' }}>
+										<img
+											className="card-img-top position-absolute card-image"
+											src={typeof product.image === "string" 
+												? product.image // If `product.image` is a URL string, use it
+												: 'media/products/food.jpg'
+											}
+											alt={product.name} 
+										/>
+										<div className="nutrition-info position-absolute bg-dark text-light d-flex flex-column justify-content-center align-items-center">
+										<div className="d-flex justify-content-between w-100 p-1 px-2">
+											<span>Calories:</span>
+											<span>{product.calories}</span>
+										</div>
+										<div className="d-flex justify-content-between w-100 p-1 px-2">
+											<span>Protein:</span>
+											<span>{product.protein}g</span>
+										</div>
+										<div className="d-flex justify-content-between w-100 p-1 px-2">
+											<span>Carbs:</span>
+											<span>{product.carbohydrate}g</span>
+										</div>
+										<div className="d-flex justify-content-between w-100 p-1 px-2">
+											<span>Fats:</span>
+											<span>{product.fat}g</span>
+										</div>
+										</div>	
+									</div>								
 									<div className="card-body">
 										<p>{product.name}</p>
 										<div>
@@ -80,8 +105,8 @@ const CaloriesCounterProducts: React.FC = () => {
 										</div>
 										{editProduct === product.id && (
 											<div className="d-flex justify-content-center mt-3">
-												<div className="bg-secondary text-black border rounded p-3" style={{ maxWidth: '450px' }}>
-													<EditProductForm onCancel={() => setEditProduct(null)} product={product}/>
+												<div className="bg-secondary text-black border rounded p-3 edit-container" style={{ maxWidth: '450px' }}>
+													<EditProductForm onSubmitSuccess={() => setEditProduct(null)} onCancel={() => setEditProduct(null)} product={product}/>
 												</div>
 											</div>
 										)}

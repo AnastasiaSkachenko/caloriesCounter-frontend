@@ -41,7 +41,6 @@ const IngredientForm: React.FC<IngredientFormProps> = ({onSuccess, onCancel, ing
     const [ingredient, setIngredient] = useState<Ingredient>(ingredientData??{
       id: 0,
       name: '',
-      image: '',
       weight: 0,
       calories: 0,
       protein: 0,
@@ -118,7 +117,6 @@ const IngredientForm: React.FC<IngredientFormProps> = ({onSuccess, onCancel, ing
 
     const handleIngredientChange = (field: 'weight' | 'calories' | 'protein' | 'carbohydrate' | 'fat', value: string | number) => {
       setIngredient((prevIngredient) => {
-        console.log(value)
         if (field == 'weight' && currentProduct && Number(value)>0) {
           value = Number(value)
           return {
@@ -237,7 +235,6 @@ const IngredientForm: React.FC<IngredientFormProps> = ({onSuccess, onCancel, ing
     setIngredient((prevIngredient) => ({
       ...prevIngredient,
       name: product.name,
-      image: product.image,
       product: product.id
     }));
 
@@ -270,7 +267,6 @@ const IngredientForm: React.FC<IngredientFormProps> = ({onSuccess, onCancel, ing
     setIngredient({
       id: 0,
       name: '',
-      image: '',
       weight: 0,
       calories: 0,
       protein: 0,

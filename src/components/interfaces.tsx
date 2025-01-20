@@ -8,11 +8,15 @@
 
 export interface Product extends Base {
   name: string,
-  image: string,
+  image?: File | string,
 }
 
 export interface ProductInput {
-  product: Product
+  product: FormData,
+}
+export interface ProductEditInput {
+  product: FormData,
+  id?: number
 }
 
 export interface PopInput {
@@ -24,7 +28,6 @@ export interface PopInput {
 
 export interface Ingredient extends Base {
   name: string,
-  image: string,
   dish: number,
   product: number,
   weight: number
@@ -36,7 +39,7 @@ export interface IngredientInput {
 
 export interface Dish extends Base {
   name: string,
-  image: string,
+  image?: File | string,
   calories_100: number,
   protein_100: number,
   carbohydrate_100: number,
@@ -50,7 +53,11 @@ export interface Dish extends Base {
 }
 
 export interface DishInput {
-  dish: Dish,
+  dish: FormData,
+}
+export interface DishEditInput {
+  dish: FormData,
+  id: number
 }
 
 export interface DiaryRecord extends Base {

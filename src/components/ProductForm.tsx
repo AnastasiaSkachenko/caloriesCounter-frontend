@@ -2,7 +2,9 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useQuery } from '@tanstack/react-query'; 
 import { Product } from './interfaces';
 import { fetchProducts } from '../utils/caloriesCounter';
-import { usePutProduct, useSetProduct } from '../hooks/caloriesCounter';
+import {  useSetProduct } from '../hooks/caloriesCounter';
+import '../../styles/style.css';
+import '../index.css'
 
 interface AddProductProps {
   onSubmitSuccess?: (product: Product) => void;
@@ -24,7 +26,6 @@ const ProductForm: React.FC<AddProductProps> = ({ onSubmitSuccess, onCancel, pro
   const [formState, setFormState] = useState<Product>(product ??{
     id: 0,
     name: productName ?? '',
-    image: '',
     calories: 0,
     protein: 0,
     carbohydrate: 0,
@@ -35,7 +36,6 @@ const ProductForm: React.FC<AddProductProps> = ({ onSubmitSuccess, onCancel, pro
   const [validationError, setValidationError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const { setProduct } = useSetProduct()
-  const { putProduct } = usePutProduct()
  
   const inputRefs = [
     useRef<HTMLInputElement>(null),
@@ -45,9 +45,6 @@ const ProductForm: React.FC<AddProductProps> = ({ onSubmitSuccess, onCancel, pro
     useRef<HTMLInputElement>(null),
     useRef<HTMLInputElement>(null)
   ];
-
- 
-
  
   useEffect(() => { 
     if (!product && inputRefs[0].current && formState.name == ''  && !validationError) {
@@ -94,6 +91,14 @@ const ProductForm: React.FC<AddProductProps> = ({ onSubmitSuccess, onCancel, pro
     }
   };
 
+  const handleImageChange = (e:React.ChangeEvent<HTMLInputElement>) => {
+    const target = e.target as HTMLInputElement & {
+      files: FileList
+    }
+    setFormState((prevFormSate) => ({...prevFormSate, image: target.files[0]}))
+    console.log(formState)
+  }
+
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, index: number) => {
     if (e.key === 'Enter') {
       e.preventDefault();
@@ -117,8 +122,6 @@ const ProductForm: React.FC<AddProductProps> = ({ onSubmitSuccess, onCancel, pro
         (product: Product) => product.name.toLowerCase() === name.toLowerCase()
     );
 
- 
-  
     if (nameExists && nameExists?.id != product?.id) {
       setValidationError('Product with this name already exists');
       return; 
@@ -126,88 +129,80 @@ const ProductForm: React.FC<AddProductProps> = ({ onSubmitSuccess, onCancel, pro
       setValidationError(null);
     }
 
-    if (product?.id) {
-  
-      const productCurrent: Product = {
-        id: product.id,
-        name: name.charAt(0).toUpperCase() + name.slice(1),
-        image,
-        calories,
-        protein,
-        carbohydrate,
-        fat
-      };
-    
-      putProduct({product:productCurrent})
-      if (onSubmitSuccess) {
-        onSubmitSuccess(productCurrent) 
-      }
+    const formData = new FormData()
 
-    } else {
-      const product: Product = {
-        id: 0,
-        name: name.charAt(0).toUpperCase() + name.slice(1),
-        image,
-        calories,
-        protein,
-        carbohydrate,
-        fat
-      };
-    
-      console.log(product)
-      const returnedProduct = await setProduct({product})
- 
-      if (onSubmitSuccess) {
-        onSubmitSuccess(returnedProduct) 
-      }
+    if (image) formData.append('image', image)
+    formData.append('name', name.charAt(0).toUpperCase() + name.slice(1))
+    formData.append('calories', calories.toString())
+    formData.append('protein', protein.toString())
+    formData.append('carbohydrate', carbohydrate.toString())
+    formData.append('fat', fat.toString())
 
+
+    console.log(product, 'product')
+    const returnedProduct = await setProduct({product:formData})
+
+    if (onSubmitSuccess) {
+      onSubmitSuccess(returnedProduct) 
     }
+
+    
    
     refetchProducts()
-    console.log('products refetched')
   }
 
   if (isLoadingProducts) return <h1>Loading...</h1>;
   if (statusProducts === 'error') return <h1>{JSON.stringify(errorProducts)}</h1>;
 
   return (
- 
-    <div className='modal-body'>
-      <label className='form-label create-label my-2'  > Product Name:
-      <input className='form-control create-input form-control-sm my-2' ref={inputRefs[0]} type="text"  name="name" value={formState.name} required  
-        onChange={(e) => handleInputChange(e, e.target.value)}
-        onKeyDown={(e) => handleKeyDown(e, 0)}/>
-      </label>
-      <hr/>
-      <label className='d-flex justify-content-between align-items-center mt-2'  >Calories for 100 g:
-        <input className='border border-light rounded p-2 mx-2' ref={inputRefs[1]} type="number" step="1" name="calories" value={formState.calories} required onFocus={(e) => e.target.select()}
-          onChange={(e) => handleInputChange(e)}
-          onKeyDown={(e) => handleKeyDown(e, 1)}/>
-      </label>
-      <label  className='d-flex justify-content-between align-items-center mt-2'> Protein for 100 g: 
-        <input className='border border-light rounded p-2 mx-2' ref={inputRefs[2]} type="number" step="1"  name="protein" value={formState.protein} required onFocus={(e) => e.target.select()}
-          onChange={(e) => handleInputChange(e)}
-          onKeyDown={(e) => handleKeyDown(e, 1)}/>
-      </label>
-      <label className='d-flex justify-content-between align-items-center mt-2'  >Carbohydrate for 100 g: 
-        <input className='border border-light rounded p-2 mx-2' ref={inputRefs[3]} type="number" step="1"   name="carbohydrate" value={formState.carbohydrate} required onFocus={(e) => e.target.select()}
-          onChange={(e) => handleInputChange(e)}
-          onKeyDown={(e) => handleKeyDown(e, 1)}/>
-      </label>
-      <label className='d-flex justify-content-between align-items-center mt-2'> Fat for 100 g:
-        <input className='border border-light rounded p-2 mx-2' ref={inputRefs[4]} type="number" step="1"  name="fat" value={formState.fat} required onFocus={(e) => e.target.select()}
-          onChange={(e) => handleInputChange(e)}
-          onKeyDown={(e) => handleKeyDown(e, 1)}/>
-      </label>
-    
-      {validationError && <p className='text-danger'>{validationError}</p>}
-      {successMessage && <p>{successMessage}</p>}
-      <div className='d-flex justify-content-center'>
-        <button className='btn btn-primary p-2'  type="button" onClick={handleSubmit}>Submit</button>
-        <button className='btn btn-danger p-2 ' data-bs-dismiss='modal' data-bs-target='#modal' type='button' onClick={onCancel}>Cancel</button>
+      <div className=' modal fade  form p-2 m-2 ' id='modal'> 
+        <div className='  modal-dialog modal-dialog-centered' >
+          <div className='bg-secondary text-black modal-content'>
+            <h3 className='modal-header'>Create new product</h3>
+              <div className='modal-body'>
+                <label className='form-label create-label my-2'> 
+                  Product Name:
+                <input className='form-control create-input form-control-sm my-2' ref={inputRefs[0]} type="text"  name="name" value={formState.name} required  
+                  onChange={(e) => handleInputChange(e, e.target.value)}
+                  onKeyDown={(e) => handleKeyDown(e, 0)}/>
+                </label>
+                <label className='form-label create-label my-2'>
+                  <input type='file' name='image' accept='image/png, image/jpg, image/jpeg' onChange={(e) => handleImageChange(e)} />
+                </label>
+                <hr/>
+                <label className='d-flex justify-content-between align-items-center mt-2'  >Calories for 100 g:
+                  <input className='border border-light rounded p-2 mx-2' ref={inputRefs[1]} type="number" step="1" name="calories" value={formState.calories} required onFocus={(e) => e.target.select()}
+                    onChange={(e) => handleInputChange(e)}
+                    onKeyDown={(e) => handleKeyDown(e, 1)}/>
+                </label>
+                <label  className='d-flex justify-content-between align-items-center mt-2'> Protein for 100 g: 
+                  <input className='border border-light rounded p-2 mx-2' ref={inputRefs[2]} type="number" step="1"  name="protein" value={formState.protein} required onFocus={(e) => e.target.select()}
+                    onChange={(e) => handleInputChange(e)}
+                    onKeyDown={(e) => handleKeyDown(e, 2)}/>
+                </label>
+                <label className='d-flex justify-content-between align-items-center mt-2'  >Carbohydrate for 100 g: 
+                  <input className='border border-light rounded p-2 mx-2' ref={inputRefs[3]} type="number" step="1"   name="carbohydrate" value={formState.carbohydrate} required onFocus={(e) => e.target.select()}
+                    onChange={(e) => handleInputChange(e)}
+                    onKeyDown={(e) => handleKeyDown(e, 3)}/>
+                </label>
+                <label className='d-flex justify-content-between align-items-center mt-2'> Fat for 100 g:
+                  <input className='border border-light rounded p-2 mx-2' ref={inputRefs[4]} type="number" step="1"  name="fat" value={formState.fat} required onFocus={(e) => e.target.select()}
+                    onChange={(e) => handleInputChange(e)}
+                    onKeyDown={(e) => handleKeyDown(e, 4)}/>
+                </label>
+              
+                {validationError && <p className='text-danger'>{validationError}</p>}
+                {successMessage && <p>{successMessage}</p>}
+                <div className='d-flex justify-content-center'>
+                  <button className='btn btn-primary p-2'  type="button" onClick={handleSubmit}>Submit</button>
+                  <button className='btn btn-danger p-2 ' data-bs-dismiss='modal' data-bs-target='#modal' type='button' onClick={onCancel}>Cancel</button>
+                </div>
+              
+              </div>
+          </div>
+        </div>
       </div>
-    
-    </div>
+
 
   );
 };

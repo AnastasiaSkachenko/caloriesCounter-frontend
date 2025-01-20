@@ -32,6 +32,46 @@
   width: 100%;;
 }
 
+.edit-container {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 9999;
+  padding: 20px;
+  max-width: 450px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.card-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: opacity 0.3s ease-in-out;
+}
+
+.nutrition-info {
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  transition: opacity 0.3s ease-in-out;
+
+}
+
+.card-img-container:hover .card-img-top {
+  opacity: 0; /* Hide the image */
+}
+
+.card-img-container:hover .nutrition-info {
+  opacity: 1; /* Show the nutrition info */
+}
+
+
+
+
+
 a {
   font-weight: 500;
   color: #646cff;

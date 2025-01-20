@@ -1,5 +1,5 @@
 import { useQueryClient, useMutation } from "@tanstack/react-query"
-import {  DiaryRecordInput, DishInput, Ingredient, IngredientInput, PopInput, Product, ProductInput } from "../components/interfaces"
+import {  DiaryRecordInput, DishEditInput, DishInput, Ingredient, IngredientInput, PopInput, Product, ProductEditInput, ProductInput } from "../components/interfaces"
 import { deleteDiaryRecord, deleteDish, deleteIngredient, deleteProduct, editDiaryRecord, editDish, editIngredient, editProduct, saveDiaryRecord, saveDish, saveIngredient, saveProduct } from "../utils/caloriesCounter"
 
 
@@ -17,7 +17,7 @@ export const useSetProduct = () => {
 
 export const usePutProduct = () => {
     const queryClient = useQueryClient()
-    const {mutateAsync: putProduct} = useMutation<void, Error, ProductInput>({
+    const {mutateAsync: putProduct} = useMutation<void, Error, ProductEditInput>({
         mutationFn: editProduct,
         onSuccess: () => { 
             queryClient.invalidateQueries({queryKey: ['products']})
@@ -46,7 +46,6 @@ export const useSetIngredient = () => {
     const {mutateAsync: setIngredient} = useMutation<Ingredient, Error, IngredientInput>({
         mutationFn: saveIngredient,
         onSuccess: () => { 
-            queryClient.invalidateQueries({queryKey: ['ingredient']})
             queryClient.invalidateQueries({queryKey: ['dishes']})
             queryClient.invalidateQueries({queryKey: ['dishIngredients']})
         }
@@ -59,7 +58,6 @@ export const usePutIngredient = () => {
     const {mutateAsync: putIngredient} = useMutation<void, Error, IngredientInput>({
         mutationFn: editIngredient,
         onSuccess: () => { 
-            queryClient.invalidateQueries({queryKey: ['Ingredient']})
             queryClient.invalidateQueries({queryKey: ['dishes']})
             queryClient.invalidateQueries({queryKey: ['dishIngredients']})
 
@@ -73,7 +71,6 @@ export const usePopIngredient = () => {
     const {mutateAsync: popIngredient} = useMutation<string | void, Error, PopInput>({
         mutationFn: deleteIngredient,
         onSuccess: () => { 
-            queryClient.invalidateQueries({queryKey: ['ingredient']})
             queryClient.invalidateQueries({queryKey: ['dishes']})
             queryClient.invalidateQueries({queryKey: ['dishIngredients']})
         }
@@ -98,7 +95,7 @@ export const useSetDish = () => {
 
 export const usePutDish = () => {
     const queryClient = useQueryClient()
-    const {mutateAsync: putDish} = useMutation<void, Error, DishInput>({
+    const {mutateAsync: putDish} = useMutation<void, Error, DishEditInput>({
         mutationFn: editDish,
         onSuccess: () => { 
             queryClient.invalidateQueries({queryKey: ['dishes']})
