@@ -164,7 +164,7 @@ const EditProductForm: React.FC<EditProductProps> = ({ onSubmitSuccess, onCancel
     <div className='px-3' >
       <h3 className='text-center'>Edit product</h3>
       <label className='form-label my-2 d-block' > Product Name:
-      <input className='form-control form-control-sm my-2'  ref={inputRefs[0]} type="text"  name="name" value={formState.name} required  
+      <input className='form-control form-control-sm my-2' maxLength={149} ref={inputRefs[0]} type="text"  name="name" value={formState.name} required  
         onChange={(e) => handleInputChange(e, e.target.value)}
         onKeyDown={(e) => handleKeyDown(e, 0)}/>
       </label>

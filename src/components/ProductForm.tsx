@@ -162,7 +162,7 @@ const ProductForm: React.FC<AddProductProps> = ({ onSubmitSuccess, onCancel, pro
               <div className='modal-body'>
                 <label className='form-label create-label my-2'> 
                   Product Name:
-                <input className='form-control create-input form-control-sm my-2' ref={inputRefs[0]} type="text"  name="name" value={formState.name} required  
+                <input className='form-control create-input form-control-sm my-2' maxLength={149} ref={inputRefs[0]} type="text"  name="name" value={formState.name} required  
                   onChange={(e) => handleInputChange(e, e.target.value)}
                   onKeyDown={(e) => handleKeyDown(e, 0)}/>
                 </label>

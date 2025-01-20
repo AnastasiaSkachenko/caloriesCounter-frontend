@@ -28,14 +28,20 @@ const CaloriesCounterProducts: React.FC = () => {
 
   const { popProduct } = usePopProduct();
 
-  const filteredProducts = searchQuery
-	? products?.filter(product =>
-		product.name.toLowerCase().startsWith(searchQuery.toLowerCase())
-	  )
-	: products?.slice().reverse();
-
-
-
+	const filteredProducts = searchQuery
+  ? [
+      // First, filter products that start with the search query
+      ...(products ? products.filter(product =>
+        product.name.toLowerCase().startsWith(searchQuery.toLowerCase())
+      ) : []),
+      // Then, filter products that include the search query but do not start with it
+      ...(products ? products.filter(
+        product =>
+          product.name.toLowerCase().includes(searchQuery.toLowerCase()) &&
+          !product.name.toLowerCase().startsWith(searchQuery.toLowerCase())
+      ) : [])
+    ]
+  : products ? products.slice().reverse() : [];
 
 	const handleDeleteProduct = async (id: number) => {
 	  const response = window.confirm('Are you sure you want to delete this product?');
@@ -98,7 +104,7 @@ const CaloriesCounterProducts: React.FC = () => {
 										</div>	
 									</div>								
 									<div className="card-body">
-										<p>{product.name}</p>
+										<p style={{height: '5ch', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', textOverflow: 'ellipsis'}}>{product.name}</p>
 										<div>
 											<button onClick={() => setEditProduct(product.id)} className="btn btn-primary me-2">Edit</button>
 											<button onClick={() => handleDeleteProduct(product.id)}className="btn btn-danger">Delete</button>
