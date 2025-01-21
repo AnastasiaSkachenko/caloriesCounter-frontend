@@ -139,7 +139,8 @@ const EditProductForm: React.FC<EditProductProps> = ({ onSubmitSuccess, onCancel
     }
 
     const formData = new FormData()
-    if (typeof image == 'object') formData.append('image', image)
+    console.log(image, typeof image, 'aaaaaaaa')
+    if (image && typeof image != 'string') formData.append('image', image)
       formData.append('id', product.id.toString())
       formData.append('name', name.charAt(0).toUpperCase() + name.slice(1))
       formData.append('calories', calories.toString())
@@ -191,19 +192,19 @@ const EditProductForm: React.FC<EditProductProps> = ({ onSubmitSuccess, onCancel
         Protein for 100 g: 
         <input className='border border-light rounded p-2 mx-2' ref={inputRefs[2]} type="number" step="1"  name="protein" value={formState.protein} required onFocus={(e) => e.target.select()}
           onChange={(e) => handleInputChange(e)}
-          onKeyDown={(e) => handleKeyDown(e, 1)}/>
+          onKeyDown={(e) => handleKeyDown(e, 2)}/>
       </label>
       <label className='d-flex justify-content-between align-items-center mt-2'  >
         Carbohydrate for 100 g: 
         <input className='border border-light rounded p-2 mx-2' ref={inputRefs[3]} type="number" step="1"   name="carbohydrate" value={formState.carbohydrate} required onFocus={(e) => e.target.select()}
           onChange={(e) => handleInputChange(e)}
-          onKeyDown={(e) => handleKeyDown(e, 1)}/>
+          onKeyDown={(e) => handleKeyDown(e, 3)}/>
       </label>
       <label className='d-flex justify-content-between align-items-center mt-2'> 
         Fat for 100 g:
         <input className='border border-light rounded p-2 mx-2' ref={inputRefs[4]} type="number" step="1"  name="fat" value={formState.fat} required onFocus={(e) => e.target.select()}
           onChange={(e) => handleInputChange(e)}
-          onKeyDown={(e) => handleKeyDown(e, 1)}/>
+          onKeyDown={(e) => handleKeyDown(e, 4)}/>
       </label>
     
       {validationError && <p className='text-danger'>{validationError}</p>}

@@ -23,7 +23,7 @@ const Dishes: React.FC = () => {
   const dishes = dishesRaw?.filter(dish => dish.product == null)
 
   const {
-    status: statusIngredients, error: errorIngredients, isLoading: isLoadingIngredients, refetch:refetchIngredients,  data: dishIngredients
+    status: statusIngredients, error: errorIngredients, isLoading: isLoadingIngredients, data: dishIngredients
   } = useQuery({
       queryKey: ['dishIngredients'], 
       queryFn: () =>fetchDishIngredients(), 
@@ -38,7 +38,7 @@ const Dishes: React.FC = () => {
   const [createIngredient, setCreateIngredient] = useState<number| null>(null)
   const [searchQuery, setSearchQuery] = useState<string>('');  
   const [showIngredients, setShowIngredients] = useState<number | null>(null)
-  const [editDish, setEditDish] = useState<number | null>(null)
+  const [editDish, setEditDish] = useState<Dish | null>(null)
   const navigate = useNavigate()
   const [isChecked, setIsChecked] = useState(false);
 
@@ -156,7 +156,28 @@ const Dishes: React.FC = () => {
       <button className="btn btn-primary" onClick={() => navigate('/products')}>Products</button>
       <h2>Dishes</h2>
       <button className="btn btn-primary"  data-bs-toggle='modal' data-bs-target='#modalDish'>Create dish</button>
-      <DishForm  onSuccess={() => {refetch(); refetchIngredients(); }} />
+      <div className=' modal fade  form p-2 m-2 ' id='modalDish'> 
+        <div className='  modal-dialog modal-dialog-centered' >
+          <div className='bg-secondary text-black modal-content'>
+            <h3 className='modal-header'>Create new dish</h3>
+            <DishForm />
+          </div>
+        </div>
+      </div>
+
+      <div className=' modal fade  form p-2 m-2 ' id='modalEditDish'> 
+        <div className='  modal-dialog modal-dialog-centered' >
+          <div className='bg-secondary text-black modal-content'>
+            <h3 className='modal-header'>Edit dish</h3>
+            {editDish && (
+              <DishForm  onSuccess={() => setEditDish(null)}  onCancel={() => setEditDish(null)} dishToEdit={editDish}/>
+            )}
+          </div>
+        </div>
+      </div>
+
+
+
 
       <br/>
       <input type="text" placeholder="Search dishes..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)}/>
@@ -278,11 +299,8 @@ const Dishes: React.FC = () => {
                     </div>
                   )}
                   <br/>
-                  {editDish == dish.id ? (
-                    <DishForm  onSuccess={() => setEditDish(null)}  onCancel={() => setEditDish(null)} dishToEdit={dish}/>
-                  ): (
-                    <button onClick={() => setEditDish(dish.id)}>Edit dish</button>
-                  )}      
+                  <button onClick={() => setEditDish(dish)}  data-bs-toggle='modal' data-bs-target='#modalEditDish' >Edit dish</button>
+
                 </div>
               )}
 

@@ -297,9 +297,19 @@ const IngredientForm: React.FC<IngredientFormProps> = ({onSuccess, onCancel, ing
               <option key={index} value={product}/>
             ))}  
             </datalist> 
-            {CreatingNewProduct && (
-              <ProductForm onSubmitSuccess={(product) => handleProductSubmit(product)} onCancel={handleProductCancel} productName={CreatingNewProduct} />
-            )}
+
+            <button className="btn btn-primary"  data-bs-toggle='modal' data-bs-target='#modalProduct'>Create dish</button>
+            <div className=' modal fade  form p-2 m-2 ' id='modalProduct'> 
+              <div className='  modal-dialog modal-dialog-centered' >
+                <div className='bg-secondary text-black modal-content'>
+                  <h3 className='modal-header'>Create new dish</h3>
+                  {CreatingNewProduct && (
+                    <ProductForm onSubmitSuccess={(product) => handleProductSubmit(product)} onCancel={handleProductCancel} productName={CreatingNewProduct} />
+                  )}
+                </div>
+              </div>
+            </div>
+
              
      
           </label>   

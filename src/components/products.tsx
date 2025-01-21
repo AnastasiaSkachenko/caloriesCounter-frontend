@@ -6,7 +6,7 @@ import { usePopProduct } from "../hooks/caloriesCounter";
 import { useNavigate } from "react-router-dom";
 import '../../styles/style.css';
 import '../index.css'
-import EditProductForm from "./editProductForm";
+import { Product } from "./interfaces";
 
 
 
@@ -18,10 +18,8 @@ const CaloriesCounterProducts: React.FC = () => {
 		queryFn: () =>  fetchProducts()  , 
 	});
 
-	console.log(products)
-
   const [searchQuery, setSearchQuery] = useState<string>('');  
-	const [editProduct, setEditProduct] = useState<number | null>(null);
+	const [editProduct, setEditProduct] = useState<Product | null>(null);
  
 	const navigate = useNavigate()
 
@@ -30,11 +28,9 @@ const CaloriesCounterProducts: React.FC = () => {
 
 	const filteredProducts = searchQuery
   ? [
-      // First, filter products that start with the search query
       ...(products ? products.filter(product =>
         product.name.toLowerCase().startsWith(searchQuery.toLowerCase())
       ) : []),
-      // Then, filter products that include the search query but do not start with it
       ...(products ? products.filter(
         product =>
           product.name.toLowerCase().includes(searchQuery.toLowerCase()) &&
@@ -62,8 +58,28 @@ const CaloriesCounterProducts: React.FC = () => {
 			<h3 className="ms-3">Products</h3>
  
 			<button onClick={() => setEditProduct(null)} className="btn btn-primary" data-bs-toggle='modal' data-bs-target='#modal' >Add product</button>
+			<div className=' modal fade  form p-2 m-2 ' id='modal'> 
+        <div className='  modal-dialog modal-dialog-centered' >
+          <div className='bg-secondary text-black modal-content'>
+            <h3 className='modal-header'>Create new product</h3>
+							<ProductForm onSubmitSuccess={() => setEditProduct(null)} onCancel={() => setEditProduct(null)}/>
+						</div>
+        </div>
+      </div>
 
-			<ProductForm onSubmitSuccess={() => setEditProduct(null)} onCancel={() => setEditProduct(null)}/>
+			<div className=' modal fade  form p-2 m-2 ' id='modalEdit'> 
+        <div className='  modal-dialog modal-dialog-centered' >
+          <div className='bg-secondary text-black modal-content'>
+            <h3 className='modal-header'>Edit product</h3>
+						{editProduct && (
+							<ProductForm onSubmitSuccess={() => setEditProduct(null)} onCancel={() => setEditProduct(null)} product={editProduct}/>
+						)}
+						</div>
+        </div>
+      </div>
+
+
+
 			<div className="d-flex justify-content-center">
 	  		<input className="form-control  my-3" style={{'maxWidth': '40em'}} type="text" placeholder="Search products..." 
 						value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)}/>
@@ -75,7 +91,7 @@ const CaloriesCounterProducts: React.FC = () => {
 						{filteredProducts.map((product, index) => (
 							<div className="col-md-3 col-sm-6 col-lg-2" key={index}>
 								<div className="card" style={{ width: '100%' }}>
-									<div className="card-img-container position-relative" style={{ height: '150px', overflow: 'hidden' }}>
+									<div className="card-img-container position-relative" style={{ height: '130px', overflow: 'hidden' }}>
 										<img
 											className="card-img-top position-absolute card-image"
 											src={typeof product.image === "string" 
@@ -103,20 +119,13 @@ const CaloriesCounterProducts: React.FC = () => {
 										</div>
 										</div>	
 									</div>								
-									<div className="card-body">
-										<p style={{height: '5ch', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', textOverflow: 'ellipsis'}}>{product.name}</p>
+									<div className="card-body py-2 bg-light">
+										<p style={{height: '4ch', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', textOverflow: 'ellipsis'}}>{product.name}</p>
 										<div>
-											<button onClick={() => setEditProduct(product.id)} className="btn btn-primary me-2">Edit</button>
+											<button onClick={() => setEditProduct(product)} className="btn btn-primary me-2"  data-bs-toggle='modal' data-bs-target='#modalEdit'>Edit</button>
 											<button onClick={() => handleDeleteProduct(product.id)}className="btn btn-danger">Delete</button>
 										</div>
-										{editProduct === product.id && (
-											<div className="d-flex justify-content-center mt-3">
-												<div className="bg-secondary text-black border rounded p-3 edit-container" style={{ maxWidth: '450px' }}>
-													<EditProductForm onSubmitSuccess={() => setEditProduct(null)} onCancel={() => setEditProduct(null)} product={product}/>
-												</div>
-											</div>
-										)}
-									</div>
+ 									</div>
 								</div>
 							</div>
 						))}

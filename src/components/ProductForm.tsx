@@ -2,18 +2,20 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useQuery } from '@tanstack/react-query'; 
 import { Product } from './interfaces';
 import { fetchProducts } from '../utils/caloriesCounter';
-import {  useSetProduct } from '../hooks/caloriesCounter';
+import {  usePutProduct, useSetProduct } from '../hooks/caloriesCounter';
 import '../../styles/style.css';
 import '../index.css'
+import Modal from 'bootstrap/js/dist/modal';
 
-interface AddProductProps {
+
+interface ProductFormProps {
   onSubmitSuccess?: (product: Product) => void;
   onCancel?: () => void;  
   product?: Product,
   productName?: string
  }
 
-const ProductForm: React.FC<AddProductProps> = ({ onSubmitSuccess, onCancel, product, productName}) => {
+const ProductForm: React.FC<ProductFormProps> = ({ onSubmitSuccess, onCancel, product, productName}) => {
  
   console.log('product', product)
   const {
@@ -32,10 +34,12 @@ const ProductForm: React.FC<AddProductProps> = ({ onSubmitSuccess, onCancel, pro
     fat: 0
   });
 
-  console.log('formstate', formState, )
   const [validationError, setValidationError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+
   const { setProduct } = useSetProduct()
+  const { putProduct } = usePutProduct()
+  
  
   const inputRefs = [
     useRef<HTMLInputElement>(null),
@@ -96,7 +100,6 @@ const ProductForm: React.FC<AddProductProps> = ({ onSubmitSuccess, onCancel, pro
       files: FileList
     }
     setFormState((prevFormSate) => ({...prevFormSate, image: target.files[0]}))
-    console.log(formState)
   }
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, index: number) => {
@@ -122,7 +125,7 @@ const ProductForm: React.FC<AddProductProps> = ({ onSubmitSuccess, onCancel, pro
         (product: Product) => product.name.toLowerCase() === name.toLowerCase()
     );
 
-    if (nameExists && nameExists?.id != product?.id) {
+    if (nameExists && nameExists.name != product?.name) {
       setValidationError('Product with this name already exists');
       return; 
     } else {
@@ -131,78 +134,106 @@ const ProductForm: React.FC<AddProductProps> = ({ onSubmitSuccess, onCancel, pro
 
     const formData = new FormData()
 
-    if (image) formData.append('image', image)
+    if (image && typeof image != 'string') formData.append('image', image)
     formData.append('name', name.charAt(0).toUpperCase() + name.slice(1))
     formData.append('calories', calories.toString())
     formData.append('protein', protein.toString())
     formData.append('carbohydrate', carbohydrate.toString())
     formData.append('fat', fat.toString())
 
+    if (product) {
+      putProduct({product: formData, id: formState.id})
+      return
+    }
 
-    console.log(product, 'product')
     const returnedProduct = await setProduct({product:formData})
+
+
+
+    setFormState({    
+      id: 0,
+      name: productName ?? '',
+      calories: 0,
+      protein: 0,
+      carbohydrate: 0,
+      fat: 0
+    })
+
 
     if (onSubmitSuccess) {
       onSubmitSuccess(returnedProduct) 
     }
-
-    
-   
     refetchProducts()
+  }
+
+  const handleCancel = () => {
+    setFormState({    
+      id: 0,
+      name: productName ?? '',
+      calories: 0,
+      protein: 0,
+      carbohydrate: 0,
+      fat: 0
+    })
+    console.log('went down here')
+
+    const modalElement = document.getElementById(product ? 'modalEdit' : 'modal');
+    if (modalElement) {
+      const modalInstance = Modal.getInstance(modalElement) || new Modal(modalElement);
+      modalInstance.hide();
+      console.log('went')
+    }
+
+    if (onCancel) {
+      onCancel()
+    }
   }
 
   if (isLoadingProducts) return <h1>Loading...</h1>;
   if (statusProducts === 'error') return <h1>{JSON.stringify(errorProducts)}</h1>;
 
   return (
-      <div className=' modal fade  form p-2 m-2 ' id='modal'> 
-        <div className='  modal-dialog modal-dialog-centered' >
-          <div className='bg-secondary text-black modal-content'>
-            <h3 className='modal-header'>Create new product</h3>
-              <div className='modal-body'>
-                <label className='form-label create-label my-2'> 
-                  Product Name:
-                <input className='form-control create-input form-control-sm my-2' maxLength={149} ref={inputRefs[0]} type="text"  name="name" value={formState.name} required  
-                  onChange={(e) => handleInputChange(e, e.target.value)}
-                  onKeyDown={(e) => handleKeyDown(e, 0)}/>
-                </label>
-                <label className='form-label create-label my-2'>
-                  <input type='file' name='image' accept='image/png, image/jpg, image/jpeg' onChange={(e) => handleImageChange(e)} />
-                </label>
-                <hr/>
-                <label className='d-flex justify-content-between align-items-center mt-2'  >Calories for 100 g:
-                  <input className='border border-light rounded p-2 mx-2' ref={inputRefs[1]} type="number" step="1" name="calories" value={formState.calories} required onFocus={(e) => e.target.select()}
-                    onChange={(e) => handleInputChange(e)}
-                    onKeyDown={(e) => handleKeyDown(e, 1)}/>
-                </label>
-                <label  className='d-flex justify-content-between align-items-center mt-2'> Protein for 100 g: 
-                  <input className='border border-light rounded p-2 mx-2' ref={inputRefs[2]} type="number" step="1"  name="protein" value={formState.protein} required onFocus={(e) => e.target.select()}
-                    onChange={(e) => handleInputChange(e)}
-                    onKeyDown={(e) => handleKeyDown(e, 2)}/>
-                </label>
-                <label className='d-flex justify-content-between align-items-center mt-2'  >Carbohydrate for 100 g: 
-                  <input className='border border-light rounded p-2 mx-2' ref={inputRefs[3]} type="number" step="1"   name="carbohydrate" value={formState.carbohydrate} required onFocus={(e) => e.target.select()}
-                    onChange={(e) => handleInputChange(e)}
-                    onKeyDown={(e) => handleKeyDown(e, 3)}/>
-                </label>
-                <label className='d-flex justify-content-between align-items-center mt-2'> Fat for 100 g:
-                  <input className='border border-light rounded p-2 mx-2' ref={inputRefs[4]} type="number" step="1"  name="fat" value={formState.fat} required onFocus={(e) => e.target.select()}
-                    onChange={(e) => handleInputChange(e)}
-                    onKeyDown={(e) => handleKeyDown(e, 4)}/>
-                </label>
-              
-                {validationError && <p className='text-danger'>{validationError}</p>}
-                {successMessage && <p>{successMessage}</p>}
-                <div className='d-flex justify-content-center'>
-                  <button className='btn btn-primary p-2'  type="button" onClick={handleSubmit}>Submit</button>
-                  <button className='btn btn-danger p-2 ' data-bs-dismiss='modal' data-bs-target='#modal' type='button' onClick={onCancel}>Cancel</button>
-                </div>
-              
-              </div>
-          </div>
-        </div>
+    <div className='modal-body'>
+      <label className='form-label create-label my-2'> 
+        Product Name:
+      <input className='form-control create-input form-control-sm my-2' maxLength={149} ref={inputRefs[0]} type="text"  name="name" value={formState.name} required  
+        onChange={(e) => handleInputChange(e, e.target.value)}
+        onKeyDown={(e) => handleKeyDown(e, 0)}/>
+      </label>
+      <label className='form-label create-label my-2'>
+        <input type='file' name='image' accept='image/png, image/jpg, image/jpeg' onChange={(e) => handleImageChange(e)} />
+      </label>
+      <hr/>
+      <label className='d-flex justify-content-between align-items-center mt-2'  >Calories for 100 g:
+        <input className='border border-light rounded p-2 mx-2' ref={inputRefs[1]} type="number" step="1" name="calories" value={formState.calories} required onFocus={(e) => e.target.select()}
+          onChange={(e) => handleInputChange(e)}
+          onKeyDown={(e) => handleKeyDown(e, 1)}/>
+      </label>
+      <label  className='d-flex justify-content-between align-items-center mt-2'> Protein for 100 g: 
+        <input className='border border-light rounded p-2 mx-2' ref={inputRefs[2]} type="number" step="1"  name="protein" value={formState.protein} required onFocus={(e) => e.target.select()}
+          onChange={(e) => handleInputChange(e)}
+          onKeyDown={(e) => handleKeyDown(e, 2)}/>
+      </label>
+      <label className='d-flex justify-content-between align-items-center mt-2'  >Carbohydrate for 100 g: 
+        <input className='border border-light rounded p-2 mx-2' ref={inputRefs[3]} type="number" step="1"   name="carbohydrate" value={formState.carbohydrate} required onFocus={(e) => e.target.select()}
+          onChange={(e) => handleInputChange(e)}
+          onKeyDown={(e) => handleKeyDown(e, 3)}/>
+      </label>
+      <label className='d-flex justify-content-between align-items-center mt-2'> Fat for 100 g:
+        <input className='border border-light rounded p-2 mx-2' ref={inputRefs[4]} type="number" step="1"  name="fat" value={formState.fat} required onFocus={(e) => e.target.select()}
+          onChange={(e) => handleInputChange(e)}
+          onKeyDown={(e) => handleKeyDown(e, 4)}/>
+      </label>
+    
+      {validationError && <p className='text-danger'>{validationError}</p>}
+      {successMessage && <p>{successMessage}</p>}
+      <div className='d-flex justify-content-center'>
+        <button className='btn btn-primary p-2' type="button" onClick={handleSubmit}>Submit</button>
+        <button className='btn btn-danger p-2 ' data-bs-dismiss='modal' data-bs-target={product ? '#modalEdit' : '#modal'} type='button' onClick={handleCancel}>Cancel</button>
       </div>
-
+    
+    </div>
+ 
 
   );
 };
