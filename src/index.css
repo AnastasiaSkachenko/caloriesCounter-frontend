@@ -68,9 +68,52 @@
   opacity: 1; /* Show the nutrition info */
 }
 
+.product-name, .description {
+  height: 4ch;
+  display: -webkit-box;
+   -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
 
+}
 
+.product-name {
+  height: 5ch;
+  line-clamp: 2;
+  -webkit-line-clamp: 2;
+}
 
+.ingredients {
+  height: 6ch;
+  line-clamp: 2;
+  -webkit-line-clamp: 2;
+
+}
+
+.tooltip {
+  opacity: 0;
+  visibility: hidden;
+  position: absolute;
+  background-color: var(--bs-warning);
+  color: white;
+  padding: 7px 10px;
+  border-radius: 4px;
+  font-size: 0.875rem;
+  white-space: nowrap;
+  transform: translateY(-1em);
+  transition: opacity 0.3s ease, visibility 0.3s ease, transform 0.3s ease;
+}
+
+.tooltip-trigger {
+  position: relative;
+}
+
+.tooltip-trigger:hover .tooltip {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(-2.5em);
+  cursor: pointer;
+}
 
 a {
   font-weight: 500;

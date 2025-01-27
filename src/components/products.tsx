@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom";
 import '../../styles/style.css';
 import '../index.css'
 import { Product } from "./interfaces";
+import Modal from "./Modal";
 
 
 
@@ -58,29 +59,19 @@ const CaloriesCounterProducts: React.FC = () => {
 			<h3 className="ms-3">Products</h3>
  
 			<button onClick={() => setEditProduct(null)} className="btn btn-primary" data-bs-toggle='modal' data-bs-target='#modal' >Add product</button>
-			<div className=' modal fade  form p-2 m-2 ' id='modal'> 
-        <div className='  modal-dialog modal-dialog-centered' >
-          <div className='bg-secondary text-black modal-content'>
-            <h3 className='modal-header'>Create new product</h3>
-							<ProductForm onSubmitSuccess={() => setEditProduct(null)} onCancel={() => setEditProduct(null)}/>
-						</div>
-        </div>
-      </div>
 
-			<div className=' modal fade  form p-2 m-2 ' id='modalEdit'> 
-        <div className='  modal-dialog modal-dialog-centered' >
-          <div className='bg-secondary text-black modal-content'>
-            <h3 className='modal-header'>Edit product</h3>
-						{editProduct && (
-							<ProductForm onSubmitSuccess={() => setEditProduct(null)} onCancel={() => setEditProduct(null)} product={editProduct}/>
-						)}
-						</div>
-        </div>
-      </div>
+			<Modal id="modal" title="Create new product">
+				<ProductForm onSubmitSuccess={() => setEditProduct(null)} onCancel={() => setEditProduct(null)}/>
+			</Modal>
+
+			<Modal id="modalEdit" title="Edit product product">
+				{editProduct && (
+					<ProductForm onSubmitSuccess={() => setEditProduct(null)} onCancel={() => setEditProduct(null)} product={editProduct}/>
+				)}
+			</Modal>
 
 
-
-			<div className="d-flex justify-content-center">
+ 			<div className="d-flex justify-content-center">
 	  		<input className="form-control  my-3" style={{'maxWidth': '40em'}} type="text" placeholder="Search products..." 
 						value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)}/>
 			</div>
@@ -120,7 +111,7 @@ const CaloriesCounterProducts: React.FC = () => {
 										</div>	
 									</div>								
 									<div className="card-body py-2 bg-light">
-										<p style={{height: '4ch', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', textOverflow: 'ellipsis'}}>{product.name}</p>
+										<p className="product-name">{product.name}</p>
 										<div>
 											<button onClick={() => setEditProduct(product)} className="btn btn-primary me-2"  data-bs-toggle='modal' data-bs-target='#modalEdit'>Edit</button>
 											<button onClick={() => handleDeleteProduct(product.id)}className="btn btn-danger">Delete</button>

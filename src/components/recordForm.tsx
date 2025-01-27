@@ -5,8 +5,8 @@ import { fetchDish, fetchDishes } from '../utils/caloriesCounter';
 import { usePutDiaryRecord, useSetDiaryRecord } from '../hooks/caloriesCounter';
 
 interface RecordFormProps {
-  onSuccess: () => void
-  onCancel: () => void,
+  onSuccess?: () => void
+  onCancel?: () => void,
   recordData?: DiaryRecord,
 }
 
@@ -19,32 +19,62 @@ const RecordForm: React.FC<RecordFormProps> = ({onSuccess, onCancel, recordData}
       queryFn: () =>  fetchDishes(), 
   });
 
-    const dishNames: string[] = []
-    dishes?.map((dish: Dish) => {
-      dishNames.push(dish.name)
-    })
+  const dishNames: string[] = []
+  dishes?.map((dish: Dish) => {
+    dishNames.push(dish.name)
+  })
 
 
   const [filteredSuggestions, setFilteredSuggestions] = useState<string[]>([''])
-  const [validationError, setValidationError] = useState<string | null>(null)
+  const [validation, setValidation] = useState<{message: string | undefined, valid: boolean}>({message: undefined, valid: false})
   const [inputMode, setInputMode] = useState<"weight" | "portions">(recordData? (recordData.weight  ? 'weight': 'portions'):"weight");
   const [record, setRecordInfo] = useState<DiaryRecord>(recordData??{
-    id: 0,
-    name: '',
-    image: '',
-    weight: 0,
-    calories: 0,
-    protein: 0,
-    carbohydrate: 0,
-    fat: 0,
-    dish: 0,
-    date: ''
+    id: 0, name: '', image: '', weight: 0, calories: 0, protein: 0, carbohydrate: 0, fat: 0, dish: 0,date: ''
   });
   const [currentDish, setCurrentDish] = useState<Dish | null>()
-  const inputRefs = [
+  const addRecordButtonRef = useRef<HTMLButtonElement>(null);
+  
+  const [inputRefs] = useState([
     useRef<HTMLInputElement>(null),
     useRef<HTMLInputElement>(null),
-  ];
+  ]);
+  
+  useEffect(() => {
+    const modalElement = document.getElementById(recordData ? 'modalEdit' : 'modal');
+    modalElement?.addEventListener('shown.bs.modal', () => {
+      if (inputRefs[0].current) {
+        inputRefs[0].current.focus();
+      }
+    });
+  
+    return () => {
+      modalElement?.removeEventListener('shown.bs.modal', () => {
+        if (inputRefs[0].current) {
+          inputRefs[0].current.focus();
+        }
+      });
+    };
+  }, [inputRefs, recordData]);
+      
+
+ 
+    
+  useEffect(() => {
+    if (filteredSuggestions.length == 0 || filteredSuggestions == undefined) {
+      setValidation({message: 'No such dish. Create one first', valid: false})
+    } else if (currentDish) {
+      setValidation({message: 'Dish  is required', valid: false})
+    } else if (inputMode == 'weight' && record.weight == 0) {
+      setValidation({message: 'Enter weight.', valid: false})
+    } else if (inputMode == 'portions' && record.portions == 0) {
+      setValidation({message: 'Enter number of portions', valid: false})
+    } if (record.weight && record.weight < 1) {
+      setValidation({message:'Weight must be greater than 0.', valid: false});
+    } else {
+      setValidation({message: undefined, valid: true})
+    } 
+  }, [currentDish, inputMode, record, filteredSuggestions, dishes])
+  
 
   const toggleInputMode = () => {
     setInputMode((prevMode) => (prevMode === "weight" ? "portions" : "weight"));
@@ -68,14 +98,8 @@ const RecordForm: React.FC<RecordFormProps> = ({onSuccess, onCancel, recordData}
   const { setDiaryRecord } = useSetDiaryRecord()
   const { putDiaryRecord } = usePutDiaryRecord()
 
-  
 
-  const suggestions = [
-    ...dishNames || []
-  ];
     
-
-
   const handleRecordChange = (field: 'weight' | 'portions', valueRaw: number) => {
     const value = Number(valueRaw)
     setRecordInfo((prevRecord) => {
@@ -100,11 +124,11 @@ const RecordForm: React.FC<RecordFormProps> = ({onSuccess, onCancel, recordData}
       }
       return prevRecord; 
     });
-    setValidationError(null); 
+    setValidation({message: undefined, valid: true})
   };
   
 
-// get current product from existing products
+// get current dish from existing dishes
   const getDish = (dishName:string) => {
     const dish = dishes?.find(product => product.name.toLowerCase() === dishName);
     if (dish) {  
@@ -115,7 +139,12 @@ const RecordForm: React.FC<RecordFormProps> = ({onSuccess, onCancel, recordData}
       }));  
       setCurrentDish(dish)
       setFilteredSuggestions([])
-    }   
+    } 
+    setTimeout(() => {
+      if (inputRefs[1].current) {
+        inputRefs[1].current.focus();
+      }
+    }, 10);        
   }
 
   const handleDishNameChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -125,42 +154,26 @@ const RecordForm: React.FC<RecordFormProps> = ({onSuccess, onCancel, recordData}
       name: value.charAt(0).toUpperCase() + value.slice(1)
     }))
 
-    const filterSuggestions = suggestions.filter(product => product.toLowerCase().startsWith(value));
+    const filterSuggestions = dishNames.filter(dish => dish.toLowerCase().startsWith(value));
 
     setFilteredSuggestions(filterSuggestions);
-    if (filterSuggestions.length == 0 || filterSuggestions == undefined) {
-      setValidationError('No such dish. Create one first')
-    } else {
-      setValidationError(null)
-    }
+ 
     getDish(value) 
   };
  
 
   const handleSubmit = async () => {  
-    if (record.weight && record.weight < 1) {
-      setValidationError('Weight must be greater than 0.');
-      return;
-    }  
-    if ( record.name == '') {
-      setValidationError('dish name cant be empty.');
-      return;
-    }  
-
-    if (currentDish == undefined) {
-      setValidationError('No such dish exists')
-      return
-    }
-
- 
-
     if (recordData) {
       putDiaryRecord({diaryRecord:record})
     } else {
       setDiaryRecord({diaryRecord:record})
     }
+
+    setRecordInfo({
+      id: 0, name: '', image: '', weight: 0, calories: 0, protein: 0, carbohydrate: 0, fat: 0, dish: 0, date: ''})
+
   
-    onSuccess()
+    if (onSuccess) onSuccess()
 
   }
  
@@ -174,7 +187,9 @@ const RecordForm: React.FC<RecordFormProps> = ({onSuccess, onCancel, recordData}
           nextRef.focus();
         }  
       } else {
-        handleSubmit();
+        if (addRecordButtonRef.current) {
+          addRecordButtonRef.current.click(); 
+        }
       }
     }
   };
@@ -182,33 +197,32 @@ const RecordForm: React.FC<RecordFormProps> = ({onSuccess, onCancel, recordData}
   const handleOnCancel = () => {
     setRecordInfo({
       id: 0, name: '', image: '', weight: 0, calories: 0, protein: 0, carbohydrate: 0, fat: 0, dish: 0, date: ''})
-    onCancel()
+    if (onCancel) onCancel()
   }
-
  
   if (isLoading) return <h1>Loading...</h1>;
   if (status=== 'error') return <h1>{JSON.stringify(error)}</h1>;
  
   return (
-    <div className='form'> 
-      <h3> {recordData ? 'Edit Record': 'Add Record'}</h3> 
+    <div className='modal-body'> 
+      <div>
+        <label className='form-label create-label my-2'>
+          Dish or Product Name:
+          <input className='form-control create-input form-control-sm my-2' list='suggestions' type="text" value={record.name || ''}  ref={inputRefs[0]} onChange={(e) => handleDishNameChange(e)} />
+          <datalist id='suggestions'>
+            {filteredSuggestions.map((dish, index) => (
+              <option key={index} value={dish}/>
+            ))}  
+          </datalist> 
+        </label>   
         <div>
-          <label>
-            Dish Name:
-            <input list='suggestions' type="text" value={record.name || ''}  ref={inputRefs[0]} onChange={(e) => handleDishNameChange(e)} />
-            <datalist id='suggestions'>
-             {filteredSuggestions.map((dish, index) => (
-                <option key={index} value={dish}/>
-              ))}  
-            </datalist> 
-             
-          </label>   
           <div>
-            <div>
-              <label>
-                {inputMode === "weight" ? "Weight (g):" : (currentDish ? `Portions(in one portion ${currentDish?.portion}g):`: 'Choose dish first to see weight of portion:')}
+            <label>
+              {inputMode === "weight" ? "Weight (g):" : (currentDish ? `Portions (in one portion ${currentDish?.portion}g):`: 'Choose dish first to see weight of portion:')}
+              <div className='d-flex align-items-center'>
                 <input
                   type="number"
+                  className='border border-light rounded p-1 '
                   value={inputMode === "weight" ? record.weight || 0 : record.portions || 0}
                   ref={inputRefs[1]}
                   onChange={(e) =>
@@ -216,47 +230,46 @@ const RecordForm: React.FC<RecordFormProps> = ({onSuccess, onCancel, recordData}
                   }
                   onKeyDown={handleKeyDown}
                   onFocus={(e) => e.target.select()}
-                />
-              </label>
-              <button type="button" onClick={toggleInputMode}>
-                Switch to {inputMode === "weight" ? "Portions" : "Weight"}
-              </button>
-            </div>            
-          <br/>
+                  />
+                  <button className='btn btn-dark' type="button" onClick={toggleInputMode}>
+                    Switch to {inputMode === "weight" ? "Portions" : "Weight"}
+                  </button>
+              </div>
 
-          <label>
-            Calories (g):
-            <input type="number" value={record.calories }  disabled />
-          </label>
-          <br/>
+            </label>
+          </div>            
+        <br/>
+
+        <label className='d-flex justify-content-between align-items-center mt-2'>
+          Calories (g):
+          <input type="number" className='border border-light rounded p-1 mx-2 ' value={record.calories }  disabled />
+        </label>
 
 
-          <label>
-            Protein (g):
-            <input type="number" value={record.protein } disabled />
-          </label>
-          <br/>
+        <label className='d-flex justify-content-between align-items-center mt-2'>
+          Protein (g):
+          <input type="number" className='border border-light rounded p-1 mx-2 ' value={record.protein } disabled />
+        </label>
 
-          <label>
-            Carbohydrates (g):
-            <input type="number" value={record.carbohydrate } ref={inputRefs[4]} disabled />
-          </label>
-          <br/>
+        <label className='d-flex justify-content-between align-items-center mt-2'>
+          Carbohydrates (g):
+          <input type="number" className='border border-light rounded p-1 mx-2 ' value={record.carbohydrate } ref={inputRefs[4]} disabled />
+        </label>
 
-          <label>
-            Fat (g):
-            <input type="number" value={record.fat } ref={inputRefs[5]}  disabled />
-          </label>
-          <br/>
-          </div>
+        <label className='d-flex justify-content-between align-items-center mt-2'>
+          Fat (g):
+          <input type="number" className='border border-light rounded p-1 mx-2 ' value={record.fat } ref={inputRefs[5]}  disabled />
+        </label>
         </div>
- 
- 
-      {validationError && <p style={{ color: 'red' }}>{validationError}</p>} 
-      <button type='button' onClick={() => handleSubmit()} > {recordData ? 'Edit Record' : 'Add Record'}</button>
- 
-      <button type='button' onClick={handleOnCancel}>Cancel</button>
-  
+      </div>  
+
+      <div className='d-flex justify-content-center'>
+        <div className='tooltip-trigger p-0'>
+          {!validation.valid && <span className='tooltip'>{validation.message}</span>}
+          <button type='button'  className='btn btn-dark' ref={addRecordButtonRef} onClick={() => handleSubmit()} data-bs-dismiss='modal' data-bs-target={recordData ? '#modalEdit' : '#modal'}> {recordData ? 'Edit Record' : 'Add Record'}</button>
+        </div>
+        <button type='button' className='btn btn-danger' onClick={handleOnCancel} data-bs-dismiss='modal' data-bs-target={recordData ? '#modalEdit' : '#modal'}  >Cancel</button>
+        </div>
     </div>
   );
 };

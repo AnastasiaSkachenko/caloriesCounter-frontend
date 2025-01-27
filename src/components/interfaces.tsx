@@ -39,7 +39,7 @@ export interface IngredientInput {
 
 export interface Dish extends Base {
   name: string,
-  image?: File | string,
+  image: File | string,
   calories_100: number,
   protein_100: number,
   carbohydrate_100: number,
@@ -49,7 +49,7 @@ export interface Dish extends Base {
   product?: number,
   portion:number,
   portions: number,
-  type: 'bought' | 'own'
+  type: 'pre_made' | 'custom'
 }
 
 export interface DishInput {
@@ -59,6 +59,17 @@ export interface DishEditInput {
   dish: FormData,
   id: number
 }
+
+export interface DishFormProps { 
+  onSuccess?: () => void,
+  onSubmit?: (dish:Dish) => void,
+  onSuccessEdit?: (modifiedDish: Dish) => void,
+  onCancel?: () => void;  
+  dishToEdit?: Dish;
+  dishNames: string[];
+  ingredientsData?: Ingredient[]
+}
+
 
 export interface DiaryRecord extends Base {
   name: string,
