@@ -10,6 +10,7 @@ export const useSetProduct = () => {
         mutationFn: saveProduct,
         onSuccess: () => { 
             queryClient.invalidateQueries({queryKey: ['products']})
+            queryClient.invalidateQueries({queryKey: ['productNames']})
         }
     })
     return {setProduct,}
@@ -21,6 +22,7 @@ export const usePutProduct = () => {
         mutationFn: editProduct,
         onSuccess: () => { 
             queryClient.invalidateQueries({queryKey: ['products']})
+            queryClient.invalidateQueries({queryKey: ['productNames']})
         }
     })
     return {putProduct,}
@@ -32,6 +34,8 @@ export const usePopProduct = () => {
         mutationFn: deleteProduct,
         onSuccess: () => { 
             queryClient.invalidateQueries({queryKey: ['products']})
+            queryClient.invalidateQueries({queryKey: ['productNames']})
+
         }
     })
 

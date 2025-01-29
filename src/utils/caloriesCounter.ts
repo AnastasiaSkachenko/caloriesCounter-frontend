@@ -9,30 +9,27 @@ const baseUrl = production ? window.location.origin : 'http://127.0.0.1:8000';
 
 //                                                                                                                                   Products
 
-export const fetchProducts = async (): Promise<Product[]>  => { 
-  const response = await fetch(`${baseUrl}/api/product/`, {
+export const fetchProducts = async ({ pageParam } : {pageParam?: number}): Promise<{ products: Product[], hasMore?: boolean, currentPage?: number }>  => { 
+  const response = await fetch(`${baseUrl}/api/products/${pageParam ? '?page=' + pageParam : ''}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
         'X-CSRFToken': cookies.get("csrftoken")
-
       },
     });
 
   if (!response.ok) {
       throw new Error("Failed to fetch product data");
   }
-
   const data = await response.json() 
-  const products:Product[] = data.products 
-  return products
-      
- 
+  console.log(pageParam, 'pag')
+
+  return { products: data.products, hasMore: data.has_more, currentPage: pageParam};
 };
  
 
 export const saveProduct = async ({product}: ProductInput): Promise<Product> => {
-  const response = await fetch(`${baseUrl}/api/product/`, {
+  const response = await fetch(`${baseUrl}/api/products/`, {
     method: "POST",
     headers: {
       "X-CSRFToken": cookies.get("csrftoken"),
@@ -48,7 +45,7 @@ export const saveProduct = async ({product}: ProductInput): Promise<Product> => 
 }
  
 export const editProduct = async ({product, id}: ProductEditInput): Promise<void> => {
-  const response = await fetch(`${baseUrl}/api/product/${id}/`, {
+  const response = await fetch(`${baseUrl}/api/products/?id=${id}`, {
     method: "PUT",
     headers: {
       "X-CSRFToken": cookies.get("csrftoken"),
@@ -62,7 +59,7 @@ if (!response.ok) {
 }
  
 export const deleteProduct = async ({id}: PopInput): Promise<string | void> => {
-  const response = await fetch(`${baseUrl}/api/product/${id}/`, {
+  const response = await fetch(`${baseUrl}/api/products/?id=${id}`, {
     method: "DELETE",
     headers: {
       "Content-Type": "application/json",
@@ -78,12 +75,11 @@ export const deleteProduct = async ({id}: PopInput): Promise<string | void> => {
 
 
 export const fetchProductNames = async (  )  => { 
-  const response = await fetch(`${baseUrl}/api/product/`, {
+  const response = await fetch(`${baseUrl}/api/products/`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
         'X-CSRFToken': cookies.get("csrftoken")
-
       },
     });
 
@@ -175,11 +171,10 @@ export const fetchIngredient = async (id: number)  => {
     }
   }
   
-
 //                                                                                                                                dishes
 
-export const fetchDishes = async ()  => { 
-    const response = await fetch(`${baseUrl}/api/dish/`, {
+export const fetchDishes = async ({ pageParam } : {pageParam?: number}): Promise<{ dishes: Dish[], hasMore?: boolean, currentPage?: number }>  => { 
+    const response = await fetch(`${baseUrl}/api/dishes/${pageParam ? '?page=' + pageParam : ''}`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -193,8 +188,7 @@ export const fetchDishes = async ()  => {
     }
   
     const data = await response.json() 
-    const dishes:Dish[] = data.dishes
-    return dishes
+    return { dishes: data.dishes, hasMore: data.has_more, currentPage: pageParam};
 };
 
 export const fetchDish = async (id:number)  => { 
@@ -214,7 +208,7 @@ export const fetchDish = async (id:number)  => {
   const dish:Dish = data
   return dish
 };
-
+//see if used
 export const fetchDishIngredients = async ()  => { 
     const response = await fetch(`${baseUrl}/api/dishIngredients/`, {
         method: "GET",
@@ -236,7 +230,7 @@ export const fetchDishIngredients = async ()  => {
 
   
 export const saveDish = async ({dish}: DishInput): Promise<number> => {
-  const response = await fetch(`${baseUrl}/api/dish/`, {
+  const response = await fetch(`${baseUrl}/api/dishes/`, {
     method: "POST",
     headers: {
       "X-CSRFToken": cookies.get("csrftoken"),
@@ -257,7 +251,7 @@ export const saveDish = async ({dish}: DishInput): Promise<number> => {
 }
   
 export const editDish = async ({dish, id}: DishEditInput): Promise<void> => {
-  const response = await fetch(`${baseUrl}/api/dish/${id}/`, {
+  const response = await fetch(`${baseUrl}/api/dishes/?id=${id}`, {
     method: "PUT",
     headers: {
       "X-CSRFToken": cookies.get("csrftoken"),
@@ -271,7 +265,7 @@ if (!response.ok) {
 }
   
 export const deleteDish = async ({id}: PopInput): Promise<string | void> => {
-  const response = await fetch(`${baseUrl}/api/dish/${id}/`, {
+  const response = await fetch(`${baseUrl}/api/dishes/?id=${id}`, {
     method: "DELETE",
     headers: {
       "Content-Type": "application/json",
@@ -349,4 +343,3 @@ export const deleteDiaryRecord = async ({id}: PopInput): Promise<string | void> 
     return errorData.message;  
   }
 }
-

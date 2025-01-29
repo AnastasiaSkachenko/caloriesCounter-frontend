@@ -13,11 +13,13 @@ interface RecordFormProps {
 const RecordForm: React.FC<RecordFormProps> = ({onSuccess, onCancel, recordData}) => { 
 
   const {
-      status, error, isLoading, data: dishes,  
+    status, error, isLoading, data
   } = useQuery({
-      queryKey: ['dishes'], 
-      queryFn: () =>  fetchDishes(), 
+    queryKey: ['productNames' ], 
+    queryFn: () =>  fetchDishes({})  ,     
   });
+  
+  const dishes = data?.dishes
 
   const dishNames: string[] = []
   dishes?.map((dish: Dish) => {
@@ -55,27 +57,25 @@ const RecordForm: React.FC<RecordFormProps> = ({onSuccess, onCancel, recordData}
       });
     };
   }, [inputRefs, recordData]);
-      
-
  
     
   useEffect(() => {
-    if (filteredSuggestions.length == 0 || filteredSuggestions == undefined) {
+    if (filteredSuggestions.length == 0  && !currentDish ) {
       setValidation({message: 'No such dish. Create one first', valid: false})
-    } else if (currentDish) {
+    } else if (!currentDish ) {
       setValidation({message: 'Dish  is required', valid: false})
     } else if (inputMode == 'weight' && record.weight == 0) {
       setValidation({message: 'Enter weight.', valid: false})
     } else if (inputMode == 'portions' && record.portions == 0) {
       setValidation({message: 'Enter number of portions', valid: false})
-    } if (record.weight && record.weight < 1) {
+    } else  if (record.weight && record.weight < 1) {
       setValidation({message:'Weight must be greater than 0.', valid: false});
     } else {
       setValidation({message: undefined, valid: true})
     } 
-  }, [currentDish, inputMode, record, filteredSuggestions, dishes])
-  
+  }, [currentDish, inputMode, record.name, record.portions, record.weight, filteredSuggestions, dishes])
 
+ 
   const toggleInputMode = () => {
     setInputMode((prevMode) => (prevMode === "weight" ? "portions" : "weight"));
   };
@@ -139,12 +139,11 @@ const RecordForm: React.FC<RecordFormProps> = ({onSuccess, onCancel, recordData}
       }));  
       setCurrentDish(dish)
       setFilteredSuggestions([])
-    } 
-    setTimeout(() => {
+
       if (inputRefs[1].current) {
         inputRefs[1].current.focus();
       }
-    }, 10);        
+    } 
   }
 
   const handleDishNameChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -153,6 +152,10 @@ const RecordForm: React.FC<RecordFormProps> = ({onSuccess, onCancel, recordData}
       ...prevRecord,
       name: value.charAt(0).toUpperCase() + value.slice(1)
     }))
+
+    if (value.toLowerCase() != record.name.toLowerCase()) {
+      setCurrentDish(undefined)
+    }
 
     const filterSuggestions = dishNames.filter(dish => dish.toLowerCase().startsWith(value));
 
@@ -208,7 +211,7 @@ const RecordForm: React.FC<RecordFormProps> = ({onSuccess, onCancel, recordData}
       <div>
         <label className='form-label create-label my-2'>
           Dish or Product Name:
-          <input className='form-control create-input form-control-sm my-2' list='suggestions' type="text" value={record.name || ''}  ref={inputRefs[0]} onChange={(e) => handleDishNameChange(e)} />
+          <input className='form-control create-input form-control-sm my-2' list='suggestions' type="text" value={record.name}  ref={inputRefs[0]} onChange={(e) => handleDishNameChange(e)} />
           <datalist id='suggestions'>
             {filteredSuggestions.map((dish, index) => (
               <option key={index} value={dish}/>
@@ -223,7 +226,7 @@ const RecordForm: React.FC<RecordFormProps> = ({onSuccess, onCancel, recordData}
                 <input
                   type="number"
                   className='border border-light rounded p-1 '
-                  value={inputMode === "weight" ? record.weight || 0 : record.portions || 0}
+                  value={inputMode === "weight" ? record.weight || 100 : record.portions || 1}
                   ref={inputRefs[1]}
                   onChange={(e) =>
                     handleRecordChange(inputMode, Number(e.target.value))
@@ -266,7 +269,7 @@ const RecordForm: React.FC<RecordFormProps> = ({onSuccess, onCancel, recordData}
       <div className='d-flex justify-content-center'>
         <div className='tooltip-trigger p-0'>
           {!validation.valid && <span className='tooltip'>{validation.message}</span>}
-          <button type='button'  className='btn btn-dark' ref={addRecordButtonRef} onClick={() => handleSubmit()} data-bs-dismiss='modal' data-bs-target={recordData ? '#modalEdit' : '#modal'}> {recordData ? 'Edit Record' : 'Add Record'}</button>
+          <button type='button'  className='btn btn-dark' ref={addRecordButtonRef} onClick={() => handleSubmit()} data-bs-dismiss='modal' data-bs-target={recordData ? '#modalEdit' : '#modal'} disabled={!validation.valid}> {recordData ? 'Edit Record' : 'Add Record'}</button>
         </div>
         <button type='button' className='btn btn-danger' onClick={handleOnCancel} data-bs-dismiss='modal' data-bs-target={recordData ? '#modalEdit' : '#modal'}  >Cancel</button>
         </div>

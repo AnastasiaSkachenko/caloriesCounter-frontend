@@ -68,10 +68,10 @@
   opacity: 1; /* Show the nutrition info */
 }
 
-.product-name, .description {
+.product-name, .ingredients {
   height: 4ch;
   display: -webkit-box;
-   -webkit-box-orient: vertical;
+  -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
 
@@ -84,7 +84,7 @@
 }
 
 .ingredients {
-  height: 6ch;
+  height: 5ch;
   line-clamp: 2;
   -webkit-line-clamp: 2;
 

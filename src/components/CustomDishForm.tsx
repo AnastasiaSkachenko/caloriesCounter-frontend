@@ -154,6 +154,7 @@ const CustomDishForm: React.FC<DishFormProps> = ({onSuccess,onCancel, dishNames,
   };
 
   const handleSubmit = async () => { 
+    console.log(dishInfo)
     dishInfo.portion = Math.round(dishInfo.weight / dishInfo.portions) 
     dishInfo.calories_100 = Math.round(dishInfo.calories / dishInfo.weight * 100)
     dishInfo.protein_100 = Math.round(dishInfo.protein / dishInfo.weight * 100)
@@ -187,6 +188,7 @@ const CustomDishForm: React.FC<DishFormProps> = ({onSuccess,onCancel, dishNames,
       });
     }  
     
+    console.log(dishInfo)
  
     if (onSuccess) {
       onSuccess()

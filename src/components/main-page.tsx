@@ -57,7 +57,7 @@ const CaloriesCounter: React.FC = () => {
       </Modal>
 
       <Modal id="modalEdit" title="Edit Record" >
-        {editRecord && <RecordForm  recordData={editRecord}/>}
+        {editRecord && <RecordForm  recordData={editRecord} onSuccess={() => setEditRecord(null)} onCancel={() => setEditRecord(null)}  />}
       </Modal>
 
       <div className="d-flex justify-content-between px-2">

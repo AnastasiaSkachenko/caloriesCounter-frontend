@@ -14,12 +14,12 @@ interface IngredientFormProps {
 
 const IngredientForm: React.FC<IngredientFormProps> = ({onSuccess, onCancel, ingredients, ingredientData, ingredientId }) => { 
 
-    const {
-        status: statusProducts, error: errorProducts, isLoading: isLoadingProducts,data: products,  
-    } = useQuery({
-        queryKey: ['products'], 
-        queryFn: () =>  fetchProducts(), 
-    });
+  const {
+    status: statusProducts, error: errorProducts, isLoading: isLoadingProducts,data: products
+  } = useQuery({
+    queryKey: ['productName' ], 
+    queryFn: () =>  fetchProducts({})  ,     
+  });
 
  
 
@@ -78,7 +78,7 @@ const IngredientForm: React.FC<IngredientFormProps> = ({onSuccess, onCancel, ing
     const newUsedProducts: string[] = []; 
 
     ingredients.forEach((ingredient) => {
-      const productData = products?.find(product => product.id === ingredient.product);
+      const productData = products?.products.find(product => product.id === ingredient.product);
       if (productData){  
         newUsedProducts.push(productData.name.toLowerCase())
       }
@@ -144,7 +144,7 @@ const IngredientForm: React.FC<IngredientFormProps> = ({onSuccess, onCancel, ing
 // get current product from existing products
     const getProduct = (productName:string) => {
       console.log('get product called')
-      const product = products?.find(product => product.name.toLowerCase() === productName);
+      const product = products?.products.find(product => product.name.toLowerCase() === productName);
       if (product) {  
         if (usedProducts.includes(product.name.toLowerCase())){
           setValidationError(`This product is already used in this dish`)

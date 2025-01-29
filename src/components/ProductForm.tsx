@@ -18,8 +18,8 @@ const ProductForm: React.FC<ProductFormProps> = ({ onSubmitSuccess, onCancel, pr
   const {
     status: statusProducts, error: errorProducts, isLoading: isLoadingProducts, refetch: refetchProducts,data: products
   } = useQuery({
-    queryKey: ['products' ], 
-    queryFn: () =>  fetchProducts()  , 
+    queryKey: ['productNames' ], 
+    queryFn: () =>  fetchProducts({})  ,     
   });
 
   const [formState, setFormState] = useState<Product>(product ??{
@@ -64,30 +64,29 @@ const ProductForm: React.FC<ProductFormProps> = ({ onSubmitSuccess, onCancel, pr
       
 
   useEffect(() => {
-    const nameExists = products?.find(
+    if (!formState.name.trim()) {
+      setValidation({ message: 'Product name is required', valid: false });
+      return;
+    }
+  
+    const nameExists = products?.products?.find(
       (productL: Product) => productL.name.trim().toLowerCase() === formState.name.trim().toLowerCase()
     );
-    if (nameExists && nameExists.name.toLowerCase() != formState.name.toLowerCase()) {
-      setValidation({message:'Product with this name already exists.', valid: false})
-      return
+  
+    if (nameExists && product?.name != formState.name) {
+      setValidation({ message: 'Product with this name already exists.', valid: false });
     } else {
-      setValidation({message: undefined, valid: true})
+      setValidation({ message: undefined, valid: true });
     }
-
-    if (formState.name == '') {
-      setValidation({message: 'Product name is required', valid: false})
-    } else {
-      setValidation({message: undefined, valid: true})
-    }
-  }, [formState.name, products])
-   
+  }, [formState.name, products?.products, product?.name]);
+     
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>, name?: string) => {
     const { name: fieldName, value } = e.target;
    
     if (fieldName === "calories" || fieldName === "protein" || fieldName === "carbohydrate" || fieldName === "fat" ) {
       const CurrentNumber = parseFloat(parseFloat(value).toFixed(2))   
-      if (isNaN(CurrentNumber) || CurrentNumber === 0) { 
+      if (isNaN(CurrentNumber) ) { 
         setValidation({message:'Please enter a positive number', valid: false});
       } else {
         setValidation({message: undefined, valid: true});

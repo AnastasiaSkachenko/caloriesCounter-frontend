@@ -1,6 +1,5 @@
-import { useQuery } from "@tanstack/react-query";
-import { useState } from "react"; 
-import { fetchDishes, fetchDishIngredients } from "../utils/caloriesCounter";
+import { useEffect, useState } from "react"; 
+import { fetchDishes } from "../utils/caloriesCounter";
 import { usePopDish} from "../hooks/caloriesCounter";
 import { Dish, Ingredient } from "./interfaces";
 import { useNavigate } from "react-router-dom";
@@ -10,25 +9,34 @@ import 'bootstrap-icons/font/bootstrap-icons.css';
 import BoughtDishForm from "./PreMadeDishForm";
 import OwnDishForm from "./CustomDishForm";
 import Modal from "./Modal";
+import { useInfiniteQuery } from "@tanstack/react-query";
+import { useInView } from "react-intersection-observer";
 
 
 const Dishes: React.FC = () => {
   const {
-    status, error, isLoading, refetch, data: dishesRaw
-  } = useQuery({
-      queryKey: ['dishes'], 
-      queryFn: () =>fetchDishes(), 
+    status, error, data, fetchNextPage, refetch
+  } = useInfiniteQuery({
+    queryKey: ['dishes'],   
+    queryFn: fetchDishes,
+    initialPageParam: 1,
+    getNextPageParam: (lastPage, allPages) =>
+      lastPage.hasMore ? allPages.length + 1 : undefined,
   });
 
-  const dishes = dishesRaw?.filter(dish => dish.product == null)
+	const { ref, inView} = useInView()
 
-  const {
-    status: statusIngredients, error: errorIngredients, isLoading: isLoadingIngredients, data: dishIngredients
-  } = useQuery({
-      queryKey: ['dishIngredients'], 
-      queryFn: () =>fetchDishIngredients(), 
-  });
+	useEffect(() => {
+		if (inView){
+			fetchNextPage()
+		}
+	}, [inView, fetchNextPage])
 
+
+	const dishes = data?.pages.flatMap((page) => page.dishes) || [];
+
+ 
+ 
   const dishNames: string[] = []
   dishes?.map((dish: Dish) => {
     dishNames.push(dish.name.toLowerCase())
@@ -46,25 +54,21 @@ const Dishes: React.FC = () => {
     ? dishes?.filter(dish =>
         dish.name.toLowerCase().startsWith(searchQuery.toLowerCase())
       )
-    : dishes?.slice().reverse();
-
+    : dishes;
  
 
   const handleDeleteDish = (id:number) => {
     const response = window.confirm('Are you sure you want to delete this dish?');
     if (response) {
       popDish({ id });
+      refetch()
     }
-    refetch();
   }
  
-  if (isLoading) return <h1>Loading...</h1>;
+  if (status == 'pending') return <h1>Loading...</h1>;
   if (status === 'error') return <h1>{JSON.stringify(error)}</h1>;
 
-  if (isLoadingIngredients) return <h1>Loading...</h1>;
-  if (statusIngredients === 'error') return <h1>{JSON.stringify(errorIngredients)}</h1>;
- 
-  return (
+   return (
 		<div className="bg-dark test-dark p-2" > 
       <button className="btn btn-primary" onClick={() => navigate('/')}>Back to Diary</button>
       <button className="btn btn-primary" onClick={() => navigate('/products')}>Products</button>
@@ -86,7 +90,7 @@ const Dishes: React.FC = () => {
         {editDish?.type == 'pre_made' ? (
           <BoughtDishForm  onSuccess={() => setEditDish(undefined)}  onCancel={() => setEditDish(undefined)} dishNames={dishNames} dishToEdit={editDish}/>
         ): editDish && (
-          <OwnDishForm dishNames={dishNames} dishToEdit={editDish} ingredientsData={dishIngredients[editDish.id]}/>
+          <OwnDishForm dishNames={dishNames} dishToEdit={editDish} ingredientsData={editDish.ingredients}/>
         )}
       </Modal>
 
@@ -121,7 +125,7 @@ const Dishes: React.FC = () => {
                       <div className=" d-flex align-items-center p-1"  style={{height: '60%'}}>
                       <div>
                         <p className="fw-bold my-0">Ingredients:</p>
-                        <p className="ingredients my-0" >{dishIngredients[dish.id] && dishIngredients[dish.id].map((ingredient: Ingredient) => `${ingredient.name}: ${ingredient.weight}g`).join(", ")}.</p>
+                        <p className="ingredients my-0" >{dish.ingredients && dish.ingredients.map((ingredient: Ingredient) => `${ingredient.name}: ${ingredient.weight}g`).join(", ")}.</p>
 
                         <div className="mb-3">
                           <p className="fw-bold my-0">Total ({dish.weight}g):</p>
@@ -187,6 +191,7 @@ const Dishes: React.FC = () => {
           ))
         )}
       </div>
+      <div ref={ref}></div>
  		</div>
   
   

@@ -1,24 +1,42 @@
-import { useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery } from "@tanstack/react-query";
 import { fetchProducts } from "../utils/caloriesCounter";
-import ProductForm from "./ProductForm"
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { usePopProduct } from "../hooks/caloriesCounter";
 import { useNavigate } from "react-router-dom";
 import '../../styles/style.css';
 import '../index.css'
 import { Product } from "./interfaces";
+import { useInView } from "react-intersection-observer";
+import ProductForm from "./ProductForm";
 import Modal from "./Modal";
 
 
 
-const CaloriesCounterProducts: React.FC = () => {
-	const {
-		status: statusProducts, error: errorProducts, isLoading: isLoadingProducts, refetch, data: products
-	  } = useQuery({
-		queryKey: ['products' ], 
-		queryFn: () =>  fetchProducts()  , 
-	});
+const Products: React.FC = () => {
+  const {
+    status,
+    error,
+    data,
+    fetchNextPage, 
+  } = useInfiniteQuery({
+    queryKey: ['products'],   
+    queryFn: fetchProducts,
+    initialPageParam: 1,
+    getNextPageParam: (lastPage, allPages) =>
+      lastPage.hasMore && allPages ? allPages.length + 1 : undefined,
+  });
 
+	const { ref, inView} = useInView()
+
+	useEffect(() => {
+		if (inView){
+			fetchNextPage()
+		}
+	}, [inView, fetchNextPage])
+
+ 
+	const products = data?.pages.flatMap((page) => page.products) || [];
+	console.log(data?.pageParams, 'params', data?.pages, 'pages')
   const [searchQuery, setSearchQuery] = useState<string>('');  
 	const [editProduct, setEditProduct] = useState<Product | null>(null);
  
@@ -38,22 +56,21 @@ const CaloriesCounterProducts: React.FC = () => {
           !product.name.toLowerCase().startsWith(searchQuery.toLowerCase())
       ) : [])
     ]
-  : products ? products.slice().reverse() : [];
+  : products ? products : [];
 
 	const handleDeleteProduct = async (id: number) => {
 	  const response = window.confirm('Are you sure you want to delete this product?');
 	  if (response) {
 		popProduct({ id });
 	  } 
-	  refetch()
 	};
   
 	
-	if (isLoadingProducts) return <h1>Loading...</h1>;
-	if (statusProducts === 'error') return <h1>{JSON.stringify(errorProducts)}</h1>;
+	if (status === 'error') return <h1>{JSON.stringify(error)}</h1>;
+	if (status === 'pending') return <h1>Loading...</h1>;
 
 	return (
-		<div className="bg-dark text-white p-3">
+		<div className="bg-dark text-white p-3 pb-5">
 			<button className="btn btn-primary" onClick={() => navigate('/')}>Back to Diary</button>
       <button className="btn btn-primary" onClick={() => navigate('/dishes')}>Dishes</button>
 			<h3 className="ms-3">Products</h3>
@@ -66,10 +83,9 @@ const CaloriesCounterProducts: React.FC = () => {
 
 			<Modal id="modalEdit" title="Edit product product">
 				{editProduct && (
-					<ProductForm onSubmitSuccess={() => setEditProduct(null)} onCancel={() => setEditProduct(null)} product={editProduct}/>
+				<ProductForm onSubmitSuccess={() => setEditProduct(null)} onCancel={() => setEditProduct(null)} product={editProduct}/>
 				)}
 			</Modal>
-
 
  			<div className="d-flex justify-content-center">
 	  		<input className="form-control  my-3" style={{'maxWidth': '40em'}} type="text" placeholder="Search products..." 
@@ -125,8 +141,10 @@ const CaloriesCounterProducts: React.FC = () => {
 					<p>No products match your search</p>
 				)}
 			</div>
+		<div className="p-5" ref={ref}> </div>
+
 		</div>
 	)
 }
 
-export default CaloriesCounterProducts
+export default Products
