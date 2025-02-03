@@ -20,9 +20,15 @@
   --bs-warning: #c39919;   /* Custom warning color */
   --bs-info: #17a2b8;      /* Custom info color */
   --bs-dark: #070F2B;      /* Custom dark color */
-  
-  
+
 }
+
+html, body {
+  height: 100%; /* Ensure the body fills the full viewport height */
+  margin: 0; /* Remove any default margin */
+  padding: 0; /* Remove any default padding */
+}
+
 
 .create-label {
   width: 100%;

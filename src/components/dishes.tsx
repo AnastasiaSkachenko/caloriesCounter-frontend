@@ -70,8 +70,10 @@ const Dishes: React.FC = () => {
 
    return (
 		<div className="bg-dark test-dark p-2" > 
-      <button className="btn btn-primary" onClick={() => navigate('/')}>Back to Diary</button>
-      <button className="btn btn-primary" onClick={() => navigate('/products')}>Products</button>
+      <button className="btn btn-primary" onClick={() => navigate('/')}>Diary <i className="bi bi-journal"></i> </button>
+      <button className="btn btn-primary" onClick={() => navigate('/products')}>Products <i className="bi bi-basket"></i> </button>
+      <button onClick={() => navigate('/profile')} className="btn btn-primary">Profile <i className="bi bi-person"></i>
+      </button>
       <h2 className="text-light ps-2">Dishes</h2>
       <button className="btn btn-primary"  data-bs-toggle='modal' data-bs-target='#modalDishBought'>Add Pre-made Dish</button>
       <button className="btn btn-primary"  data-bs-toggle='modal' data-bs-target='#modalDishOwn'>Add Custom Dish</button>

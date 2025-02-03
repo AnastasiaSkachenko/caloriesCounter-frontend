@@ -9,8 +9,15 @@ const baseUrl = production ? window.location.origin : 'http://127.0.0.1:8000';
 
 //                                                                                                                                   Products
 
-export const fetchProducts = async ({ pageParam } : {pageParam?: number}): Promise<{ products: Product[], hasMore?: boolean, currentPage?: number }>  => { 
-  const response = await fetch(`${baseUrl}/api/products/${pageParam ? '?page=' + pageParam : ''}`, {
+export const fetchProducts = async ({ pageParam, query } : {pageParam?: number, query?: string}): Promise<{ products: Product[], hasMore?: boolean, currentPage?: number }>  => { 
+  const params = new URLSearchParams();
+  
+  if (pageParam) params.append("page", pageParam.toString());
+  if (query) params.append("query", query);
+
+  const url = `${baseUrl}/api/products/${params.toString() ? `?${params.toString()}` : ''}`;
+
+  const response = await fetch(url, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -22,7 +29,6 @@ export const fetchProducts = async ({ pageParam } : {pageParam?: number}): Promi
       throw new Error("Failed to fetch product data");
   }
   const data = await response.json() 
-  console.log(pageParam, 'pag')
 
   return { products: data.products, hasMore: data.has_more, currentPage: pageParam};
 };

@@ -85,3 +85,21 @@ export interface DiaryRecordInput {
   diaryRecord: DiaryRecord
 }
 
+
+export interface User {
+  id: number;
+  name: string;
+  email: string;
+  age: number;
+  weight: number;
+  height: number;
+  calories_d: number;
+  protein_d: number;
+  carbohydrate_d: number;
+  fat_d: number;
+  image?: File | string,
+  activity_level: number, 
+  exp?: number;  
+  gender: 'male' | 'female';
+  goal: 'maintain' | 'gain' | 'lose' 
+}
