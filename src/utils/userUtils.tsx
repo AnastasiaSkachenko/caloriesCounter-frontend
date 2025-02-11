@@ -1,11 +1,9 @@
-import Cookies from "universal-cookie"; // Import universal-cookie
 import { useState } from "react";
-import { axiosPublic } from "./axios";
+import { axiosPrivate, axiosPublic } from "./axios";
 import useAuth from "../hooks/useAuth";
 import useAxiosPrivate from "../hooks/useAxiosPrivate";
 
 
-const cookies = new Cookies();
 
  
  
@@ -47,7 +45,7 @@ export const useLogin = () => {
     setError(null);
     try {
       const response = await axiosPublic.post("/api/token/",  { email, password });
-      setAuth({user: response.data.user, accessToken: response.data.access})
+      setAuth({user: response.data.user, access: response.data.access})
       
     } catch (err) {
       setError("Login failed, please try again");
@@ -73,7 +71,7 @@ export const useUser = () => {
       const response = await axiosPrivate.get("/api/user/", {
         withCredentials: true, 
       });
-      setAuth({user: response.data.user, accessToken: response.data.accessToken})
+      setAuth({user: response.data.user, access: response.data.access})
     } catch (error) {
       console.error("Failed to fetch user:", error);
       setError("Failed to fetch user"); // Set error state
@@ -89,24 +87,18 @@ export const useUser = () => {
 export const useModify = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const axiosPrivate = useAxiosPrivate()
+  const { setAuth } = useAuth()
 
 
   const modify = async (user: FormData) => {
-    const token = cookies.get("accessToken");  // Get the JWT token from cookies
-
-
     setLoading(true);  // Start loading
     setError(null);  // Clear previous errors
 
     try {
       const response = await axiosPrivate.put('/api/modify-user/', user, {
-        headers: {
-          'Authorization': `Bearer ${token}`,  // Add the token to the Authorization header
-          'Content-Type': 'multipart/form-data',
-          refresh_token: cookies.get("refreshToken"), 
-        },
       });
+
+      setAuth(prev => ({...prev, user: response.data.user}))
 
       console.log('user is set to', response.data.user)
 
@@ -129,11 +121,13 @@ export const useModify = () => {
  
 export const useLogout = () => {
   const axiosPrivate = useAxiosPrivate()
+  const { setAuth }  = useAuth()
 
 
   const logout = async () => {
     try {
       await axiosPrivate.post("/api/logout/");
+      setAuth({})
  
     } catch (err) {
       console.error("Logout failed", err);

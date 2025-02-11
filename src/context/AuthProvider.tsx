@@ -3,8 +3,8 @@ import { User } from "../components/interfaces";
 import { axiosPrivate } from "../utils/axios";
 
 interface AuthContextType {
-    auth: { user?: User; accessToken?: string };
-    setAuth: Dispatch<SetStateAction<{ user?: User; accessToken?: string }>>;
+    auth: { user?: User; access?: string };
+    setAuth: Dispatch<SetStateAction<{ user?: User; access?: string }>>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -14,27 +14,28 @@ interface AuthProviderProps {
 }
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
-    const [auth, setAuth] = useState<{ user?: User; accessToken?: string }>({});
+    const [auth, setAuth] = useState<{ user?: User; access?: string }>({});
+    const [retry, setRetry] = useState(false)
     console.log(auth)
 
 
     useEffect(() => {
-      const refresh = async () => {    
+      const refresh = async () => {   
           try {
               const response = await axiosPrivate.post("/api/token/refresh/");
               setAuth(prev => ({
                   ...prev,
-                  accessToken: response.data.access,
+                  access: response.data.access,
               }));
 
-              return response.data.accessToken;
+              return response.data.access;
           } catch (error) {
               console.error("Failed to refresh token:", error);
               return null;
           }
       };
 
-      if (!auth.accessToken) {
+      if (!auth.access) {
         refresh()
       }
 
@@ -51,29 +52,32 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
                 setAuth(prev => ({
                     ...prev,
                     user: response.data.user,
-                    accessToken: response.data.access ?? prev.accessToken,
+                    access: response.data.access ?? prev.access,
                 }));
+                console.log(response.data)
             } catch (error) {
                 console.error("Failed to fetch user:", error);
             }
         };
 
         // Only fetch user if there's no user or accessToken
-        if (auth.accessToken && !auth.user) {
+        if (auth.access && !auth.user) {
             fetchUser();
         }
 
  
 
-    }, [auth, auth.accessToken, auth.user]); // Runs when auth changes (accessToken or user)
+    }, [auth, auth.access, auth.user]); // Runs when auth changes (accessToken or user)
 
     useLayoutEffect(() => {
         const requestIntercept = axiosPrivate.interceptors.request.use(
             async (config) => {
+              console.log(config, 'config')
+              console.log('retry    ', retry)
                 // If access token exists, always add to header
-                if (auth.accessToken) {
-                    console.log('Adding Authorization header');
-                    config.headers["Authorization"] = `Bearer ${auth.accessToken}`;
+                if (auth.access && !retry) {
+                    console.log('Adding Authorization header', auth.access);
+                    config.headers["Authorization"] = `Bearer ${auth.access}`;
                 }
                 return config;
             },
@@ -83,56 +87,63 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         return () => {
             axiosPrivate.interceptors.request.eject(requestIntercept);
         };
-    }, [auth.accessToken]); 
-
+    }, [auth.access, retry]); 
 
     useLayoutEffect(() => {
-        const refresh = async () => {
-            try {
-                const response = await axiosPrivate.get("/refresh", {
-                    withCredentials: true,
-                });
+    const refresh = async () => {
+        try {
+            const response = await axiosPrivate.post("/api/token/refresh/",   { withCredentials: true });
 
-                setAuth(prev => ({
-                    ...prev,
-                    accessToken: response.data.access,
-                }));
+            const newAccessToken = response.data.access
 
-                return response.data.accessToken;
-            } catch (error) {
-                console.error("Failed to refresh token:", error);
-                return null;
-            }
-        };
+            setAuth(prev => ({
+                ...prev,
+                access: newAccessToken,
+            }));
+            console.log('auth should get new access token', auth)
+            console.log(newAccessToken)
+            return newAccessToken;
+        } catch (error) {
+            console.error("Failed to refresh token:", error);
+            return null;
+        }
+    };
 
-        const responseIntercept = axiosPrivate.interceptors.response.use(
-            (response) => response,
-            async (error) => {
-                const prevRequest = error?.config;
-
-                // Handle 403 (Forbidden) - Token expired
-                if (error?.response?.status === 403 && !prevRequest?.sent) {
-                    prevRequest.sent = true;
-                    const newAccessToken = await refresh();
-
-                    if (!newAccessToken) {
-                        console.error("Refresh failed, logging out...");
-                        setAuth({});
-                        return Promise.reject(error);
-                    }
-
-                    prevRequest.headers["Authorization"] = `Bearer ${newAccessToken}`;
-                    return axiosPrivate(prevRequest); // Retry the original request with new token
+    const responseIntercept = axiosPrivate.interceptors.response.use(
+        (response) => response, // Handle the successful response
+        async (error) => {
+            const prevRequest = error.config;
+            // Handle 403 (Forbidden) - Token expired
+            if (error?.response?.status === 403 && !prevRequest?.sent && error?.response?.method != 'PUT') {
+                prevRequest.sent = true;  // Mark the request as sent
+                const newAccessToken = await refresh(); // Try to refresh the token
+                
+                if (!newAccessToken) {
+                    console.error("Refresh failed, logging out...");
+                    setAuth({});
+                    return Promise.reject(error);  // Reject the request if refresh fails
                 }
 
-                return Promise.reject(error);
+                // Update the Authorization header with the new token
+                prevRequest.headers["Authorization"] = `Bearer ${newAccessToken}`;
+                console.log('Updated Authorization:', prevRequest.headers["Authorization"]);
+                setRetry(true)
+                // Retry the original request with the new access token
+                return axiosPrivate(prevRequest);
             }
-        );
 
-        return () => {
-            axiosPrivate.interceptors.response.eject(responseIntercept);
-        };
-    }, [auth.accessToken]); // Trigger effect when accessToken is available
+            return Promise.reject(error);  // Reject the error if it's not token expiration
+        }
+    );
+
+    return () => {
+        // Clean up the interceptor when component unmounts
+        axiosPrivate.interceptors.response.eject(responseIntercept);
+    };
+}, [auth.access]); // Trigger effect when accessToken is available
+
+return <AuthContext.Provider value={{ auth, setAuth }}>{children}</AuthContext.Provider>;
+
 
     return <AuthContext.Provider value={{ auth, setAuth }}>{children}</AuthContext.Provider>;
 };
