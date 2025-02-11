@@ -1,4 +1,4 @@
-import { useUserContext } from "./context/UserContext";
+import useAuth  from "../hooks/useAuth";
 import { useState } from "react";
 import { User } from "./interfaces";
 import { useModify } from "../utils/userUtils";
@@ -10,11 +10,11 @@ interface EditProfile  {
 
 
 const EditProfile: React.FC<EditProfile> = ({onExit}) => {
-  const { user } = useUserContext()
+  const { auth } = useAuth()
 
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const [formData, setFormData] = useState<User>(user??{
+  const [formData, setFormData] = useState<User>(auth.user??{
     id: 0, name: '', age: 18, weight: 0, height: 0, calories_d: 0, protein_d: 0,
     carbohydrate_d: 0, fat_d: 0, activity_level: 1, email: '', exp: 0, gender: 'female', goal: 'lose'
   });

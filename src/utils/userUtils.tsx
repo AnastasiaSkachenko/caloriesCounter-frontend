@@ -1,20 +1,15 @@
-import axios from "axios";
-import { baseUrl } from "./production";
 import Cookies from "universal-cookie"; // Import universal-cookie
-import { useUserContext } from "../components/context/UserContext";
 import { useState } from "react";
+import { axiosPublic } from "./axios";
+import useAuth from "../hooks/useAuth";
+import useAxiosPrivate from "../hooks/useAxiosPrivate";
 
 
 const cookies = new Cookies();
 
-const axiosInstance = axios.create({
-  baseURL: baseUrl,
-  headers: {
-    "Content-Type": "application/json",
-  },
-});
  
-// Define the hook
+ 
+ 
 export const useRegister = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -23,7 +18,7 @@ export const useRegister = () => {
     setLoading(true);  // Start loading
     setError(null);  // Clear previous errors
     try {
-      await axiosInstance.post('/api/register/', user, {
+      await axiosPublic.post('/api/register/', user, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
 
@@ -45,16 +40,15 @@ export const useRegister = () => {
 export const useLogin = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const { setUser } = useUserContext();
+  const { setAuth } = useAuth()
 
   const login = async (email: string, password: string) => {
     setIsLoading(true);
     setError(null);
     try {
-      const res = await axiosInstance.post("/api/login/", { email, password });
-      cookies.set("accessToken", res.data.access, { path: "/", maxAge: 259200 });
-
-      setUser(res.data.user); // Update user in context
+      const response = await axiosPublic.post("/api/token/",  { email, password });
+      setAuth({user: response.data.user, accessToken: response.data.access})
+      
     } catch (err) {
       setError("Login failed, please try again");
       console.error("Login failed", err);
@@ -62,14 +56,40 @@ export const useLogin = () => {
       setIsLoading(false);
     }
   };
+  
   return { login, isLoading, error };
 };
 
  
+export const useUser = () => {
+  const [loading, setLoading] = useState<boolean>(true); // State to manage loading
+  const [error, setError] = useState<string | null>(null); // State for any errors
+  const axiosPrivate = useAxiosPrivate()
+  const { setAuth }  = useAuth()
+
+
+  const fetchUser = async () => {
+    try {
+      const response = await axiosPrivate.get("/api/user/", {
+        withCredentials: true, 
+      });
+      setAuth({user: response.data.user, accessToken: response.data.accessToken})
+    } catch (error) {
+      console.error("Failed to fetch user:", error);
+      setError("Failed to fetch user"); // Set error state
+    } finally {
+      setLoading(false); // Set loading to false once request is complete
+    }
+  };
+
+
+  return {  loading, error, refetch: fetchUser };  
+};
+
 export const useModify = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const { setUser } = useUserContext();
+  const axiosPrivate = useAxiosPrivate()
 
 
   const modify = async (user: FormData) => {
@@ -80,7 +100,7 @@ export const useModify = () => {
     setError(null);  // Clear previous errors
 
     try {
-      const response = await axiosInstance.put('/api/modify-user/', user, {
+      const response = await axiosPrivate.put('/api/modify-user/', user, {
         headers: {
           'Authorization': `Bearer ${token}`,  // Add the token to the Authorization header
           'Content-Type': 'multipart/form-data',
@@ -88,7 +108,6 @@ export const useModify = () => {
         },
       });
 
-      setUser(response.data.user)
       console.log('user is set to', response.data.user)
 
 
@@ -107,24 +126,15 @@ export const useModify = () => {
 };
 
 
-
-
+ 
 export const useLogout = () => {
-  const { setUser } = useUserContext();
+  const axiosPrivate = useAxiosPrivate()
+
 
   const logout = async () => {
     try {
-      // Optionally, call your backend to invalidate the session if needed
-      await axiosInstance.post("/api/logout/", {
-        refresh_token: cookies.get("refreshToken"), // Optional if you have a refresh token
-      });
-
-      // Remove the access token and refresh token from cookies
-      cookies.remove("accessToken", { path: "/" });
-      cookies.remove("refreshToken", { path: "/" });
-
-      // Reset the user state in context
-      setUser(null);
+      await axiosPrivate.post("/api/logout/");
+ 
     } catch (err) {
       console.error("Logout failed", err);
     }
@@ -132,5 +142,8 @@ export const useLogout = () => {
 
   return { logout };
 };
+
+
+ 
 
 

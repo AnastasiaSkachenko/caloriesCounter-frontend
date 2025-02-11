@@ -5,12 +5,12 @@ import CaloriesCounter from "./components/main-page";
 import RegisterPage from "./components/register";
 import LoginPage from "./components/login";
 import Profile from "./components/Profile";
-import { UserProvider } from "./components/context/provider";
+import { AuthProvider } from "./context/AuthProvider";
 
 
 function App() {
   return (
-    <UserProvider>
+    <AuthProvider>
       <Router>
         <Routes> 
           <Route path="/dishes" element={<Dishes/>}/>
@@ -21,7 +21,7 @@ function App() {
           <Route path="/profile" element={<Profile/>}/>
         </Routes>
       </Router>
-    </UserProvider>
+    </AuthProvider>
   );
 }
 

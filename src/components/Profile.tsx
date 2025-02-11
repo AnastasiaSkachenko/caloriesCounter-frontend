@@ -1,13 +1,15 @@
 import { useNavigate } from "react-router-dom";
-import { useUserContext } from "./context/UserContext";
 import '../../styles/style.css';
-import RegisterPage from "./register";
 import { useState } from "react";
 import EditProfile from "./editProfile";
+import { useLogout } from "../utils/userUtils";
+import useAuth from "../hooks/useAuth";
 
 const Profile = () => {
-  const { user } = useUserContext()
+  const {auth} = useAuth()
+  const user = auth.user
   const navigate = useNavigate()
+  const { logout } = useLogout()
 
   const [editProfile, setEditProfile] = useState(false)
 
@@ -32,7 +34,7 @@ const Profile = () => {
                     <p>Weight: {user.weight}</p>
                     <p>Gender: {user.gender}</p>
                     <p>goal: {user.goal}</p>
-                    <p>Activity level: {user.activity_level}</p>
+                    <p>Activity level: {user?.activity_level}</p>
                   </div>
                   <div className="col d-flex flex-column">
                     <h5 className="my-3">Macros Info:</h5>
@@ -41,13 +43,17 @@ const Profile = () => {
                     <p>Carbs for one day: {user.carbohydrate_d} g</p>
                     <p>Fats for one day: {user.fat_d} g</p>
                   </div>
+                  <button onClick={() => logout()}>Log out</button>
                 </div>
               )}
             </div>
           </div>
         </div>
       ) : (
-        <RegisterPage/>
+        <>
+          <p>no user</p>
+          <button onClick={() => navigate('/login')}>Login</button>
+        </>
       )}
     </div>
   );
