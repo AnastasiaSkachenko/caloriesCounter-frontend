@@ -9,30 +9,32 @@ const baseUrl = production ? window.location.origin : 'http://127.0.0.1:8000';
 
 //                                                                                                                                   Products
 
-export const fetchProducts = async ({ pageParam, query } : {pageParam?: number, query?: string}): Promise<{ products: Product[], hasMore?: boolean, currentPage?: number }>  => { 
+export const fetchProducts = async ({ pageParam = 1, queryKey }: { pageParam?: number, queryKey: string[] }) => {
+  const [, query] = queryKey; // Extract query from queryKey
+
   const params = new URLSearchParams();
-  
-  if (pageParam) params.append("page", pageParam.toString());
+  params.append("page", pageParam.toString());
   if (query) params.append("query", query);
 
-  const url = `${baseUrl}/api/products/${params.toString() ? `?${params.toString()}` : ''}`;
+  const url = `${baseUrl}/api/products/?${params.toString()}`;
 
   const response = await fetch(url, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        'X-CSRFToken': cookies.get("csrftoken")
-      },
-    });
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      'X-CSRFToken': cookies.get("csrftoken"),
+    },
+  });
 
   if (!response.ok) {
-      throw new Error("Failed to fetch product data");
+    throw new Error("Failed to fetch product data");
   }
-  const data = await response.json() 
 
-  return { products: data.products, hasMore: data.has_more, currentPage: pageParam};
+  const data = await response.json();
+  return { products: data.products, hasMore: data.has_more, currentPage: pageParam };
 };
- 
+
+
 
 export const saveProduct = async ({product}: ProductInput): Promise<Product> => {
   const response = await fetch(`${baseUrl}/api/products/`, {
