@@ -120,7 +120,6 @@ export const useModify = () => {
 
  
 export const useLogout = () => {
-  const axiosPrivate = useAxiosPrivate()
   const { setAuth }  = useAuth()
 
 

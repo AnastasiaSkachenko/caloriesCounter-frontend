@@ -18,7 +18,7 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="d-flex align-items-center justify-content-center bg-secondary" style={{minHeight: '80vh'}}>
+    <div className="d-flex align-items-center justify-content-center bg-secondary" style={{minHeight: '100vh'}}>
       <div className=" border rounded p-5 py-4 shadow">
         <h2 className="text-center">Login</h2>
         {error && <p className="color-danger">{error}</p>}

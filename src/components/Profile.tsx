@@ -4,6 +4,8 @@ import { useState } from "react";
 import EditProfile from "./editProfile";
 import { useLogout } from "../utils/userUtils";
 import useAuth from "../hooks/useAuth";
+import EditMacros from "./editMarcos";
+import Modal from "./Modal";
 
 const Profile = () => {
   const {auth} = useAuth()
@@ -21,6 +23,12 @@ const Profile = () => {
           <button className="btn btn-primary" onClick={() => navigate('/')}>Diary <i className="bi bi-journal"></i> </button>
           <button className="btn btn-primary" onClick={() => navigate('/products')}>Products <i className="bi bi-basket"></i> </button>
           <button onClick={() => navigate('/dishes')} className="btn btn-primary">Dishes <i className="fa fa-bowl-food"></i></button>
+
+          <Modal id="editMacros" title="Edit Macros">
+            <EditMacros />
+          </Modal>
+
+
           <div className="d-flex justify-content-center align-items-center" style={{minHeight: '70vh'}}>
             <div className="border rounded shadow px-5 py-4 " style={{minWidth: '45%', minHeight: '30em'}}>
               <h2 className="text-center">Profile <button className="btn bg-transparent p-2 m-0" onClick={() => setEditProfile(true)}><i className="fa fa-user-pen"></i></button></h2>
@@ -37,7 +45,7 @@ const Profile = () => {
                     <p>Activity level: {user?.activity_level}</p>
                   </div>
                   <div className="col d-flex flex-column">
-                    <h5 className="my-3">Macros Info:</h5>
+                    <h5 className="my-3">Macros Info <button className="btn bg-transparent p-2 m-0"  data-bs-toggle='modal' data-bs-target='#editMacros'><i className="fa fa-pen"></i></button>:</h5>
                     <p>Energy for one day: {user.calories_d} ccal</p>
                     <p>Protein for one day: {user.protein_d} g</p>
                     <p>Carbs for one day: {user.carbohydrate_d} g</p>
@@ -50,10 +58,12 @@ const Profile = () => {
           </div>
         </div>
       ) : (
-        <>
-          <p>no user</p>
-          <button onClick={() => navigate('/login')}>Login</button>
-        </>
+       <div className="d-flex justify-content-center mt-5">
+        <div className="d-flex flex-column">
+          You are not logged in.
+          <button className="btn btn-primary" onClick={() => navigate('/login')} >Go to login page</button>
+        </div>
+       </div>
       )}
     </div>
   );

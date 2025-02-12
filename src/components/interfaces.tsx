@@ -103,3 +103,10 @@ export interface User {
   gender: 'male' | 'female';
   goal: 'maintain' | 'gain' | 'lose' 
 }
+
+export interface ModifyUser {
+  calories_d: number;
+  protein_d: number;
+  carbohydrate_d: number;
+  fat_d: number;
+}

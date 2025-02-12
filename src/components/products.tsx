@@ -71,8 +71,10 @@ const Products: React.FC = () => {
 
 	return (
 		<div className="bg-dark text-white p-3 pb-5">
-			<button className="btn btn-primary" onClick={() => navigate('/')}>Back to Diary</button>
+			<button className="btn btn-primary" onClick={() => navigate('/')}>Diary</button>
       <button className="btn btn-primary" onClick={() => navigate('/dishes')}>Dishes</button>
+			<button onClick={() => navigate('/profile')} className="btn btn-primary">Profile <i className="bi bi-person"></i></button>
+
 			<h3 className="ms-3">Products</h3>
  
 			<button onClick={() => setEditProduct(null)} className="btn btn-primary" data-bs-toggle='modal' data-bs-target='#modal' >Add product</button>

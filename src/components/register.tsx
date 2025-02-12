@@ -64,7 +64,7 @@ const RegisterPage = () => {
   };
 
   return (
-    <div className='d-flex flex-column justify-content-center align-items-center bg-secondary' style={{minHeight: '90vh'}}>
+    <div className='d-flex flex-column justify-content-center align-items-center bg-secondary' style={{minHeight: '100vh'}}>
 
       <div className='border rounded px-5 py-4 shadow'>
         {error && <p style={{ color: 'red' }}>{error}</p>}
