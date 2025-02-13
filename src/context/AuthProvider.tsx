@@ -16,7 +16,6 @@ interface AuthProviderProps {
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const [auth, setAuth] = useState<{ user?: User; access?: string }>({});
     const [retry, setRetry] = useState(false)
-    console.log(auth)
 
 
     useEffect(() => {
@@ -39,7 +38,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         refresh()
       }
 
-    }, [])
+    }, [auth.access])
 
 
 
@@ -54,7 +53,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
                     user: response.data.user,
                     access: response.data.access ?? prev.access,
                 }));
-                console.log(response.data)
             } catch (error) {
                 console.error("Failed to fetch user:", error);
             }
@@ -72,11 +70,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     useLayoutEffect(() => {
         const requestIntercept = axiosPrivate.interceptors.request.use(
             async (config) => {
-              console.log(config, 'config')
-              console.log('retry    ', retry)
                 // If access token exists, always add to header
                 if (auth.access && !retry) {
-                    console.log('Adding Authorization header', auth.access);
                     config.headers["Authorization"] = `Bearer ${auth.access}`;
                 }
                 return config;
@@ -100,8 +95,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
                 ...prev,
                 access: newAccessToken,
             }));
-            console.log('auth should get new access token', auth)
-            console.log(newAccessToken)
             return newAccessToken;
         } catch (error) {
             console.error("Failed to refresh token:", error);
@@ -126,7 +119,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
                 // Update the Authorization header with the new token
                 prevRequest.headers["Authorization"] = `Bearer ${newAccessToken}`;
-                console.log('Updated Authorization:', prevRequest.headers["Authorization"]);
                 setRetry(true)
                 // Retry the original request with the new access token
                 return axiosPrivate(prevRequest);
@@ -140,7 +132,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         // Clean up the interceptor when component unmounts
         axiosPrivate.interceptors.response.eject(responseIntercept);
     };
-}, [auth.access]); // Trigger effect when accessToken is available
+}, [auth.access, auth]); // Trigger effect when accessToken is available
 
 return <AuthContext.Provider value={{ auth, setAuth }}>{children}</AuthContext.Provider>;
 

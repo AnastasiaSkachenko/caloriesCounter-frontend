@@ -235,7 +235,7 @@ const CustomDishForm: React.FC<DishFormProps> = ({onSuccess,onCancel, dishNames,
 
 
       {createIngredient ? (
-        <IngredientForm onSuccess={(TCProduct) => addIngredient(TCProduct)} onCancel={() => setCreateIngredient(false)} ingredients={[]}/>
+        <IngredientForm onSuccess={(TCProduct) => addIngredient(TCProduct)} onCancel={() => setCreateIngredient(false)} />
       ) : (
         <div className='d-flex justify-content-center'>
           <button className='btn btn-primary' onClick={() => setCreateIngredient(true)}>Add ingredient</button>
@@ -255,7 +255,7 @@ const CustomDishForm: React.FC<DishFormProps> = ({onSuccess,onCancel, dishNames,
 
           <p>Weight: {product.weight}g, Calories: {product.calories}, Protein: {product.protein}, Carbs: {product.carbohydrate}, Fat: {product.fat}</p>
           {ingredientEdit && editIndex == index  && (
-            <IngredientForm onSuccess={(TCProduct) => editIngredient(TCProduct, index)} onCancel={() => setIngredientEdit(null)} ingredientData={product} ingredients={ingredients}   />
+            <IngredientForm onSuccess={(TCProduct) => editIngredient(TCProduct, index)} onCancel={() => setIngredientEdit(null)} ingredientData={product}   />
 
           )}
         </div>

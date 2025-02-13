@@ -1,5 +1,6 @@
 import { DiaryRecord, DiaryRecordInput, Dish, DishEditInput, DishInput, Ingredient, IngredientInput, PopInput, Product, ProductEditInput, ProductInput } from "../components/interfaces";
 import Cookies from "universal-cookie"; 
+import { axiosPublic } from "./axios";
 
 const cookies = new Cookies();
 
@@ -34,6 +35,34 @@ export const fetchProducts = async ({ pageParam = 1, queryKey }: { pageParam?: n
   return { products: data.products, hasMore: data.has_more, currentPage: pageParam };
 };
 
+export const getProductNames = async (): Promise<string[]> => {
+  const response = await fetch(`${baseUrl}/api/products/names/`, {
+    method: "GET",
+    headers: {
+      "X-CSRFToken": cookies.get("csrftoken"),
+    },
+  });
+
+  console.log(response)
+
+  if (!response.ok) {
+      throw new Error("Failed to get product names");
+  }
+  const data = await response.json()
+  return  data.products
+
+}
+
+export const checkProductExists = async (name: string) => {
+  if (!name) return null;
+
+  const response = await axiosPublic.get(`/api/checkProductName/`, {
+    params: { name },
+  });
+
+  return response.data.exists;
+};
+
 
 
 export const saveProduct = async ({product}: ProductInput): Promise<Product> => {
@@ -51,6 +80,8 @@ export const saveProduct = async ({product}: ProductInput): Promise<Product> => 
   return  response.json()
 
 }
+
+
  
 export const editProduct = async ({product, id}: ProductEditInput): Promise<void> => {
   const response = await fetch(`${baseUrl}/api/products/?id=${id}`, {

@@ -1,20 +1,17 @@
-import React, { useState, useEffect, useRef, useMemo } from 'react';
-import { useInfiniteQuery, useQuery } from '@tanstack/react-query';  
+import React, { useState, useEffect, useRef } from 'react';
+import {  useQuery } from '@tanstack/react-query';  
 import { Product, Ingredient } from './interfaces';
-import { fetchIngredient, fetchProductNames, fetchProducts } from '../utils/caloriesCounter';
+import { fetchIngredient,  fetchProducts, getProductNames } from '../utils/caloriesCounter';
 import ProductForm from './ProductForm';
-import { useInView } from 'react-intersection-observer';
 
 interface IngredientFormProps {
   onSuccess: (ingredient:Ingredient) => void
   onCancel: () => void,
   ingredientId?: number,
-  ingredients: Ingredient[],
   ingredientData?: Ingredient,
 }
 
-const IngredientForm: React.FC<IngredientFormProps> = ({onSuccess, onCancel, ingredients, ingredientData, ingredientId }) => { 
-  const {inView} = useInView()
+const IngredientForm: React.FC<IngredientFormProps> = ({onSuccess, onCancel, ingredientData, ingredientId }) => { 
 
   const [ingredient, setIngredient] = useState<Ingredient>(ingredientData??{
     id: 0,
@@ -28,42 +25,11 @@ const IngredientForm: React.FC<IngredientFormProps> = ({onSuccess, onCancel, ing
     product: 0
   });
 
-
-	const {
-		status,
-		error,
-		data,
-		refetch,
-		fetchNextPage,
-	} = useInfiniteQuery({
-		queryKey: ['products', ingredient.name], // Include searchQuery in queryKey
-		queryFn: fetchProducts,
-		initialPageParam: 1,
-		getNextPageParam: (lastPage, allPages) =>
-			lastPage.hasMore ? allPages.length + 1 : undefined,
-	})
-
-  useEffect(() => {
-		if (inView){
-			fetchNextPage()
-		}
-	}, [inView, fetchNextPage])
-
-	useEffect(() => {
-		refetch(); // Refetch when searchQuery changes
-	}, [ingredient.name, refetch]);
-
- 
-  const products = useMemo(() => {
-    return data?.pages.flatMap((page) => page.products) || [];
-  }, [data]);
-
-
   const {
       status: statusProductNames, error: errorProductNames, isLoading: isLoadingProductNames,data: productNames
   } = useQuery({
       queryKey: ['productNames'], 
-      queryFn: () => fetchProductNames(), 
+      queryFn: () => getProductNames(), 
   });
 
  
@@ -79,7 +45,6 @@ const IngredientForm: React.FC<IngredientFormProps> = ({onSuccess, onCancel, ing
 
   const [currentProduct, setCurrentProduct] = useState<Product | null>()
   const [focus, setFocus] = useState(true)
-  const [usedProducts, setUsedProducts] = useState<string[]>([]) 
 
   const [inputRefs] = useState([
     useRef<HTMLInputElement>(null),
@@ -98,19 +63,6 @@ const IngredientForm: React.FC<IngredientFormProps> = ({onSuccess, onCancel, ing
   }, [inputRefs, focus]);
       
   
-
-  useEffect(() => {
-    const newUsedProducts: string[] = []; 
-
-    ingredients.forEach((ingredient) => {
-      const productData = products?.find(product => product.id === ingredient.product);
-      if (productData){  
-        newUsedProducts.push(productData.name.toLowerCase())
-      }
-    })
-    setUsedProducts([...new Set(newUsedProducts)]); 
-    
-  }, [products, ingredients]);
 
 
   //in case when editing ingredient and there just id send to form
@@ -167,61 +119,42 @@ const IngredientForm: React.FC<IngredientFormProps> = ({onSuccess, onCancel, ing
     };
 
 // get current product from existing products
-    const getProduct = (productName:string) => {
-      console.log('get product called')
-      const product = products?.find(product => product.name.toLowerCase() === productName);
-      if (product) {  
-        if (usedProducts.includes(product.name.toLowerCase())){
-          setValidationError(`This product is already used in this dish`)
+    const getProduct = async (productName:string) => {
+      const productNameExists = productNames?.find(product => product === productName);
+      if (productNameExists) {
+        const response = await fetchProducts({pageParam:1, queryKey: ['products', productName]})
+        const products: Product[] = response.products
+        const product = products?.find(product => product.name === productName);
+        if (product) {  
           setIngredient((prevIngredient) => ({
-            ...prevIngredient,
-            name: '',  
-          }));
-          setCurrentProduct(null)
-          return  
-        } else {
-          setValidationError(null)
-        }
-
-        setIngredient((prevIngredient) => ({
-            ...prevIngredient,
-            name: product.name,
-            product:  product.id
-        }));  
-        setCurrentProduct(product)
-        setFilteredSuggestions([])
-
-
-        setTimeout(() => {
-          if (inputRefs[1].current) {
-            inputRefs[1].current.focus();
-          }
-        }, 10);        
+              ...prevIngredient,
+              name: product.name,
+              product:  product.id
+          }));  
+          setCurrentProduct(product)
+          setFilteredSuggestions([])
   
-      }   
+  
+          setTimeout(() => {
+            if (inputRefs[1].current) {
+              inputRefs[1].current.focus();
+            }
+          }, 10);        
+        }     
+      }
+
     }
 
  
     const handleProductNameChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-      console.log('hand;e name called')
-      const value = e.target.value.trim().toLowerCase();
-      if (usedProducts.includes(value)) {
-        setValidationError('You cant use this product. It already exists in this dish')
-        setIngredient((prevIngredient) => ({
-          ...prevIngredient,
-          name: '',  
-        }));  
-
-        return
-      } else {
-        setValidationError(null)
-      }
+      const value = e.target.value.slice(0,1).toUpperCase() + e.target.value.slice(1);
 
       if (currentProduct) {
         setCurrentProduct(null)
       }
 
       if (value.startsWith('add "') && value.endsWith('" to my products')) { 
+        console.log('condition met')
           setIngredient((prevIngredient) => ({
               ...prevIngredient,
               name: '',  
@@ -231,19 +164,12 @@ const IngredientForm: React.FC<IngredientFormProps> = ({onSuccess, onCancel, ing
           } else {
           setIngredient((prevIngredient) => ({
               ...prevIngredient,
-              name: value 
+              name: value
           }));
           setCreatingNewProduct(null);
       }
-      const filterSuggestions = suggestions.filter(product => product.toLowerCase().startsWith(value));
-      const NotUsed = filterSuggestions.filter(product => !usedProducts.includes(product))
 
-      if (!NotUsed.includes(value) && !value.startsWith('add "')) {
-          NotUsed.push(`Add "${value}" to my products`); 
-      } else {
-          NotUsed.pop();
-      }
-      setFilteredSuggestions(NotUsed);
+      setFilteredSuggestions([...suggestions, `Add "${value}" to my products`]);
       getProduct(value) 
    };
  
@@ -319,7 +245,6 @@ const IngredientForm: React.FC<IngredientFormProps> = ({onSuccess, onCancel, ing
   }
 
  
-  if (status === 'error') return <h1>{JSON.stringify(error)}</h1>;
  
   if (isLoadingProductNames) return <h1>Loading...</h1>;
   if (statusProductNames === 'error') return <h1>{JSON.stringify(errorProductNames)}</h1>;

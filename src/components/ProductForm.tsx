@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react'; 
 import { useQuery } from '@tanstack/react-query'; 
 import { Product } from './interfaces';
-import { fetchProducts } from '../utils/caloriesCounter';
+import { checkProductExists } from '../utils/caloriesCounter';
 import {  usePutProduct, useSetProduct } from '../hooks/caloriesCounter';
 import '../../styles/style.css';
 import '../index.css'
@@ -15,16 +15,17 @@ interface ProductFormProps {
  }
 
 const ProductForm: React.FC<ProductFormProps> = ({ onSubmitSuccess, onCancel, product, productName}) => {
-  const {
-    status: statusProducts, error: errorProducts, isLoading: isLoadingProducts, refetch: refetchProducts,data: products
-  } = useQuery({
-    queryKey: ['productNames' ], 
-    queryFn: () =>  fetchProducts({})  ,     
-  });
-
   const [formState, setFormState] = useState<Product>(product ??{
     id: 0, name: productName ?? '', calories: 0, protein: 0, carbohydrate: 0,fat: 0
   });
+
+
+  const productNameExists = useQuery({
+    queryKey: ["checkProductExists", formState.name],
+    queryFn: () => checkProductExists(formState.name),
+    enabled: !!formState.name, // Runs query only when name is provided
+  })
+
 
   const [validation, setValidation] = useState<{message: string | undefined, valid: boolean}>({message: undefined, valid: false})
   const addProductButtonRef = useRef<HTMLButtonElement>(null);
@@ -62,24 +63,22 @@ const ProductForm: React.FC<ProductFormProps> = ({ onSubmitSuccess, onCancel, pr
     };
   }, [inputRefs, product]);
       
+  console.log(productNameExists.data, 'product name exist')
 
   useEffect(() => {
-    if (!formState.name.trim()) {
-      setValidation({ message: 'Product name is required', valid: false });
-      return;
-    }
-  
-    const nameExists = products?.products?.find(
-      (productL: Product) => productL.name.trim().toLowerCase() === formState.name.trim().toLowerCase()
-    );
-  
-    if (nameExists && product?.name != formState.name) {
-      setValidation({ message: 'Product with this name already exists.', valid: false });
+    if (productNameExists.data ) {
+      setValidation((prev) => prev.message === 'Product with this name already exists'
+        ? prev 
+        : { message: 'Product with this name already exists', valid: false }
+      );
     } else {
-      setValidation({ message: undefined, valid: true });
+      setValidation((prev) => prev.message === undefined 
+        ? prev 
+        : { message: undefined, valid: true }
+      );
     }
-  }, [formState.name, products?.products, product?.name]);
-     
+  }, [productNameExists]);
+  
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>, name?: string) => {
     const { name: fieldName, value } = e.target;
@@ -145,7 +144,6 @@ const ProductForm: React.FC<ProductFormProps> = ({ onSubmitSuccess, onCancel, pr
 
     if (onSubmitSuccess) onSubmitSuccess(returnedProduct) 
     
-    refetchProducts()
   }
 
   const handleCancel = () => {
@@ -179,8 +177,6 @@ const ProductForm: React.FC<ProductFormProps> = ({ onSubmitSuccess, onCancel, pr
   }
 
 
-  if (isLoadingProducts) return <h1>Loading...</h1>;
-  if (statusProducts === 'error') return <h1>{JSON.stringify(errorProducts)}</h1>;
 
   return (
     <div className='modal-body'>
