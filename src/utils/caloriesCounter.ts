@@ -43,12 +43,12 @@ export const getProductNames = async (): Promise<string[]> => {
     },
   });
 
-  console.log(response)
 
   if (!response.ok) {
       throw new Error("Failed to get product names");
   }
   const data = await response.json()
+  console.log(data.products)
   return  data.products
 
 }
@@ -112,7 +112,7 @@ export const deleteProduct = async ({id}: PopInput): Promise<string | void> => {
   }
 }
 
-
+//next to DELETE
 export const fetchProductNames = async (  )  => { 
   const response = await fetch(`${baseUrl}/api/products/`, {
       method: "GET",
@@ -212,23 +212,48 @@ export const fetchIngredient = async (id: number)  => {
   
 //                                                                                                                                dishes
 
-export const fetchDishes = async ({ pageParam } : {pageParam?: number}): Promise<{ dishes: Dish[], hasMore?: boolean, currentPage?: number }>  => { 
-    const response = await fetch(`${baseUrl}/api/dishes/${pageParam ? '?page=' + pageParam : ''}`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          'X-CSRFToken': cookies.get("csrftoken")
-
-        },
-    });
-  
-    if (!response.ok) {
-        throw new Error("Failed to fetch dishes data");
-    }
-  
-    const data = await response.json() 
-    return { dishes: data.dishes, hasMore: data.has_more, currentPage: pageParam};
+export const fetchDishes = async ({ pageParam = 1, query = "", onlyNoProduct = false }) => {
+  const response = await axiosPublic.get("/api/dishes/", {
+      params: {
+          page: pageParam,
+          query: query,
+          only_no_product: onlyNoProduct,
+      },
+  });
+  return response.data;
 };
+
+
+export const getDishNames = async (): Promise<string[]> => {
+  const response = await fetch(`${baseUrl}/api/dishes/names/`, {
+    method: "GET",
+    headers: {
+      "X-CSRFToken": cookies.get("csrftoken"),
+    },
+  });
+
+
+  if (!response.ok) {
+      throw new Error("Failed to get dish names");
+  }
+  const data = await response.json()
+  return  data.dishes || []
+
+}
+
+export const checkDishExists = async (name: string) => {
+  if (!name) return null;
+
+  const response = await axiosPublic.get(`/api/checkDishName/`, {
+    params: { name },
+  });
+
+  return response.data.exists;
+};
+
+
+
+
 
 export const fetchDish = async (id:number)  => { 
   const response = await fetch(`${baseUrl}/api/get-dish-by-id/${id}`, {

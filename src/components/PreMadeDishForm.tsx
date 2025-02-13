@@ -4,9 +4,11 @@ import { usePutDish, useSetDish} from '../hooks/caloriesCounter';
 import '../index.css'
 import '../assets/style.scss'
 import '../../styles/style.css' ;
+import { useQuery } from '@tanstack/react-query';
+import { checkDishExists } from '../utils/caloriesCounter';
 
 
-const PreMadeDishForm: React.FC<DishFormProps> = ({onSuccess,onCancel, dishToEdit, dishNames}) => {
+const PreMadeDishForm: React.FC<DishFormProps> = ({onSuccess,onCancel, dishToEdit}) => {
   const [dishInfo, setDishInfo] = useState<Dish>( dishToEdit ?? {
     id: 0, name: '',  calories: 0, calories_100: 0, protein: 0, carbohydrate: 0,
     fat: 0, protein_100: 0,carbohydrate_100: 0, fat_100: 0, weight: 0,  drink: false, 
@@ -16,27 +18,32 @@ const PreMadeDishForm: React.FC<DishFormProps> = ({onSuccess,onCancel, dishToEdi
   const [validation, setValidation] = useState<{message: string | undefined, valid: boolean}>({message: undefined, valid: false})
   const addDishButtonRef = useRef<HTMLButtonElement>(null);
 
+  const dishNameExists = useQuery({
+    queryKey: ["checkDishExists", dishInfo.name],
+    queryFn: () => checkDishExists(dishInfo.name),
+    enabled: !!dishInfo.name, // Runs query only when name is provided
+  })
+
+
   const { putDish } = usePutDish()
   const { setDish } = useSetDish()
 
+
   useEffect(() => {
-    const nameExists = dishNames?.find(
-      (name: string) => name.toLowerCase() === dishInfo.name.toLowerCase()
-    );  
-
-    if (nameExists && nameExists.toLowerCase() != dishInfo.name.toLowerCase()) {
-      setValidation({message:'Dish with this name already exists.', valid: false})
-      return
+    if (dishNameExists.data ) {
+      setValidation((prev) => prev.message === 'Dish with this name already exists'
+        ? prev 
+        : { message: 'Dish with this name already exists', valid: false }
+      );
     } else {
-      setValidation({message: undefined, valid: true})
+      setValidation((prev) => prev.message === undefined 
+        ? prev 
+        : { message: undefined, valid: true }
+      );
     }
-
-    if (dishInfo.name == '') {
-      setValidation({message: 'Dish name is required', valid: false})
-    } else {
-      setValidation({message: undefined, valid: true})
-    }
-  }, [dishInfo.name, dishNames])
+  }, [dishNameExists]);
+  
+  
  
  
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, index?: number) => {

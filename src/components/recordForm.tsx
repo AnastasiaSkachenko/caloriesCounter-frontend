@@ -1,7 +1,7 @@
 import React, { useState, useRef, RefObject, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';  
 import {  DiaryRecord, Dish } from './interfaces';
-import { fetchDish, fetchDishes } from '../utils/caloriesCounter';
+import { fetchDishes, getDishNames } from '../utils/caloriesCounter';
 import { usePutDiaryRecord, useSetDiaryRecord } from '../hooks/caloriesCounter';
 
 interface RecordFormProps {
@@ -13,25 +13,17 @@ interface RecordFormProps {
 const RecordForm: React.FC<RecordFormProps> = ({onSuccess, onCancel, recordData}) => { 
 
   const {
-    status, error, isLoading, data
+      status, error, isLoading,data: dishNames
   } = useQuery({
-    queryKey: ['productNames' ], 
-    queryFn: () =>  fetchDishes({})  ,     
+      queryKey: ['dishNames'], 
+      queryFn: () => getDishNames(), 
   });
-  
-  const dishes = data?.dishes
-
-  const dishNames: string[] = []
-  dishes?.map((dish: Dish) => {
-    dishNames.push(dish.name)
-  })
-
 
   const [filteredSuggestions, setFilteredSuggestions] = useState<string[]>([''])
   const [validation, setValidation] = useState<{message: string | undefined, valid: boolean}>({message: undefined, valid: false})
   const [inputMode, setInputMode] = useState<"weight" | "portions">(recordData? (recordData.weight  ? 'weight': 'portions'):"weight");
   const [record, setRecordInfo] = useState<DiaryRecord>(recordData??{
-    id: 0, name: '', image: '', weight: 0, calories: 0, protein: 0, carbohydrate: 0, fat: 0, dish: 0,date: ''
+    id: 0, name: '', image: '', weight: 100, calories: 0, protein: 0, carbohydrate: 0, fat: 0, dish: 0,date: '', portions: 1
   });
   const [currentDish, setCurrentDish] = useState<Dish | null>()
   const addRecordButtonRef = useRef<HTMLButtonElement>(null);
@@ -73,7 +65,7 @@ const RecordForm: React.FC<RecordFormProps> = ({onSuccess, onCancel, recordData}
     } else {
       setValidation({message: undefined, valid: true})
     } 
-  }, [currentDish, inputMode, record.name, record.portions, record.weight, filteredSuggestions, dishes])
+  }, [currentDish, inputMode, record.name, record.portions, record.weight, filteredSuggestions])
 
  
   const toggleInputMode = () => {
@@ -81,57 +73,91 @@ const RecordForm: React.FC<RecordFormProps> = ({onSuccess, onCancel, recordData}
   };
 
   useEffect(() => {
-    const fetchDishData = async () => {
-      if (recordData && currentDish == undefined) {
-        try {
-          const fetchedDish = await fetchDish(recordData.dish);
-          setCurrentDish(fetchedDish);
-        } catch (error) {
-          console.error('Error fetching dish:', error);
-        }
-      }
-    };
+    if (!currentDish) return;
   
-    fetchDishData();
-  }, [recordData, currentDish]);
-
+    setRecordInfo((prevRecord) => {
+      const { weight, portions } = prevRecord;
+  
+      if (inputMode === "weight" && weight && weight > 0) {
+        return {
+          ...prevRecord,
+          calories: Math.round((weight * currentDish.calories_100) / 100),
+          protein: Math.round((weight * currentDish.protein_100) / 100),
+          carbohydrate: Math.round((weight * currentDish.carbohydrate_100) / 100),
+          fat: Math.round((weight * currentDish.fat_100) / 100),
+        };
+      }
+  
+      if (inputMode === "portions" && portions && portions > 0) {
+        return {
+          ...prevRecord,
+          calories: Math.round((portions * currentDish.calories_100 * currentDish.portion) / 100),
+          protein: Math.round((portions * currentDish.protein_100 * currentDish.portion) / 100),
+          carbohydrate: Math.round((portions * currentDish.carbohydrate_100 * currentDish.portion) / 100),
+          fat: Math.round((portions * currentDish.fat_100 * currentDish.portion) / 100),
+        };
+      }
+  
+      return prevRecord;
+    });
+  
+  }, [currentDish, inputMode, record.weight, record.portions]);
+  
   const { setDiaryRecord } = useSetDiaryRecord()
   const { putDiaryRecord } = usePutDiaryRecord()
 
 
-    
-  const handleRecordChange = (field: 'weight' | 'portions', valueRaw: number) => {
-    const value = Number(valueRaw)
+  const handleRecordChange = (field: "weight" | "portions", valueRaw: number) => {
+    const value = Number(valueRaw);
+    setRecordInfo((prevRecord) => ({
+      ...prevRecord,
+      [field]: value,
+    }));
+  };
+
+  useEffect(() => {
+    if (!currentDish) return;
+  
     setRecordInfo((prevRecord) => {
-      if (field === 'weight' && currentDish) {
+      const { weight, portions } = prevRecord;
+  
+      if ( inputMode == 'weight' &&  weight && weight > 0) {
         return {
           ...prevRecord,
-          weight: value,
-          calories: Math.round((value * currentDish.calories_100) / 100),
-          protein: Math.round((value * currentDish.protein_100) / 100),
-          carbohydrate: Math.round((value * currentDish.carbohydrate_100) / 100),
-          fat: Math.round((value * currentDish.fat_100) / 100),
-        };
-      } else if (field === 'portions' && currentDish) {
-        return {
-          ...prevRecord,
-          portions: value,
-          calories: Math.round(value * currentDish.calories_100 * currentDish.portion /100),
-          protein: Math.round(value * currentDish.protein_100 * currentDish.portion /100),
-          carbohydrate: Math.round(value * currentDish.carbohydrate_100 * currentDish.portion /100),
-          fat: Math.round(value * currentDish.fat_100 * currentDish.portion /100),
+          calories: Math.round((weight * currentDish.calories_100) / 100),
+          protein: Math.round((weight * currentDish.protein_100) / 100),
+          carbohydrate: Math.round((weight * currentDish.carbohydrate_100) / 100),
+          fat: Math.round((weight * currentDish.fat_100) / 100),
         };
       }
-      return prevRecord; 
+  
+      if (inputMode == 'portions' && portions && portions > 0) {
+        return {
+          ...prevRecord,
+          calories: Math.round((portions * currentDish.calories_100 * currentDish.portion) / 100),
+          protein: Math.round((portions * currentDish.protein_100 * currentDish.portion) / 100),
+          carbohydrate: Math.round((portions * currentDish.carbohydrate_100 * currentDish.portion) / 100),
+          fat: Math.round((portions * currentDish.fat_100 * currentDish.portion) / 100),
+        };
+      }
+  
+      return prevRecord;
     });
-    setValidation({message: undefined, valid: true})
-  };
+  
+    setValidation({ message: undefined, valid: true });
+  }, [currentDish, inputMode]);
+  
+  
   
 
 // get current dish from existing dishes
-  const getDish = (dishName:string) => {
-    const dish = dishes?.find(product => product.name.toLowerCase() === dishName);
-    if (dish) {  
+  const getDish = async (dishName:string) => {
+    const dishNameExists = dishNames?.find(dish => dish === dishName);
+    if (dishNameExists) {
+      const response = await fetchDishes({pageParam:1, query: dishName})
+      const dishes: Dish[] = response.dishes
+      const dish = dishes?.find(dish => dish.name === dishName);
+      if (dish) {  
       setRecordInfo((prevRecord) => ({
           ...prevRecord,
           name: dish.name,
@@ -145,21 +171,22 @@ const RecordForm: React.FC<RecordFormProps> = ({onSuccess, onCancel, recordData}
       }
     } 
   }
+  }
 
   const handleDishNameChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value.toLowerCase();
+    const value = e.target.value.charAt(0).toUpperCase() + e.target.value.slice(1);
     setRecordInfo((prevRecord) => ({
       ...prevRecord,
-      name: value.charAt(0).toUpperCase() + value.slice(1)
+      name: value
     }))
 
-    if (value.toLowerCase() != record.name.toLowerCase()) {
+    if (value != record.name) {
       setCurrentDish(undefined)
     }
 
-    const filterSuggestions = dishNames.filter(dish => dish.toLowerCase().startsWith(value));
+    const filterSuggestions = dishNames?.filter(dish => dish.startsWith(value));
 
-    setFilteredSuggestions(filterSuggestions);
+    setFilteredSuggestions(filterSuggestions || []);
  
     getDish(value) 
   };
@@ -174,7 +201,7 @@ const RecordForm: React.FC<RecordFormProps> = ({onSuccess, onCancel, recordData}
 
     setRecordInfo({
       id: 0, name: '', image: '', weight: 0, calories: 0, protein: 0, carbohydrate: 0, fat: 0, dish: 0, date: ''})
-
+    setCurrentDish(null)
   
     if (onSuccess) onSuccess()
 
@@ -233,6 +260,7 @@ const RecordForm: React.FC<RecordFormProps> = ({onSuccess, onCancel, recordData}
                   }
                   onKeyDown={handleKeyDown}
                   onFocus={(e) => e.target.select()}
+                  disabled={!currentDish}
                   />
                   <button className='btn btn-dark' type="button" onClick={toggleInputMode}>
                     Switch to {inputMode === "weight" ? "Portions" : "Weight"}

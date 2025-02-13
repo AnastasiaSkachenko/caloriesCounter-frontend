@@ -2,15 +2,16 @@ import React, { useState, useRef, RefObject, useEffect } from 'react';
 import { Dish, DishFormProps, Ingredient } from './interfaces';
 import { usePutDish, useSetDish, useSetIngredient } from '../hooks/caloriesCounter';
 import IngredientForm from './ingredientForm';
+import { useQuery } from '@tanstack/react-query';
+import { checkDishExists } from '../utils/caloriesCounter';
 
 
-const CustomDishForm: React.FC<DishFormProps> = ({onSuccess,onCancel, dishNames, dishToEdit, ingredientsData}) => {
+const CustomDishForm: React.FC<DishFormProps> = ({onSuccess,onCancel, dishToEdit, ingredientsData}) => {
   const [dishInfo, setDishInfo] = useState<Dish>( dishToEdit ?? {
     id: 0, name: '',  calories: 0, calories_100: 0, protein: 0, carbohydrate: 0,
     fat: 0, protein_100: 0,carbohydrate_100: 0, fat_100: 0, weight: 0,  drink: false, 
     portion: 100,portions: 1, type: 'custom', image: '',
   });
-
   const [ingredients, setIngredients] = useState<Ingredient[]>(ingredientsData ?? []); 
   const [validation, setValidation] = useState<{message: string | undefined, valid: boolean}>({message: undefined, valid: false})
   const [successMessage, setSuccessMessage] = useState<string | null>(null)
@@ -19,6 +20,12 @@ const CustomDishForm: React.FC<DishFormProps> = ({onSuccess,onCancel, dishNames,
   const [createIngredient, setCreateIngredient] = useState<boolean>(false) 
   const addDishButtonRef = useRef<HTMLButtonElement>(null);
   
+
+  const dishNameExists = useQuery({
+    queryKey: ["checkDishExists", dishInfo.name],
+    queryFn: () => checkDishExists(dishInfo.name),
+    enabled: !!dishInfo.name, // Runs query only when name is provided
+  })
   
   const { setDish } = useSetDish()
   const { setIngredient } = useSetIngredient()
@@ -33,20 +40,20 @@ const CustomDishForm: React.FC<DishFormProps> = ({onSuccess,onCancel, dishNames,
   }, [dishToEdit, ingredientsData]);
 
   useEffect(() => {
-    const nameExists = dishNames?.find(
-      (name: string) => name.toLowerCase() === dishInfo.name.toLowerCase()
-    );  
-
-    if (nameExists && nameExists.toLowerCase() != dishInfo.name.toLowerCase()) {
-      setValidation({message:'Dish with this name already exists.', valid: false})
-    } else if (dishInfo.name == '') {
-      setValidation({message: 'Dish name is required', valid: false})
-    } else if (ingredients.length == 0) {
-      setValidation({message: 'Dish should have at least one ingredient', valid: false})
+    if (dishNameExists.data ) {
+      setValidation((prev) => prev.message === 'Dish with this name already exists'
+        ? prev 
+        : { message: 'Dish with this name already exists', valid: false }
+      );
     } else {
-      setValidation({message: undefined, valid: true})
-    } 
-  }, [dishInfo.name, dishNames, ingredients])
+      setValidation((prev) => prev.message === undefined 
+        ? prev 
+        : { message: undefined, valid: true }
+      );
+    }
+  }, [dishNameExists]);
+  
+
 
   const [inputRefs] = useState([
     useRef<HTMLInputElement>(null),

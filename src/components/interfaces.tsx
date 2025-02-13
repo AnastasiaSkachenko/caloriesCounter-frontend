@@ -67,7 +67,6 @@ export interface DishFormProps {
   onSuccessEdit?: (modifiedDish: Dish) => void,
   onCancel?: () => void;  
   dishToEdit?: Dish;
-  dishNames: string[];
   ingredientsData?: Ingredient[]
 }
 
