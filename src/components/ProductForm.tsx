@@ -33,6 +33,8 @@ const ProductForm: React.FC<ProductFormProps> = ({ onSubmitSuccess, onCancel, pr
 
   const { setProduct } = useSetProduct()
   const { putProduct } = usePutProduct()
+
+  console.log(validation)
   
  
   const [inputRefs] = useState([
@@ -63,22 +65,27 @@ const ProductForm: React.FC<ProductFormProps> = ({ onSubmitSuccess, onCancel, pr
     };
   }, [inputRefs, product]);
       
-  console.log(productNameExists.data, 'product name exist')
 
   useEffect(() => {
-    if (productNameExists.data ) {
-      setValidation((prev) => prev.message === 'Product with this name already exists'
-        ? prev 
-        : { message: 'Product with this name already exists', valid: false }
-      );
-    } else {
-      setValidation((prev) => prev.message === undefined 
-        ? prev 
-        : { message: undefined, valid: true }
-      );
-    }
-  }, [productNameExists]);
+    if (!productNameExists || !formState) return;
   
+    let newValidation = { ...validation };
+  
+    if ((productNameExists.data && !product) || (productNameExists.data && product && product.name !== formState.name)) {
+      console.log("condition is true");
+      newValidation = { message: "Product with this name already exists", valid: false };
+    } else if (formState.name === "") {
+      newValidation = { message: "Product should have a name.", valid: false };
+    } else {
+      newValidation = { message: undefined, valid: true };
+    }
+  
+    // 🛠 Prevent unnecessary state updates to avoid re-renders
+    if (JSON.stringify(validation) !== JSON.stringify(newValidation)) {
+      setValidation(newValidation);
+    }
+  }, [productNameExists, formState, product, validation]);
+    
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>, name?: string) => {
     const { name: fieldName, value } = e.target;

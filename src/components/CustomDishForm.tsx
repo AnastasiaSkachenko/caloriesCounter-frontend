@@ -19,6 +19,8 @@ const CustomDishForm: React.FC<DishFormProps> = ({onSuccess,onCancel, dishToEdit
   const [editIndex, setEditIndex] = useState<number| null>(null)
   const [createIngredient, setCreateIngredient] = useState<boolean>(false) 
   const addDishButtonRef = useRef<HTMLButtonElement>(null);
+
+
   
 
   const dishNameExists = useQuery({
@@ -40,19 +42,23 @@ const CustomDishForm: React.FC<DishFormProps> = ({onSuccess,onCancel, dishToEdit
   }, [dishToEdit, ingredientsData]);
 
   useEffect(() => {
-    if (dishNameExists.data ) {
-      setValidation((prev) => prev.message === 'Dish with this name already exists'
-        ? prev 
-        : { message: 'Dish with this name already exists', valid: false }
-      );
-    } else {
-      setValidation((prev) => prev.message === undefined 
-        ? prev 
-        : { message: undefined, valid: true }
-      );
-    }
-  }, [dishNameExists]);
+    if (!dishNameExists || !dishInfo) return;
   
+    let newValidation = { ...validation };
+  
+    if ((dishNameExists && !dishToEdit) || (dishNameExists && dishToEdit && dishToEdit.name !== dishInfo.name)) {
+      newValidation = { message: "Dish with this name already exists", valid: false };
+    } else if (dishInfo.name === "") {
+      newValidation = { message: "Dish should have a name.", valid: false };
+    } else {
+      newValidation = { message: undefined, valid: true };
+    }
+  
+    // 🛠 Prevent unnecessary state updates to avoid re-renders
+    if (JSON.stringify(validation) !== JSON.stringify(newValidation)) {
+      setValidation(newValidation);
+    }
+  }, [validation, dishInfo, dishNameExists, dishToEdit]);
 
 
   const [inputRefs] = useState([
@@ -135,7 +141,11 @@ const CustomDishForm: React.FC<DishFormProps> = ({onSuccess,onCancel, dishToEdit
   }, [ingredients])
    
   const addIngredient = (ingredient: Ingredient) => {
-    setIngredients((prevIngredients) => ([...prevIngredients, ingredient])); 
+    console.log(ingredient)
+    if (dishToEdit) {
+      ingredient.dish = dishToEdit.id
+    }
+    setIngredients((prevIngredients) => ([ ingredient, ...prevIngredients])); 
     setCreateIngredient(false)
   };
    
@@ -186,6 +196,13 @@ const CustomDishForm: React.FC<DishFormProps> = ({onSuccess,onCancel, dishToEdit
 
     if (dishToEdit) {
       putDish({dish:formData, id: dishInfo.id})
+      const newIngredients = ingredients.filter(ingredient => !ingredientsData?.includes(ingredient))
+      await Promise.all(
+        newIngredients.map((ingredient) => {
+          ingredient.dish = dishInfo.id;
+          return setIngredient({ ingredient }); // Ensure each update is awaited
+        })
+      );
     } else {
       const dishID:number = await  setDish({dish: formData})
 
@@ -193,6 +210,8 @@ const CustomDishForm: React.FC<DishFormProps> = ({onSuccess,onCancel, dishToEdit
         ingredient.dish = dishID
         setIngredient({ingredient})
       });
+
+      console.log(ingredients, 'when submiting')
     }  
     
     console.log(dishInfo)
@@ -248,7 +267,7 @@ const CustomDishForm: React.FC<DishFormProps> = ({onSuccess,onCancel, dishToEdit
           <button className='btn btn-primary' onClick={() => setCreateIngredient(true)}>Add ingredient</button>
         </div>
       )}
-      { ingredients.slice(0).reverse().map((product, index) => (
+      {ingredients.map((product, index) => (
         <div  key={index}>
           <hr/>
           <div className='d-flex justify-content-between align-items-center '>
@@ -263,7 +282,6 @@ const CustomDishForm: React.FC<DishFormProps> = ({onSuccess,onCancel, dishToEdit
           <p>Weight: {product.weight}g, Calories: {product.calories}, Protein: {product.protein}, Carbs: {product.carbohydrate}, Fat: {product.fat}</p>
           {ingredientEdit && editIndex == index  && (
             <IngredientForm onSuccess={(TCProduct) => editIngredient(TCProduct, index)} onCancel={() => setIngredientEdit(null)} ingredientData={product}   />
-
           )}
         </div>
       ))}

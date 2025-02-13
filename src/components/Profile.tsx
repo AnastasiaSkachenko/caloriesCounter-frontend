@@ -32,10 +32,16 @@ const Profile = () => {
           <div className="d-flex justify-content-center align-items-center" style={{minHeight: '70vh'}}>
             <div className="border rounded shadow px-5 py-4 " style={{minWidth: '45%', minHeight: '30em'}}>
               <h2 className="text-center">Profile <button className="btn bg-transparent p-2 m-0" onClick={() => setEditProfile(true)}><i className="fa fa-user-pen"></i></button></h2>
+              <div className="d-flex justify-content-center">  
+                <img style={{ height: '7em', borderRadius: '2em'}}  src={typeof user.image === "string" 
+                  ? user.image // If `product.image` is a URL string, use it
+                  : 'media/user/cat-user.jpeg'
+                  }/>
+              </div>
               {editProfile ? (
                 <EditProfile onExit={() => setEditProfile(false)}/>
               ): (
-                <div className="row align-items-center pt-5">
+                <div className="row align-items-center pt-3">
                   <div className="col d-flex flex-column">
                     <h5 className="my-3" >General info:</h5>
                     <p>Height: {user.height}</p>

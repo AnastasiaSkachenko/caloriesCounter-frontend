@@ -30,19 +30,28 @@ const PreMadeDishForm: React.FC<DishFormProps> = ({onSuccess,onCancel, dishToEdi
 
 
   useEffect(() => {
-    if (dishNameExists.data ) {
-      setValidation((prev) => prev.message === 'Dish with this name already exists'
-        ? prev 
-        : { message: 'Dish with this name already exists', valid: false }
-      );
-    } else {
-      setValidation((prev) => prev.message === undefined 
-        ? prev 
-        : { message: undefined, valid: true }
-      );
-    }
-  }, [dishNameExists]);
+    if (!dishNameExists || !dishInfo) return;
   
+    let newValidation = { ...validation };
+  
+    if ((dishNameExists.data && !dishToEdit) || (dishNameExists.data && dishToEdit && dishToEdit.name !== dishInfo.name)) {
+      console.log(dishNameExists )
+      newValidation = { message: "Dish with this name already exists", valid: false };
+    } else if (dishInfo.name === "") {
+      newValidation = { message: "Dish should have a name.", valid: false };
+    } else {
+      newValidation = { message: undefined, valid: true };
+    }
+  
+    // 🛠 Prevent unnecessary state updates to avoid re-renders
+    if (JSON.stringify(validation) !== JSON.stringify(newValidation)) {
+      setValidation(newValidation);
+    }
+  }, [validation, dishInfo, dishNameExists, dishToEdit]);
+  
+
+
+   
   
  
  

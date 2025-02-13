@@ -18,6 +18,7 @@ const EditProfile: React.FC<EditProfile> = ({onExit}) => {
     id: 0, name: '', age: 18, weight: 0, height: 0, calories_d: 0, protein_d: 0,
     carbohydrate_d: 0, fat_d: 0, activity_level: 1, email: '', exp: 0, gender: 'female', goal: 'lose'
   });
+  const [recalculateMacros, setRecalculateMacros] = useState(true)
   const { modify } = useModify()
 
 
@@ -35,6 +36,8 @@ const EditProfile: React.FC<EditProfile> = ({onExit}) => {
     if (e.target.files && e.target.files.length > 0) {
       const file = e.target.files[0];
       console.log(file)
+      setFormData(prev => ({...prev, image: file}))
+
     }
   };
 
@@ -90,7 +93,13 @@ const EditProfile: React.FC<EditProfile> = ({onExit}) => {
     setLoading(true);
     setError(null);
 
-    const userData = calculateMacros(formData)
+    let userData = formData
+
+    if (recalculateMacros) {
+      userData = calculateMacros(formData)
+    } 
+    
+
     console.log(userData, 'userdata')
  
 
@@ -150,6 +159,12 @@ const EditProfile: React.FC<EditProfile> = ({onExit}) => {
           />
         </div>
       </div>
+      {(auth.user?.calories_d && auth.user?.calories_d > 0 ) ? (
+        <div className="form-check form-switch">
+          <input className="form-check-input" type="checkbox" onChange={(e) => setRecalculateMacros(e.target.checked)} role="switch" id="flexSwitchCheckDefault" checked={recalculateMacros}/>
+          <label className="form-check-label">Calculate macros</label>
+        </div>
+      ): (<></>)}
 
       <h5 className="m-1">Body info</h5>
 
