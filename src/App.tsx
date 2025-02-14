@@ -6,6 +6,7 @@ import RegisterPage from "./components/register";
 import LoginPage from "./components/login";
 import Profile from "./components/Profile";
 import { AuthProvider } from "./context/AuthProvider";
+import ResetPassword from "./components/context/changePassword";
 
 
 function App() {
@@ -19,6 +20,7 @@ function App() {
           <Route path="/register" element={<RegisterPage/>}/>
           <Route path="/login" element={<LoginPage/>}/>
           <Route path="/profile" element={<Profile/>}/>
+          <Route path="/change-password" element={<ResetPassword/>} />
         </Routes>
       </Router>
     </AuthProvider>

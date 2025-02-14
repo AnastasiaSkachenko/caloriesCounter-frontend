@@ -46,7 +46,7 @@ const CustomDishForm: React.FC<DishFormProps> = ({onSuccess,onCancel, dishToEdit
   
     let newValidation = { ...validation };
   
-    if ((dishNameExists && !dishToEdit) || (dishNameExists && dishToEdit && dishToEdit.name !== dishInfo.name)) {
+    if ((dishNameExists.data && !dishToEdit) || (dishNameExists.data && dishToEdit && dishToEdit.name !== dishInfo.name)) {
       newValidation = { message: "Dish with this name already exists", valid: false };
     } else if (dishInfo.name === "") {
       newValidation = { message: "Dish should have a name.", valid: false };

@@ -407,3 +407,8 @@ export const deleteDiaryRecord = async ({id}: PopInput): Promise<string | void> 
     return errorData.message;  
   }
 }
+
+
+
+
+

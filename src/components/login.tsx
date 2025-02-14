@@ -47,6 +47,11 @@ const LoginPage = () => {
             />
           </div>
 
+          <div className="d-flex justify-content-end">
+            <a className="text-white" href="/change-password">Click here to change password</a>
+          </div>
+
+
           <div className="d-flex justify-content-center mt-3">
             <button 
               type="submit" 

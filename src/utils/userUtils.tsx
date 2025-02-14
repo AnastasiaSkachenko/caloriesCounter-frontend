@@ -90,12 +90,16 @@ export const useModify = () => {
   const { setAuth } = useAuth()
 
 
-  const modify = async (user: FormData) => {
+
+  const modify = async (user: FormData, recalculate: boolean) => {
+
     setLoading(true);  // Start loading
     setError(null);  // Clear previous errors
 
+  
+
     try {
-      const response = await axiosPrivate.put('/api/modify-user/', user, {
+      const response = await axiosPrivate.put(`/api/modify-user/?recalculate=${recalculate}`, user, {
       });
 
       setAuth(prev => ({...prev, user: response.data.user}))
@@ -137,6 +141,17 @@ export const useLogout = () => {
 };
 
 
+
+export const sendVerificationCode = async (email: string) => {
+  return axiosPublic.post(`/api/send-code/`, { email });
+};
+
+export const verifyCode = async (email: string, code: string) => {
+  return axiosPublic.post(`/api/verify-code/`, { email, code });
+};
  
+export const resetPassword = async (email: string, newPassword: string) => {
+  return axiosPublic.post(`/api/reset-password/`, { email, new_password: newPassword });
+};
 
 

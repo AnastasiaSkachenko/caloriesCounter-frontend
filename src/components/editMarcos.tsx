@@ -62,7 +62,7 @@ const EditMacros= () => {
     formData.append('carbohydrate_d', carbohydrate_d.toString())
     formData.append('fat_d', fat_d.toString())
  
-    await modify(formData)
+    await modify(formData, false)
 
  
 

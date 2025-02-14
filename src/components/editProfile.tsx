@@ -52,40 +52,7 @@ const EditProfile: React.FC<EditProfile> = ({onExit}) => {
       })
   };
 
-  const calculateMacros = (data: User) => {
-    const { age, weight, height, activity_level, gender, goal } = data;
-
-    // Calculate BMR based on gender
-    const bmr = gender === "female" 
-        ? 10 * weight + 6.25 * height - 5 * age - 161  // BMR for women
-        : 10 * weight + 6.25 * height - 5 * age + 5;   // BMR for men
-
-    // Set activity multiplier
-    const activityMultipliers = [1.2, 1.375, 1.55, 1.725, 1.9];
-    const activityMultiplier = activityMultipliers[activity_level - 1] || 1.2;
-
-    let totalCalories = Math.round(bmr * activityMultiplier);
-
-    // Adjust calories based on goal
-    if (goal === "lose") totalCalories = Math.round(totalCalories * 0.8);  // -20%
-    if (goal === "gain") totalCalories = Math.round(totalCalories * 1.2); // +20%
-
-    // Calculate macronutrients
-    const protein_d = Math.round(totalCalories * 0.25 / 4); // 25% of calories from protein
-    const carbohydrate_d = Math.round(totalCalories * 0.50 / 4); // 50% from carbs
-    const fat_d = Math.round(totalCalories * 0.25 / 9); // 25% from fat
-
-    console.log(age, weight, height, activity_level, gender, goal)
-
-     return {
-        ...formData,
-        calories_d: totalCalories,
-        protein_d,
-        carbohydrate_d,
-        fat_d,
-    };
-};
-
+ 
   // Handle form submission
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -93,11 +60,8 @@ const EditProfile: React.FC<EditProfile> = ({onExit}) => {
     setLoading(true);
     setError(null);
 
-    let userData = formData
+    const userData = formData
 
-    if (recalculateMacros) {
-      userData = calculateMacros(formData)
-    } 
     
 
     console.log(userData, 'userdata')
@@ -118,7 +82,7 @@ const EditProfile: React.FC<EditProfile> = ({onExit}) => {
         }
       }
     }
-    await modify(formDataToSend);
+    await modify(formDataToSend, recalculateMacros);
     setLoading(false);
     onExit()
   };
@@ -145,7 +109,7 @@ const EditProfile: React.FC<EditProfile> = ({onExit}) => {
       </div>
 
       <div className="d-flex justify-content-end">
-        <a className="text-white" href="/">Click here to change password</a>
+        <a className="text-white" href="/change-password">Click here to change password</a>
       </div>
 
       <div className="mb-3">
