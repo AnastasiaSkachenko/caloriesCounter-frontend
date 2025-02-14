@@ -6,7 +6,7 @@ import RegisterPage from "./components/register";
 import LoginPage from "./components/login";
 import Profile from "./components/Profile";
 import { AuthProvider } from "./context/AuthProvider";
-import ResetPassword from "./components/context/changePassword";
+import ResetPassword from "./components/changePassword";
 
 
 function App() {

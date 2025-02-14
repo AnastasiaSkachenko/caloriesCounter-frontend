@@ -197,6 +197,8 @@ const EditProfile: React.FC<EditProfile> = ({onExit}) => {
           <option value="lose">Lose Weight</option>
           <option value="maintain">Maintain Weight</option>
           <option value="gain">Gain Muscles</option>
+          <option value="active_lose">Active lose Weight</option>
+          <option value="active_gain">Active gain Weight</option>
         </select>
       </div>
 

@@ -101,7 +101,7 @@ export interface User {
   activity_level: number, 
   exp?: number;  
   gender: 'male' | 'female';
-  goal: 'maintain' | 'gain' | 'lose' 
+  goal: 'maintain' | 'gain' | 'lose' | 'active_lose' | 'active_gain'
 }
 
 export interface ModifyUser {
