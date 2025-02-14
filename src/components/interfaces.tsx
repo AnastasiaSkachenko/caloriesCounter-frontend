@@ -51,6 +51,7 @@ export interface Dish extends Base {
   portions: number,
   type: 'pre_made' | 'custom'
   ingredients?: Ingredient[]
+  description: string
 }
 
 export interface DishInput {

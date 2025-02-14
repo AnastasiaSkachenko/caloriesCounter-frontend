@@ -307,10 +307,10 @@ export const saveDish = async ({dish}: DishInput): Promise<number> => {
       throw new Error("Failed to save dish data");
   }
 
-  const id = await response.json()
+  const data = await response.json()
 
 
-  return  id
+  return  data.id
 
 }
   

@@ -1,5 +1,4 @@
 import {  useState } from "react"; 
-import { usePopDish} from "../hooks/caloriesCounter";
 import { Dish } from "./interfaces";
 import { useNavigate } from "react-router-dom";
 import '../../styles/style.css';
@@ -16,17 +15,7 @@ const Dishes: React.FC = () => {
   const [editDish, setEditDish] = useState<Dish | undefined>(undefined)
   const navigate = useNavigate()
 
-  const { popDish } = usePopDish() 
 
- 
-
-  const handleDeleteDish = (id:number) => {
-    const response = window.confirm('Are you sure you want to delete this dish?');
-    if (response) {
-      popDish({ id });
-    }
-  }
- 
 
    return (
 		<div className="bg-dark test-dark p-2 vh-100" > 
@@ -62,7 +51,7 @@ const Dishes: React.FC = () => {
 						value={query} onChange={(e) => setQuery(e.target.value)}/>
 			</div>
 
-      <DishGrid query={query} setEditDish={(dish) => setEditDish(dish)} deleteDish={(id) => handleDeleteDish(id)}/>
+      <DishGrid query={query} setEditDish={(dish) => setEditDish(dish)} />
  		</div>
 
   );
