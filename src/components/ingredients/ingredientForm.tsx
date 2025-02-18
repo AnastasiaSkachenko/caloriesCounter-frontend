@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {  useQuery } from '@tanstack/react-query';  
 import { Product, Ingredient } from '../interfaces';
 import { fetchIngredient } from '../../utils/ingredients';
@@ -55,35 +55,24 @@ const IngredientForm: React.FC<IngredientFormProps> = ({onSuccess, onCancel, ing
     useRef<HTMLInputElement>(null),
   ]);
 
-  const getProduct = async (productName:string) => {
+  const getProduct = useCallback(async (productName: string) => {
     const productNameExists = productNames?.find(product => product === productName);
-    console.log(productNameExists, 'name exists', productName)
     if (productNameExists || ingredientData) {
-      const response = await fetchProducts({pageParam:1, queryKey: ['products', productName]})
-      const products: Product[] = response.products
-      console.log(products, 'products from fetch')
+      const response = await fetchProducts({ pageParam: 1, queryKey: ['products', productName] });
+      const products: Product[] = response.products;
       const product = products?.find(product => product.name === productName);
-      if (product) {  
-        setIngredient((prevIngredient) => ({
-            ...prevIngredient,
-            name: product.name,
-            product:  product.id
-        }));  
-        setCurrentProduct(product)
-        console.log(product, 'product')
-        setFilteredSuggestions([])
-
-
+      if (product) {
+        setIngredient((prevIngredient) => ({ ...prevIngredient, name: product.name, product: product.id }));
+        setCurrentProduct(product);
+        setFilteredSuggestions([]);
         setTimeout(() => {
           if (inputRefs[1].current) {
             inputRefs[1].current.focus();
           }
-        }, 10);        
-      }     
+        }, 10);
+      }
     }
-
-  }
-
+  }, [productNames, ingredientData, inputRefs]); 
 
   
   useEffect(() => {
@@ -98,16 +87,13 @@ const IngredientForm: React.FC<IngredientFormProps> = ({onSuccess, onCancel, ing
         console.log('calledddd', ingredientData.name)
         await getProduct(ingredientData.name);
         console.log('loaded')
-        if (inputRefs[1].current && focus) {
-          inputRefs[1].current.focus();
-        }
       }
     };
 
     fetchProduct(); // Call the async function to fetch the product
     console.log(currentProduct, 'current product')
 
-  }, [ingredientData?.name]);
+  }, [ingredientData?.name, getProduct, currentProduct]);
 
 
   

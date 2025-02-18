@@ -1,4 +1,4 @@
-import {  useState } from "react";
+import {  useEffect, useState } from "react";
 import { usePopProduct } from "../../hooks/caloriesCounter";
 import { useNavigate } from "react-router-dom";
 import '../../style.css';
@@ -14,18 +14,31 @@ import useAuth from "../../hooks/useAuth";
 const Products: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState<string>('');  
  	const [editProduct, setEditProduct] = useState<Product | null>(null);
+	const [error, setError] = useState<string | null>(null)
  
 	const navigate = useNavigate()
 
 	const {auth} = useAuth()
 
+	useEffect(() => {
+		if (error) {
+			setTimeout(() => {
+				setError(null)
+			}, 4000);
+		}
+	}, [error])
+	
+	
 
   const { popProduct } = usePopProduct();
 
  	const handleDeleteProduct = async (id: number) => {
 	  const response = window.confirm('Are you sure you want to delete this product?');
 	  if (response) {
-		popProduct({ id });
+		  const responseError = await  popProduct({ id });
+			if (responseError) {
+				setError(responseError)
+			}
 	  } 
 	};
   
@@ -42,15 +55,19 @@ const Products: React.FC = () => {
 			<button onClick={() => setEditProduct(null)} className="btn btn-primary" data-bs-toggle='modal' data-bs-target='#modal' >Add product</button>
 
 			<Modal id="modal" title="Create new product">
-				<ProductForm onSubmitSuccess={() => setEditProduct(null)} onCancel={() => setEditProduct(null)}/>
+				<ProductForm onSubmitSuccess={() => setEditProduct(null)} onCancel={() => setEditProduct(null)} onError={(errorMessage) => setError(errorMessage)}/>
 			</Modal>
 
 			<Modal id="modalEdit" title="Edit product product">
 				{editProduct && (
-				<ProductForm onSubmitSuccess={() => setEditProduct(null)} onCancel={() => setEditProduct(null)} product={editProduct}/>
+				<ProductForm onSubmitSuccess={() => setEditProduct(null)} onCancel={() => setEditProduct(null)} product={editProduct} onError={(errorMessage) => setError(errorMessage)}/>
 				)}
 			</Modal>
-
+			{error && (
+					<div className="alert alert-danger fixed-top end-0 m-3 mt-4" role="alert">
+							{error}
+					</div>
+			)}
  			<div className="d-flex justify-content-center">
 	  		<input className="form-control  my-3" style={{'maxWidth': '40em'}} type="text" placeholder="Search products..." 
 						value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)}/>

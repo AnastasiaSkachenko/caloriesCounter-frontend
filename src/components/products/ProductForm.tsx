@@ -6,16 +6,18 @@ import {  usePutProduct, useSetProduct } from '../../hooks/caloriesCounter';
 import '../../style.css';
 import '../../index.css'
 import useAuth from '../../hooks/useAuth';
+import { useHandleKeyDown, useModalFocus, validateForm } from '../../utils/utils';
 
 
 interface ProductFormProps {
   onSubmitSuccess?: (product: Product) => void;
   onCancel?: () => void;  
+  onError?: (errorMessage: string) => void;
   product?: Product,
   productName?: string,
  }
 
-const ProductForm: React.FC<ProductFormProps> = ({ onSubmitSuccess, onCancel, product, productName}) => {
+const ProductForm: React.FC<ProductFormProps> = ({ onSubmitSuccess, onCancel, product, productName, onError}) => {
   const { auth } = useAuth()
   const [formState, setFormState] = useState<Product>(product ??{
     id: 0, name: productName ?? '', calories: 0, protein: 0, carbohydrate: 0,fat: 0, user:   0
@@ -35,6 +37,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ onSubmitSuccess, onCancel, pr
 
   const { setProduct } = useSetProduct()
   const { putProduct } = usePutProduct()
+  const { handleKeyDown } = useHandleKeyDown()
 
   console.log(validation)
   
@@ -47,73 +50,41 @@ const ProductForm: React.FC<ProductFormProps> = ({ onSubmitSuccess, onCancel, pr
     useRef<HTMLInputElement>(null),
   ]);
   
- 
- 
+  // Custom hook for managing modal focus
+  useModalFocus(inputRefs, product);
+
 
   useEffect(() => {
-    const modalElement = document.getElementById(product ? 'modalEdit' : 'modal');
-    modalElement?.addEventListener('shown.bs.modal', () => {
-      if (inputRefs[0].current) {
-        inputRefs[0].current.focus();
-      }
-    });
-  
-    return () => {
-      modalElement?.removeEventListener('shown.bs.modal', () => {
-        if (inputRefs[0].current) {
-          inputRefs[0].current.focus();
-        }
-      });
-    };
-  }, [inputRefs, product]);
-      
-
-  useEffect(() => {
-    if (!productNameExists || !formState) return;
-  
-    let newValidation = { ...validation };
-  
-    if ((productNameExists.data && !product) || (productNameExists.data && product && product.name !== formState.name)) {
-      console.log("condition is true");
-      newValidation = { message: "Product with this name already exists", valid: false };
-    } else if (formState.name === "") {
-      newValidation = { message: "Product should have a name.", valid: false };
-    } else {
-      newValidation = { message: undefined, valid: true };
+    const value = validateForm(productNameExists.data || false, formState.name, 'Product', product)
+    console.log(value, 'value')
+    console.log(validation, 'validation')
+    if ((validation.message != value.message) || (validation.valid != value.valid)) {
+      setValidation(value)
     }
-  
-    // 🛠 Prevent unnecessary state updates to avoid re-renders
-    if (JSON.stringify(validation) !== JSON.stringify(newValidation)) {
-      setValidation(newValidation);
-    }
-  }, [productNameExists, formState, product, validation]);
+  }, [productNameExists, formState.name, product]);
     
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>, name?: string) => {
     const { name: fieldName, value } = e.target;
-   
-    if (fieldName === "calories" || fieldName === "protein" || fieldName === "carbohydrate" || fieldName === "fat" ) {
-      const CurrentNumber = parseFloat(parseFloat(value).toFixed(2))   
-      if (isNaN(CurrentNumber) ) { 
-        setValidation({message:'Please enter a positive number', valid: false});
+  
+    // Handle number-based fields
+    if (["calories", "protein", "carbohydrate", "fat"].includes(fieldName)) {
+      const numericValue = parseFloat(value);
+      if (isNaN(numericValue)) {
+        setValidation({ message: 'Please enter a positive number', valid: false });
+        return;
       } else {
-        setValidation({message: undefined, valid: true});
+        setValidation({ message: undefined, valid: true });
       }
     }
-   
-    if (name) {
-      setFormState({
-        ...formState,
-        [fieldName]: value.slice(0,1).toUpperCase() + value.slice(1)
-      }); 
-    } else {
-      setFormState({
-        ...formState,
-        [fieldName]: value,
-      });  
-    }
+  
+    // Update form state with transformed field name and value
+    setFormState(prevState => ({
+      ...prevState,
+      [fieldName]: name ? value.charAt(0).toUpperCase() + value.slice(1) : value,
+    }));
   };
-
+  
   const handleImageChange = (e:React.ChangeEvent<HTMLInputElement>) => {
     const target = e.target as HTMLInputElement & {
       files: FileList
@@ -122,73 +93,73 @@ const ProductForm: React.FC<ProductFormProps> = ({ onSubmitSuccess, onCancel, pr
   }
 
 
+  const createProduct = async () => {
+    const formData = new FormData();
+    appendFormData(formData);
+  
+    const response = await setProduct({ product: formData });
+    if (typeof response === 'string') {
+      onError?.(response);
+      return;
+    }
+  
+    resetForm();
+    onSubmitSuccess?.(response);
+  };
+  
+  const updateProduct = async () => {
+    const formData = new FormData();
+    appendFormData(formData);
+  
+    const response = await putProduct({ product: formData, id: formState.id });
+    if (typeof response === 'string') {
+      onError?.(response);
+      return;
+    }
+  };
+  
+  const appendFormData = (formData: FormData) => {
+    const { name, image, calories, protein, carbohydrate, fat } = formState;
+    if (image && typeof image !== 'string') formData.append('image', image);
+    formData.append('name', name.charAt(0).toUpperCase() + name.slice(1));
+    formData.append('calories', calories.toString());
+    formData.append('protein', protein.toString());
+    formData.append('carbohydrate', carbohydrate.toString());
+    formData.append('fat', fat.toString());
+    formData.append('user', (auth.user?.id ?? 0).toString());
+  };
+  
+  const resetForm = () => {
+    setFormState({
+      id: 0,
+      name: productName ?? '',
+      calories: 0,
+      protein: 0,
+      carbohydrate: 0,
+      fat: 0,
+      user: auth.user?.id ?? 0,
+    });
+  };
+  
+
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
-    const { name, image, calories, protein, carbohydrate, fat } = formState;
-
-    const formData = new FormData()
-
-    if (image && typeof image != 'string') formData.append('image', image)
-    formData.append('name', name.charAt(0).toUpperCase() + name.slice(1))
-    formData.append('calories', calories.toString())
-    formData.append('protein', protein.toString())
-    formData.append('carbohydrate', carbohydrate.toString())
-    formData.append('fat', fat.toString())
-    formData.append('user', (auth.user?.id ?? 0).toString())
-
-    if (product) {
-      putProduct({product: formData, id: formState.id})
-      return
+  
+    try {
+      if (product) {
+        await updateProduct();
+      } else {
+        await createProduct();
+      }
+    } catch {
+      onError?.("An error occurred. Please try again.");
     }
-
-    const returnedProduct = await setProduct({product:formData})
-
-    setFormState({    
-      id: 0,
-      name: productName ?? '',
-      calories: 0,
-      protein: 0,
-      carbohydrate: 0,
-      fat: 0,
-      user: auth.user?.id ?? 0
-    })
-
-    if (onSubmitSuccess) onSubmitSuccess(returnedProduct) 
-    
-  }
-
+  };
+  
   const handleCancel = () => {
-    setFormState({    
-      id: 0,
-      name: productName ?? '',
-      calories: 0,
-      protein: 0,
-      carbohydrate: 0,
-      fat: 0,
-      user: auth.user?.id ?? 0
-    })
-    
+    resetForm()
     if (onCancel) onCancel()
   }
-
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, index?: number) => {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-
-      if (index) {
-        const nextRef = inputRefs[index].current;
-        if (nextRef) {
-          nextRef.focus();
-        }
-      } else {
-        if (addProductButtonRef.current) {
-          addProductButtonRef.current.click(); 
-        }
-      } 
-    }
-  }
-
-
 
   return (
     <div className='modal-body'>
@@ -196,7 +167,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ onSubmitSuccess, onCancel, pr
         Product Name:
       <input className='form-control create-input form-control-sm my-2' maxLength={149} ref={inputRefs[0]} type="text"  name="name" value={formState.name} required  
         onChange={(e) => handleInputChange(e, e.target.value)}
-        onKeyDown={(e) => handleKeyDown(e, 1)}/>
+        onKeyDown={(e) => handleKeyDown(e, inputRefs[1])}/>
       </label>
       <label className='form-label create-label my-2'>
         <input className='form-control form-control-file form-control-sm' type='file' name='image' accept='image/png, image/jpg, image/jpeg' onChange={(e) => handleImageChange(e)} />
@@ -205,30 +176,33 @@ const ProductForm: React.FC<ProductFormProps> = ({ onSubmitSuccess, onCancel, pr
       <label className='d-flex justify-content-between align-items-center mt-2' >Calories for 100 g:
         <input className='border border-light rounded p-2 mx-2' ref={inputRefs[1]} type="number" step="1" name="calories" value={formState.calories} required onFocus={(e) => e.target.select()}
           onChange={(e) => handleInputChange(e)}
-          onKeyDown={(e) => handleKeyDown(e, 2)}/>
+          onKeyDown={(e) => handleKeyDown(e, inputRefs[2])}/>
       </label>
       <label  className='d-flex justify-content-between align-items-center mt-2'> Protein for 100 g: 
         <input className='border border-light rounded p-2 mx-2' ref={inputRefs[2]} type="number" step="1"  name="protein" value={formState.protein} required onFocus={(e) => e.target.select()}
           onChange={(e) => handleInputChange(e)}
-          onKeyDown={(e) => handleKeyDown(e, 3)}/>
+          onKeyDown={(e) => handleKeyDown(e, inputRefs[3])}/>
       </label>
       <label className='d-flex justify-content-between align-items-center mt-2'  >Carbohydrate for 100 g: 
         <input className='border border-light rounded p-2 mx-2' ref={inputRefs[3]} type="number" step="1"   name="carbohydrate" value={formState.carbohydrate} required onFocus={(e) => e.target.select()}
           onChange={(e) => handleInputChange(e)}
-          onKeyDown={(e) => handleKeyDown(e, 4)}/>
+          onKeyDown={(e) => handleKeyDown(e, inputRefs[4])}/>
       </label>
       <label className='d-flex justify-content-between align-items-center mt-2'> Fat for 100 g:
         <input className='border border-light rounded p-2 mx-2' ref={inputRefs[4]} type="number" step="1"  name="fat" value={formState.fat} required onFocus={(e) => e.target.select()}
           onChange={(e) => handleInputChange(e)}
-          onKeyDown={(e) => handleKeyDown(e)}/>
+          onKeyDown={(e) => handleKeyDown(e, addProductButtonRef)}/>
       </label>
-    
+      {!validation.valid && (
+          <div className="alert alert-danger mt-3 p-2" role="alert">
+            {validation.message}
+          </div>
+        )}
+
+ 
       <div className='d-flex justify-content-center'>
-        <div className='tooltip-trigger p-0'>
-          {!validation.valid && <span className='tooltip'>{validation.message}</span>}
-          <button ref={addProductButtonRef} className='btn btn-primary p-2' data-bs-dismiss='modal' data-bs-target={product ? '#modalEdit' : '#modal'} type="button" onClick={handleSubmit} disabled={!validation.valid}>Submit</button>
-        </div>
-        <button className='btn btn-danger btn-sm p-2 ' data-bs-dismiss= 'modal' data-bs-target={product ? '#modalEdit' : '#modal'} type='button' onClick={handleCancel}>Cancel</button>
+        <button ref={addProductButtonRef} className='btn btn-primary p-2 flex-shrink-0' data-bs-dismiss='modal' data-bs-target={product ? '#modalEdit' : '#modal'} type="button" onClick={handleSubmit} disabled={!validation.valid}>Submit</button>
+        <button className='btn btn-danger btn-sm p-2 flex-shrink-0' data-bs-dismiss= 'modal' data-bs-target={product ? '#modalEdit' : '#modal'} type='button' onClick={handleCancel}>Cancel</button>
       </div>
     
     </div>
