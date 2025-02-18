@@ -1,5 +1,5 @@
 import { RadialBarChart, RadialBar, PolarAngleAxis } from "recharts";
-import { DiaryRecord, User } from "./interfaces";
+import { DiaryRecord, User } from "../interfaces";
 
 interface NutritionProgressProps {
   user: User;

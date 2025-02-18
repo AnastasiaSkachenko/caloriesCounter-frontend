@@ -1,8 +1,8 @@
 import { useEffect } from "react"; 
-import { fetchDishes } from "../utils/caloriesCounter";
-import { Dish } from "./interfaces";
-import '../../styles/style.css';
-import '../index.css' 
+import { fetchDishes } from "../../utils/dish";
+import { Dish } from "../interfaces";
+import '../../style.css';
+import '../../index.css' 
 import 'bootstrap-icons/font/bootstrap-icons.css';
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { useInView } from "react-intersection-observer";
@@ -17,6 +17,7 @@ interface DishGridQuery {
 }
 
 const DishGrid: React.FC<DishGridQuery> = ({query, setEditDish}) => {
+
 
   const {
     status, error, data, fetchNextPage
@@ -61,7 +62,7 @@ const DishGrid: React.FC<DishGridQuery> = ({query, setEditDish}) => {
         dishes?.map((dish, index) => (
           <div className="col-md-12 col-sm-12 col-lg-4" key={index}>
             {dish.type === 'custom' ? (
-              <CustomDishCard dish={dish} setEditDish={(dish) => setEditDish(dish)} />
+              <CustomDishCard dish={dish} setEditDish={(dish) => setEditDish(dish)}/>
             ): (
               <PreMadeDishCard dish={dish} setEditDish={(dish) => setEditDish(dish)} />
             )}

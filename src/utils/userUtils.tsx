@@ -16,7 +16,7 @@ export const useRegister = () => {
     setLoading(true);  // Start loading
     setError(null);  // Clear previous errors
     try {
-      await axiosPublic.post('/api/register/', user, {
+      await axiosPublic.post('/register/', user, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
 
@@ -44,7 +44,7 @@ export const useLogin = () => {
     setIsLoading(true);
     setError(null);
     try {
-      const response = await axiosPublic.post("/api/token/",  { email, password });
+      const response = await axiosPublic.post("/token/",  { email, password });
       setAuth({user: response.data.user, access: response.data.access})
       
     } catch (err) {
@@ -68,7 +68,7 @@ export const useUser = () => {
 
   const fetchUser = async () => {
     try {
-      const response = await axiosPrivate.get("/api/user/", {
+      const response = await axiosPrivate.get("/user/", {
         withCredentials: true, 
       });
       setAuth({user: response.data.user, access: response.data.access})
@@ -99,7 +99,7 @@ export const useModify = () => {
   
 
     try {
-      const response = await axiosPrivate.put(`/api/modify-user/?recalculate=${recalculate}`, user, {
+      const response = await axiosPrivate.put(`/modify-user/?recalculate=${recalculate}`, user, {
       });
 
       setAuth(prev => ({...prev, user: response.data.user}))
@@ -129,7 +129,7 @@ export const useLogout = () => {
 
   const logout = async () => {
     try {
-      await axiosPrivate.post("/api/logout/");
+      await axiosPrivate.post("/logout/");
       setAuth({})
  
     } catch (err) {
@@ -143,15 +143,15 @@ export const useLogout = () => {
 
 
 export const sendVerificationCode = async (email: string) => {
-  return axiosPublic.post(`/api/send-code/`, { email });
+  return axiosPublic.post(`/send-code/`, { email });
 };
 
 export const verifyCode = async (email: string, code: string) => {
-  return axiosPublic.post(`/api/verify-code/`, { email, code });
+  return axiosPublic.post(`/verify-code/`, { email, code });
 };
  
 export const resetPassword = async (email: string, newPassword: string) => {
-  return axiosPublic.post(`/api/reset-password/`, { email, new_password: newPassword });
+  return axiosPublic.post(`/reset-password/`, { email, new_password: newPassword });
 };
 
 

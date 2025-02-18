@@ -1,8 +1,8 @@
 import React, { useState, useRef, RefObject, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';  
-import {  DiaryRecord, Dish } from './interfaces';
-import { fetchDishes, getDishNames } from '../utils/caloriesCounter';
-import { usePutDiaryRecord, useSetDiaryRecord } from '../hooks/caloriesCounter';
+import {  DiaryRecord, Dish } from '../interfaces';
+import { fetchDishes, getDishNames } from '../../utils/dish';
+import { usePutDiaryRecord, useSetDiaryRecord } from '../../hooks/caloriesCounter';
 
 interface RecordFormProps {
   onSuccess?: () => void
@@ -27,6 +27,32 @@ const RecordForm: React.FC<RecordFormProps> = ({onSuccess, onCancel, recordData}
   });
   const [currentDish, setCurrentDish] = useState<Dish | null>()
   const addRecordButtonRef = useRef<HTMLButtonElement>(null);
+
+  console.log(record, 'record data')
+  console.log('current dish', currentDish)
+
+  const getDish = async (dishName:string) => {
+    const dishNameExists = dishNames?.find(dish => dish === dishName);
+    if (dishNameExists) {
+      const response = await fetchDishes({pageParam:1, query: dishName})
+      const dishes: Dish[] = response.dishes
+      const dish = dishes?.find(dish => dish.name === dishName);
+      if (dish) {  
+      setRecordInfo((prevRecord) => ({
+          ...prevRecord,
+          name: dish.name,
+          dish: dish.id
+      }));  
+      setCurrentDish(dish)
+      setFilteredSuggestions([])
+
+      if (inputRefs[1].current) {
+        inputRefs[1].current.focus();
+      }
+    } 
+  }
+  }
+
   
   const [inputRefs] = useState([
     useRef<HTMLInputElement>(null),
@@ -36,7 +62,9 @@ const RecordForm: React.FC<RecordFormProps> = ({onSuccess, onCancel, recordData}
   useEffect(() => {
     const modalElement = document.getElementById(recordData ? 'modalEdit' : 'modal');
     modalElement?.addEventListener('shown.bs.modal', () => {
-      if (inputRefs[0].current) {
+      if (inputRefs[1].current && recordData) {
+        inputRefs[1].current.focus();
+      } else if (inputRefs[0].current) {
         inputRefs[0].current.focus();
       }
     });
@@ -66,6 +94,21 @@ const RecordForm: React.FC<RecordFormProps> = ({onSuccess, onCancel, recordData}
       setValidation({message: undefined, valid: true})
     } 
   }, [currentDish, inputMode, record.name, record.portions, record.weight, filteredSuggestions])
+
+  useEffect(() => {
+    const fetchDish = async () => {
+      if (recordData?.name) {
+        console.log('calledddd', recordData.name)
+        await getDish(recordData.name);
+        console.log('loaded')
+      }
+    };
+
+    fetchDish(); // Call the async function to fetch the product
+    console.log(currentDish, 'current dish')
+
+  }, [recordData?.name]);
+  
 
  
   const toggleInputMode = () => {
@@ -115,63 +158,10 @@ const RecordForm: React.FC<RecordFormProps> = ({onSuccess, onCancel, recordData}
     }));
   };
 
-  useEffect(() => {
-    if (!currentDish) return;
-  
-    setRecordInfo((prevRecord) => {
-      const { weight, portions } = prevRecord;
-  
-      if ( inputMode == 'weight' &&  weight && weight > 0) {
-        return {
-          ...prevRecord,
-          calories: Math.round((weight * currentDish.calories_100) / 100),
-          protein: Math.round((weight * currentDish.protein_100) / 100),
-          carbohydrate: Math.round((weight * currentDish.carbohydrate_100) / 100),
-          fat: Math.round((weight * currentDish.fat_100) / 100),
-        };
-      }
-  
-      if (inputMode == 'portions' && portions && portions > 0) {
-        return {
-          ...prevRecord,
-          calories: Math.round((portions * currentDish.calories_100 * currentDish.portion) / 100),
-          protein: Math.round((portions * currentDish.protein_100 * currentDish.portion) / 100),
-          carbohydrate: Math.round((portions * currentDish.carbohydrate_100 * currentDish.portion) / 100),
-          fat: Math.round((portions * currentDish.fat_100 * currentDish.portion) / 100),
-        };
-      }
-  
-      return prevRecord;
-    });
-  
-    setValidation({ message: undefined, valid: true });
-  }, [currentDish, inputMode]);
-  
-  
+ 
   
 
 // get current dish from existing dishes
-  const getDish = async (dishName:string) => {
-    const dishNameExists = dishNames?.find(dish => dish === dishName);
-    if (dishNameExists) {
-      const response = await fetchDishes({pageParam:1, query: dishName})
-      const dishes: Dish[] = response.dishes
-      const dish = dishes?.find(dish => dish.name === dishName);
-      if (dish) {  
-      setRecordInfo((prevRecord) => ({
-          ...prevRecord,
-          name: dish.name,
-          dish: dish.id
-      }));  
-      setCurrentDish(dish)
-      setFilteredSuggestions([])
-
-      if (inputRefs[1].current) {
-        inputRefs[1].current.focus();
-      }
-    } 
-  }
-  }
 
   const handleDishNameChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value.charAt(0).toUpperCase() + e.target.value.slice(1);
@@ -193,9 +183,13 @@ const RecordForm: React.FC<RecordFormProps> = ({onSuccess, onCancel, recordData}
  
 
   const handleSubmit = async () => {  
+    console.log(record, 'before sending')
     if (recordData) {
+      console.log("put is called")
+
       putDiaryRecord({diaryRecord:record})
     } else {
+      console.log("set is called", record)
       setDiaryRecord({diaryRecord:record})
     }
 

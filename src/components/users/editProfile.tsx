@@ -1,7 +1,7 @@
-import useAuth  from "../hooks/useAuth";
+import useAuth  from "../../hooks/useAuth";
 import { useState } from "react";
-import { User } from "./interfaces";
-import { useModify } from "../utils/userUtils";
+import { User } from "../interfaces";
+import { useModify } from "../../utils/userUtils";
 
 interface EditProfile  {
   onExit: () => void

@@ -1,19 +1,20 @@
 import { useInfiniteQuery } from "@tanstack/react-query";
-import { fetchProducts } from "../utils/caloriesCounter";
+import { fetchProducts } from "../../utils/product";
 import { useEffect, useMemo } from "react";
-import '../../styles/style.css';
-import '../index.css'
+import '../../style.css';
+import '../../index.css'
 import { useInView } from "react-intersection-observer";
-import { Product } from "./interfaces";
+import { Product } from "../interfaces";
 
 interface ProductGrid {
   searchQuery: string,
   setEditProduct: (product: Product) => void,
-  deleteProduct: (id: number) => void
+  deleteProduct: (id: number) => void,
+  currentUser: number
 }
 
 
-const ProductsGrid: React.FC<ProductGrid> = ({searchQuery, setEditProduct, deleteProduct}) => {
+const ProductsGrid: React.FC<ProductGrid> = ({searchQuery, setEditProduct, deleteProduct, currentUser}) => {
 	const { ref, inView} = useInView()
 
 	const {
@@ -90,7 +91,8 @@ const ProductsGrid: React.FC<ProductGrid> = ({searchQuery, setEditProduct, delet
                   </div>	
                 </div>								
                 <div className="card-body py-2 bg-light">
-                  <p className="product-name">{product.name}</p>
+                  <p className="product-name mb-0">{product.name}</p>
+                  <p className="text-secondary mb-0"> {product.user == currentUser ? 'Own product': 'Other creator'}</p>
                   <div>
                     <button onClick={() => setEditProduct(product)} className="btn btn-primary me-2"  data-bs-toggle='modal' data-bs-target='#modalEdit'>Edit</button>
                     <button onClick={() => deleteProduct(product.id)}className="btn btn-danger">Delete</button>

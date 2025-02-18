@@ -6,7 +6,7 @@ const useRefreshToken = () => {
 
     const refresh = async () => {
         try {
-            const response = await axiosPrivate.post('/api/token/refresh/', {}, { withCredentials: true });
+            const response = await axiosPrivate.post('/token/refresh/', {}, { withCredentials: true });
             const newAccessToken = response.data.access;
             
             setAuth(prev => {

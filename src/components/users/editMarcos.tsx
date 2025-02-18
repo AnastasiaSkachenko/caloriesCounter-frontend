@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react'; 
-import { ModifyUser } from './interfaces';
-import '../../styles/style.css';
-import '../index.css'
-import useAuth from '../hooks/useAuth';
-import { useModify } from '../utils/userUtils';
+import { ModifyUser } from '../interfaces';
+import '../../style.css';
+import '../../index.css'
+import useAuth from '../../hooks/useAuth';
+import { useModify } from '../../utils/userUtils';
 
 
 

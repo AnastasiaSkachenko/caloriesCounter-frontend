@@ -9,6 +9,7 @@
 export interface Product extends Base {
   name: string,
   image?: File | string,
+  user: number
 }
 
 export interface ProductInput {
@@ -51,7 +52,8 @@ export interface Dish extends Base {
   portions: number,
   type: 'pre_made' | 'custom'
   ingredients?: Ingredient[]
-  description: string
+  description: string,
+  user: number
 }
 
 export interface DishInput {

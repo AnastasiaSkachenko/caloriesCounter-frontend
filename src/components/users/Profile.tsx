@@ -1,11 +1,11 @@
 import { useNavigate } from "react-router-dom";
-import '../../styles/style.css';
+import '../../style.css';
 import { useState } from "react";
 import EditProfile from "./editProfile";
-import { useLogout } from "../utils/userUtils";
-import useAuth from "../hooks/useAuth";
+import { useLogout } from "../../utils/userUtils";
+import useAuth from "../../hooks/useAuth";
 import EditMacros from "./editMarcos";
-import Modal from "./Modal";
+import Modal from "../Modal";
 
 const Profile = () => {
   const {auth} = useAuth()

@@ -1,12 +1,13 @@
 import {  useState } from "react";
-import { usePopProduct } from "../hooks/caloriesCounter";
+import { usePopProduct } from "../../hooks/caloriesCounter";
 import { useNavigate } from "react-router-dom";
-import '../../styles/style.css';
-import '../index.css'
-import { Product } from "./interfaces";
+import '../../style.css';
+import '../../index.css'
+import { Product } from "../interfaces";
 import ProductForm from "./ProductForm";
-import Modal from "./Modal";
+import Modal from "../Modal";
 import ProductsGrid from "./productsGrid";
+import useAuth from "../../hooks/useAuth";
 
 
 
@@ -15,6 +16,8 @@ const Products: React.FC = () => {
  	const [editProduct, setEditProduct] = useState<Product | null>(null);
  
 	const navigate = useNavigate()
+
+	const {auth} = useAuth()
 
 
   const { popProduct } = usePopProduct();
@@ -53,7 +56,7 @@ const Products: React.FC = () => {
 						value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)}/>
 			</div>
 
-			<ProductsGrid  searchQuery={searchQuery} setEditProduct={(product) => setEditProduct(product)} deleteProduct={(id) => handleDeleteProduct(id)}/>
+			<ProductsGrid  searchQuery={searchQuery} setEditProduct={(product) => setEditProduct(product)} deleteProduct={(id) => handleDeleteProduct(id)} currentUser={auth.user?.id ?? 0}/>
 			
  
 		</div>

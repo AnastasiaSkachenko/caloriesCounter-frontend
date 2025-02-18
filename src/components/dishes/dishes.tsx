@@ -1,12 +1,12 @@
 import {  useState } from "react"; 
-import { Dish } from "./interfaces";
+import { Dish } from "../interfaces";
 import { useNavigate } from "react-router-dom";
-import '../../styles/style.css';
-import '../index.css' 
+import '../../style.css';
+import '../../index.css' 
 import 'bootstrap-icons/font/bootstrap-icons.css';
 import BoughtDishForm from "./PreMadeDishForm";
 import OwnDishForm from "./CustomDishForm";
-import Modal from "./Modal";
+import Modal from "../Modal";
 import DishGrid from "./dishesGrid";
 
 const Dishes: React.FC = () => {
@@ -18,7 +18,7 @@ const Dishes: React.FC = () => {
 
 
    return (
-		<div className="bg-dark test-dark p-2 vh-100" > 
+		<div className="bg-dark test-dark p-2  " > 
       <button className="btn btn-primary" onClick={() => navigate('/')}>Diary <i className="bi bi-journal"></i> </button>
       <button className="btn btn-primary" onClick={() => navigate('/products')}>Products <i className="bi bi-basket"></i> </button>
       <button onClick={() => navigate('/profile')} className="btn btn-primary">Profile <i className="bi bi-person"></i>
@@ -41,7 +41,7 @@ const Dishes: React.FC = () => {
         {editDish?.type == 'pre_made' ? (
           <BoughtDishForm  onSuccess={() => setEditDish(undefined)}  onCancel={() => setEditDish(undefined)}  dishToEdit={editDish}/>
         ): editDish && (
-          <OwnDishForm   dishToEdit={editDish} ingredientsData={editDish.ingredients}/>
+          <OwnDishForm   dishToEdit={editDish} ingredientsData={editDish.ingredients} />
         )}
       </Modal>
 

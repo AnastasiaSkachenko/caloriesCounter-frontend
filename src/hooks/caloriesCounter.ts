@@ -1,7 +1,10 @@
 import { useQueryClient, useMutation } from "@tanstack/react-query"
 import {  DiaryRecordInput, DishEditInput, DishInput, Ingredient, IngredientInput, PopInput, Product, ProductEditInput, ProductInput } from "../components/interfaces"
-import { deleteDiaryRecord, deleteDish, deleteIngredient, deleteProduct, editDiaryRecord, editDish, editIngredient, editProduct, saveDiaryRecord, saveDish, saveIngredient, saveProduct } from "../utils/caloriesCounter"
-
+import { deleteProduct, editProduct, saveProduct } from "../utils/product"
+import { deleteIngredient, editIngredient, saveIngredient } from "../utils/ingredients"
+import { deleteDish, editDish, saveDish } from "../utils/dish"
+import { deleteDiaryRecord, editDiaryRecord, saveDiaryRecord } from "../utils/diary"
+ 
 
 //                                                                                                                                        for product
 export const useSetProduct = () => {

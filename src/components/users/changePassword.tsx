@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { sendVerificationCode, verifyCode, resetPassword } from "../utils/userUtils";
+import { sendVerificationCode, verifyCode, resetPassword } from "../../utils/userUtils";
 import { useNavigate } from "react-router-dom";
-import useAuth from "../hooks/useAuth";
+import useAuth from "../../hooks/useAuth";
 
 const ResetPassword = () => {
   const [email, setEmail] = useState("");

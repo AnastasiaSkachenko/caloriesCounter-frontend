@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react'; 
 import { useQuery } from '@tanstack/react-query'; 
-import { Product } from './interfaces';
-import { checkProductExists } from '../utils/caloriesCounter';
-import {  usePutProduct, useSetProduct } from '../hooks/caloriesCounter';
-import '../../styles/style.css';
-import '../index.css'
+import { Product } from '../interfaces';
+import { checkProductExists } from '../../utils/product';
+import {  usePutProduct, useSetProduct } from '../../hooks/caloriesCounter';
+import '../../style.css';
+import '../../index.css'
+import useAuth from '../../hooks/useAuth';
 
 
 interface ProductFormProps {
@@ -15,8 +16,9 @@ interface ProductFormProps {
  }
 
 const ProductForm: React.FC<ProductFormProps> = ({ onSubmitSuccess, onCancel, product, productName}) => {
+  const { auth } = useAuth()
   const [formState, setFormState] = useState<Product>(product ??{
-    id: 0, name: productName ?? '', calories: 0, protein: 0, carbohydrate: 0,fat: 0
+    id: 0, name: productName ?? '', calories: 0, protein: 0, carbohydrate: 0,fat: 0, user:   0
   });
 
 
@@ -132,6 +134,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ onSubmitSuccess, onCancel, pr
     formData.append('protein', protein.toString())
     formData.append('carbohydrate', carbohydrate.toString())
     formData.append('fat', fat.toString())
+    formData.append('user', (auth.user?.id ?? 0).toString())
 
     if (product) {
       putProduct({product: formData, id: formState.id})
@@ -146,7 +149,8 @@ const ProductForm: React.FC<ProductFormProps> = ({ onSubmitSuccess, onCancel, pr
       calories: 0,
       protein: 0,
       carbohydrate: 0,
-      fat: 0
+      fat: 0,
+      user: auth.user?.id ?? 0
     })
 
     if (onSubmitSuccess) onSubmitSuccess(returnedProduct) 
@@ -160,7 +164,8 @@ const ProductForm: React.FC<ProductFormProps> = ({ onSubmitSuccess, onCancel, pr
       calories: 0,
       protein: 0,
       carbohydrate: 0,
-      fat: 0
+      fat: 0,
+      user: auth.user?.id ?? 0
     })
     
     if (onCancel) onCancel()

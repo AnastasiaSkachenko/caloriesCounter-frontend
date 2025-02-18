@@ -1,18 +1,19 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Dish, DishFormProps } from './interfaces';
-import { usePutDish, useSetDish} from '../hooks/caloriesCounter';
-import '../index.css'
-import '../assets/style.scss'
-import '../../styles/style.css' ;
+import { Dish, DishFormProps } from '../interfaces';
+import { usePutDish, useSetDish} from '../../hooks/caloriesCounter';
+import '../../index.css'
+import '../../style.css' ;
 import { useQuery } from '@tanstack/react-query';
-import { checkDishExists } from '../utils/caloriesCounter';
+import { checkDishExists } from '../../utils/dish';
+import useAuth from '../../hooks/useAuth';
 
 
 const PreMadeDishForm: React.FC<DishFormProps> = ({ onSuccess, onCancel, dishToEdit }) => {
+  const { auth } = useAuth()
   const [dishInfo, setDishInfo] = useState<Dish>(dishToEdit ?? {
     id: 0, name: '', calories: 0, calories_100: 0, protein: 0, carbohydrate: 0,
     fat: 0, protein_100: 0, carbohydrate_100: 0, fat_100: 0, weight: 0, drink: false,
-    portion: 100, portions: 1, type: 'pre_made', image: '', description: ''
+    portion: 100, portions: 1, type: 'pre_made', image: '', description: '', user: 0
   });
 
   const [validation, setValidation] = useState<{ message: string | undefined, valid: boolean }>({ message: undefined, valid: false });
@@ -110,6 +111,8 @@ const PreMadeDishForm: React.FC<DishFormProps> = ({ onSuccess, onCancel, dishToE
     Object.entries(dishInfo).forEach(([key, value]) => {
       if (key === "name") {
         formData.append(key, capitalize(value as string));
+      }if (key === "user" ) {
+        formData.append(key, (auth.user?.id ?? 0).toString());
       } else if (key !== "product" && key !== "image") {
         formData.append(key, value.toString());
       }
@@ -131,7 +134,7 @@ const PreMadeDishForm: React.FC<DishFormProps> = ({ onSuccess, onCancel, dishToE
     setDishInfo({
       id: 0, name: '', calories: 0, calories_100: 0, protein: 0, carbohydrate: 0,
       fat: 0, protein_100: 0, carbohydrate_100: 0, fat_100: 0, weight: 0, drink: false,
-      portion: 100, portions: 1, type: 'custom', image: '', description: ''
+      portion: 100, portions: 1, type: 'custom', image: '', description: '', user: 0
     });
     setValidation({ message: undefined, valid: true });
 

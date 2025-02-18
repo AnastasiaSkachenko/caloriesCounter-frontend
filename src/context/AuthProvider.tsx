@@ -21,7 +21,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     useEffect(() => {
       const refresh = async () => {   
           try {
-              const response = await axiosPrivate.post("/api/token/refresh/");
+              const response = await axiosPrivate.post("/token/refresh/");
               setAuth(prev => ({
                   ...prev,
                   access: response.data.access,
@@ -45,7 +45,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     useEffect(() => {
         const fetchUser = async () => {
             try {
-                const response = await axiosPrivate.get("/api/user/", {
+                const response = await axiosPrivate.get("/user/", {
                     withCredentials: true,
                 });
                 setAuth(prev => ({
@@ -87,7 +87,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     useLayoutEffect(() => {
     const refresh = async () => {
         try {
-            const response = await axiosPrivate.post("/api/token/refresh/",   { withCredentials: true });
+            const response = await axiosPrivate.post("/token/refresh/",   { withCredentials: true });
 
             const newAccessToken = response.data.access
 

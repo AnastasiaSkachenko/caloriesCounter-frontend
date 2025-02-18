@@ -1,12 +1,12 @@
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
-import Dishes from "./components/dishes";
-import CaloriesCounterProducts from "./components/products";
-import CaloriesCounter from "./components/main-page";
-import RegisterPage from "./components/register";
-import LoginPage from "./components/login";
-import Profile from "./components/Profile";
+import Dishes from "./components/dishes/dishes";
+import CaloriesCounterProducts from "./components/products/products";
+import CaloriesCounter from "./components/diary/main-page";
+import RegisterPage from "./components/users/register";
+import LoginPage from "./components/users/login";
+import Profile from "./components/users/Profile";
 import { AuthProvider } from "./context/AuthProvider";
-import ResetPassword from "./components/changePassword";
+import ResetPassword from "./components/users/changePassword";
 
 
 function App() {
