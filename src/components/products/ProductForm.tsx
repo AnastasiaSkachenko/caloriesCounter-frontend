@@ -3,8 +3,6 @@ import { useQuery } from '@tanstack/react-query';
 import { Product } from '../interfaces';
 import { checkProductExists } from '../../utils/product';
 import {  usePutProduct, useSetProduct } from '../../hooks/caloriesCounter';
-import '../../style.css';
-import '../../index.css'
 import useAuth from '../../hooks/useAuth';
 import { useHandleKeyDown, useModalFocus, validateForm } from '../../utils/utils';
 
@@ -61,7 +59,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ onSubmitSuccess, onCancel, pr
     if ((validation.message != value.message) || (validation.valid != value.valid)) {
       setValidation(value)
     }
-  }, [productNameExists, formState.name, product]);
+  }, [productNameExists, formState.name, product, validation]);
     
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>, name?: string) => {
@@ -163,13 +161,13 @@ const ProductForm: React.FC<ProductFormProps> = ({ onSubmitSuccess, onCancel, pr
 
   return (
     <div className='modal-body'>
-      <label className='form-label create-label my-2'> 
+      <label className='form-label full-length-label my-2'> 
         Product Name:
-      <input className='form-control create-input form-control-sm my-2' maxLength={149} ref={inputRefs[0]} type="text"  name="name" value={formState.name} required  
+      <input className='form-control full-length-input form-control-sm my-2' maxLength={149} ref={inputRefs[0]} type="text"  name="name" value={formState.name} required  
         onChange={(e) => handleInputChange(e, e.target.value)}
         onKeyDown={(e) => handleKeyDown(e, inputRefs[1])}/>
       </label>
-      <label className='form-label create-label my-2'>
+      <label className='form-label full-length-label my-2'>
         <input className='form-control form-control-file form-control-sm' type='file' name='image' accept='image/png, image/jpg, image/jpeg' onChange={(e) => handleImageChange(e)} />
       </label>
       <hr/>
@@ -201,7 +199,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ onSubmitSuccess, onCancel, pr
 
  
       <div className='d-flex justify-content-center'>
-        <button ref={addProductButtonRef} className='btn btn-primary p-2 flex-shrink-0' data-bs-dismiss='modal' data-bs-target={product ? '#modalEdit' : '#modal'} type="button" onClick={handleSubmit} disabled={!validation.valid}>Submit</button>
+        <button ref={addProductButtonRef} className='btn btn-primary p-2 flex-shrink-0' data-bs-dismiss={productName? '' : 'modal'} data-bs-target={product ? '#modalEdit' : '#modal'} type="button" onClick={handleSubmit} disabled={!validation.valid}>Submit</button>
         <button className='btn btn-danger btn-sm p-2 flex-shrink-0' data-bs-dismiss= 'modal' data-bs-target={product ? '#modalEdit' : '#modal'} type='button' onClick={handleCancel}>Cancel</button>
       </div>
     

@@ -1,8 +1,6 @@
 import {  useEffect, useState } from "react";
 import { usePopProduct } from "../../hooks/caloriesCounter";
 import { useNavigate } from "react-router-dom";
-import '../../style.css';
-import '../../index.css'
 import { Product } from "../interfaces";
 import ProductForm from "./ProductForm";
 import Modal from "../Modal";
@@ -15,22 +13,21 @@ const Products: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState<string>('');  
  	const [editProduct, setEditProduct] = useState<Product | null>(null);
 	const [error, setError] = useState<string | null>(null)
- 
-	const navigate = useNavigate()
 
-	const {auth} = useAuth()
+	const navigate = useNavigate()
+	const { auth } = useAuth()
+	const { popProduct } = usePopProduct();
+
 
 	useEffect(() => {
 		if (error) {
-			setTimeout(() => {
+			const timer = setTimeout(() => {
 				setError(null)
 			}, 4000);
+			return () => clearTimeout(timer);
 		}
 	}, [error])
 	
-	
-
-  const { popProduct } = usePopProduct();
 
  	const handleDeleteProduct = async (id: number) => {
 	  const response = window.confirm('Are you sure you want to delete this product?');
@@ -42,10 +39,9 @@ const Products: React.FC = () => {
 	  } 
 	};
   
-	
  
 	return (
-		<div className="bg-dark text-white p-3 pb-5 vh-100">
+		<div className="bg-dark text-white p-3 pb-5 min-vh-100">
 			<button className="btn btn-primary" onClick={() => navigate('/')}>Diary</button>
       <button className="btn btn-primary" onClick={() => navigate('/dishes')}>Dishes</button>
 			<button onClick={() => navigate('/profile')} className="btn btn-primary">Profile <i className="bi bi-person"></i></button>

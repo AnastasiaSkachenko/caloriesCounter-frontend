@@ -1,15 +1,66 @@
 import { useQueryClient, useMutation } from "@tanstack/react-query"
 import {  DiaryRecordInput, DishEditInput, DishInput, Ingredient, IngredientInput, PopInput, Product, ProductEditInput, ProductInput } from "../components/interfaces"
-import { deleteProduct, editProduct, saveProduct } from "../utils/product"
+import { deleteProduct, editProduct, fetchProducts, saveProduct } from "../utils/product"
 import { deleteIngredient, editIngredient, saveIngredient } from "../utils/ingredients"
 import { deleteDish, editDish, saveDish } from "../utils/dish"
 import { deleteDiaryRecord, editDiaryRecord, saveDiaryRecord } from "../utils/diary"
- 
+import { useInfiniteQuery } from "@tanstack/react-query";
+import { useDebounce } from "../utils/utils"
+
+
+// useProducts.ts
+
+interface UseProductsParams {
+  searchQuery: string;
+}
+
+export const useProducts = ({ searchQuery }: UseProductsParams) => {
+  const debouncedSearchQuery = useDebounce(searchQuery, 500); // Debounced search query
+
+  const {
+    status,
+    data,
+    fetchNextPage,
+    isFetchingNextPage,
+    hasNextPage,
+  } = useInfiniteQuery({
+    queryKey: ["products", debouncedSearchQuery], // Use debounced query
+    queryFn: fetchProducts,
+    initialPageParam: 1,
+    getNextPageParam: (lastPage, allPages) =>
+      lastPage.hasMore ? allPages.length + 1 : undefined,
+    staleTime: 500, // Prevents excessive refetching
+  });
+
+  const products = data?.pages?.flatMap((page) => page.products || []) || [];
+  let message = "";
+
+  // Find any page with an error
+  const errorPage = data?.pages.find((page) => page.error);
+  if (errorPage) {
+    message = errorPage.error || "";
+  }
+
+  // If no products and no error, show "No products found"
+  if (products.length === 0 && !message) {
+    message = "No products found";
+  }  
+  return {
+    message,
+    status,
+    products,
+    fetchNextPage,
+    isFetchingNextPage,
+    hasNextPage,
+  };
+};
+
+
 
 //                                                                                                                                        for product
 export const useSetProduct = () => {
     const queryClient = useQueryClient()
-    const {mutateAsync: setProduct} = useMutation<Product, Error, ProductInput>({
+    const {mutateAsync: setProduct} = useMutation<Product | string, Error, ProductInput>({
         mutationFn: saveProduct,
         onSuccess: () => { 
             queryClient.invalidateQueries({queryKey: ['products']})
@@ -21,7 +72,7 @@ export const useSetProduct = () => {
 
 export const usePutProduct = () => {
     const queryClient = useQueryClient()
-    const {mutateAsync: putProduct} = useMutation<void, Error, ProductEditInput>({
+    const {mutateAsync: putProduct} = useMutation<void | string, Error, ProductEditInput>({
         mutationFn: editProduct,
         onSuccess: () => { 
             queryClient.invalidateQueries({queryKey: ['products']})

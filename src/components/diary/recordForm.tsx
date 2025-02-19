@@ -230,9 +230,9 @@ const RecordForm: React.FC<RecordFormProps> = ({onSuccess, onCancel, recordData}
   return (
     <div className='modal-body'> 
       <div>
-        <label className='form-label create-label my-2'>
+        <label className='form-label full-length-label my-2'>
           Dish or Product Name:
-          <input className='form-control create-input form-control-sm my-2' list='suggestions' type="text" value={record.name}  ref={inputRefs[0]} onChange={(e) => handleDishNameChange(e)} />
+          <input className='form-control full-length-input form-control-sm my-2' list='suggestions' type="text" value={record.name}  ref={inputRefs[0]} onChange={(e) => handleDishNameChange(e)} />
           <datalist id='suggestions'>
             {filteredSuggestions.map((dish, index) => (
               <option key={index} value={dish}/>

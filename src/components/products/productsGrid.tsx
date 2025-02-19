@@ -1,9 +1,7 @@
-import { useInfiniteQuery } from "@tanstack/react-query";
-import { fetchProducts } from "../../utils/product";
-import { useEffect, useMemo } from "react";
 import { useInView } from "react-intersection-observer";
 import { Product } from "../interfaces";
-import { useDebounce } from "../../utils/utils";  
+import { useProducts } from "../../hooks/caloriesCounter";
+import { useEffect } from "react";
 
 interface ProductGrid {
   searchQuery: string;
@@ -14,34 +12,27 @@ interface ProductGrid {
 
 const ProductsGrid: React.FC<ProductGrid> = ({ searchQuery, setEditProduct, deleteProduct, currentUser }) => {
   const { ref, inView } = useInView();
-  
-  // Debounce the searchQuery to prevent rapid API calls
-  const debouncedSearchQuery = useDebounce(searchQuery, 500);
 
-  const { status, data, fetchNextPage } = useInfiniteQuery({
-    queryKey: ["products", debouncedSearchQuery], // Use debounced query
-    queryFn: fetchProducts,
-    initialPageParam: 1,
-    getNextPageParam: (lastPage, allPages) => (lastPage.hasMore ? allPages.length + 1 : undefined),
-    staleTime: 500, // Prevents excessive refetching
+  // Call the custom hook to fetch products
+  const { status, products, fetchNextPage, isFetchingNextPage, hasNextPage, message } = useProducts({
+    searchQuery
   });
 
+
+
+  // Fetch more products when in view
   useEffect(() => {
-    if (inView) {
+    if (inView && hasNextPage && !isFetchingNextPage) {
       fetchNextPage();
     }
-  }, [inView, fetchNextPage]);
+  }, [inView, fetchNextPage, isFetchingNextPage, hasNextPage]);
 
-  const products = useMemo(() => {
-    return data?.pages ? data.pages.flatMap((page) => page.products) : [];
-  }, [data]);
-
-  if (status === "error") return <div className="error-message">Something went wrong. Please try again later.</div>;
+  if (status === "error") return <div className="error-message">{message ?? 'Something went wrong'}</div>;
   if (status === "pending") return <div className="loading-spinner">Loading...</div>;
 
   return (
     <div className="container">
-      {products.length > 0 ? (
+      {products && products.length > 0 ? (
         <div className="row gy-4">
           {products.map((product) => (
             <div className="col-md-3 col-sm-6 col-lg-2" key={product.id}>
@@ -75,9 +66,7 @@ const ProductsGrid: React.FC<ProductGrid> = ({ searchQuery, setEditProduct, dele
                 </div>
                 <div className="card-body py-2 bg-light">
                   <p className="product-name mb-0">{product.name}</p>
-                  <p className="text-secondary mb-0">
-                    {product.user === currentUser ? "Own product" : "Other creator"}
-                  </p>
+                  <p className="text-secondary mb-0">{product.user === currentUser ? "Own product" : "Other creator"}</p>
                   <div>
                     <button onClick={() => setEditProduct(product)} className="btn btn-primary me-2" data-bs-toggle="modal" data-bs-target="#modalEdit">
                       Edit

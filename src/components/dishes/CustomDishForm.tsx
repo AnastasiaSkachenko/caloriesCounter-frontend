@@ -263,12 +263,12 @@ const CustomDishForm: React.FC<DishFormProps> = ({onSuccess,onCancel, dishToEdit
   
   return (
     <div className='modal-body pt-0 p-4'> 
-      <label className='form-label create-label'>
+      <label className='form-label full-length-label'>
         Dish Name:
-        <input className='form-control create-input form-control-sm my-2' type="text" ref={inputRefs.nameRef}  onKeyDown={(e) => handleKeyDown(e, 'descriptionRef')}  value={dishInfo.name} onChange={(e) => handleDishChange(e,'name')} />
+        <input className='form-control full-length-input form-control-sm my-2' type="text" ref={inputRefs.nameRef}  onKeyDown={(e) => handleKeyDown(e, 'descriptionRef')}  value={dishInfo.name} onChange={(e) => handleDishChange(e,'name')} />
       </label>
 
-      <label className='form-label create-label my-2'> 
+      <label className='form-label full-length-label my-2'> 
         <input className='form-control form-control-file bg-secondary text-white' type='file' name='image' accept='image/png, image/jpg, image/jpeg' onChange={(e) => handleImageChange(e)} />
       </label>
 
@@ -278,9 +278,9 @@ const CustomDishForm: React.FC<DishFormProps> = ({onSuccess,onCancel, dishToEdit
         {dishInfo.drink ? " Drink" : " Dish"}
       </label>
 
-      <label className='form-label create-label'>
+      <label className='form-label full-length-label'>
         Description:
-        <textarea className='form-control create-input form-control-sm my-2' value={dishInfo.description} ref={inputRefs.descriptionRef} onChange={(e) => handleDishChange(e, 'description')} onKeyDown={(e) => handleKeyDown(e, 'portionRef')} onFocus={(e) => e.target.select()} />
+        <textarea className='form-control full-length-input form-control-sm my-2' value={dishInfo.description} ref={inputRefs.descriptionRef} onChange={(e) => handleDishChange(e, 'description')} onKeyDown={(e) => handleKeyDown(e, 'portionRef')} onFocus={(e) => e.target.select()} />
       </label>
 
 
