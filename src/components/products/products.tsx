@@ -30,13 +30,12 @@ const Products: React.FC = () => {
 	
 
  	const handleDeleteProduct = async (id: number) => {
-	  const response = window.confirm('Are you sure you want to delete this product?');
-	  if (response) {
-		  const responseError = await  popProduct({ id });
-			if (responseError) {
-				setError(responseError)
-			}
-	  } 
+
+		const responseError = await  popProduct({ id });
+		if (responseError) {
+			setError(responseError)
+		}
+	   
 	};
   
  

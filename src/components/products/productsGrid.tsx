@@ -31,13 +31,13 @@ const ProductsGrid: React.FC<ProductGrid> = ({ searchQuery, setEditProduct, dele
   if (status === "pending") return <div className="loading-spinner">Loading...</div>;
 
   return (
-    <div className="container">
+    <div className="container-fluid">
       {products && products.length > 0 ? (
         <div className="row gy-4">
           {products.map((product) => (
-            <div className="col-md-3 col-sm-6 col-lg-2" key={product.id}>
-              <div className="card" style={{ width: "100%" }}>
-                <div className="card-img-container position-relative" style={{ height: "130px", overflow: "hidden" }}>
+            <div className=" col-6 col-md-4  col-lg-3 col-xl-2 " key={product.id}>
+              <div className="card" >
+                <div className="card-img-container position-relative" >
                   <img
                     className="card-img-top position-absolute card-image"
                     src={typeof product.image === "string" ? product.image : "media/products/food.jpg"}
@@ -67,7 +67,7 @@ const ProductsGrid: React.FC<ProductGrid> = ({ searchQuery, setEditProduct, dele
                 <div className="card-body py-2 bg-light">
                   <p className="product-name mb-0">{product.name}</p>
                   <p className="text-secondary mb-0">{product.user === currentUser ? "Own product" : "Other creator"}</p>
-                  <div>
+                  <div className="d-flex justify-content-center">
                     <button onClick={() => setEditProduct(product)} className="btn btn-primary me-2" data-bs-toggle="modal" data-bs-target="#modalEdit">
                       Edit
                     </button>
