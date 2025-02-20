@@ -17,10 +17,18 @@ interface ProductFormProps {
 
 const ProductForm: React.FC<ProductFormProps> = ({ onSubmitSuccess, onCancel, product, productName, onError}) => {
   const { auth } = useAuth()
+
+
   const [formState, setFormState] = useState<Product>(product ??{
     id: 0, name: productName ?? '', calories: 0, protein: 0, carbohydrate: 0,fat: 0, user:   0
   });
 
+  useEffect(() => {
+    if (product) {
+      setFormState(product);
+    }
+  }, [product]);
+  
 
   const productNameExists = useQuery({
     queryKey: ["checkProductExists", formState.name],
@@ -37,7 +45,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ onSubmitSuccess, onCancel, pr
   const { putProduct } = usePutProduct()
   const { handleKeyDown } = useHandleKeyDown()
 
-  console.log(validation)
+  console.log(formState)
   
  
   const [inputRefs] = useState([
@@ -54,8 +62,6 @@ const ProductForm: React.FC<ProductFormProps> = ({ onSubmitSuccess, onCancel, pr
 
   useEffect(() => {
     const value = validateForm(productNameExists.data || false, formState.name, 'Product', product)
-    console.log(value, 'value')
-    console.log(validation, 'validation')
     if ((validation.message != value.message) || (validation.valid != value.valid)) {
       setValidation(value)
     }
@@ -114,6 +120,8 @@ const ProductForm: React.FC<ProductFormProps> = ({ onSubmitSuccess, onCancel, pr
       onError?.(response);
       return;
     }
+    resetForm();
+
   };
   
   const appendFormData = (formData: FormData) => {

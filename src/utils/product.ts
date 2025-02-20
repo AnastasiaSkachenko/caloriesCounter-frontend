@@ -79,12 +79,7 @@ export const saveProduct = async ({ product }: ProductInput): Promise<Product | 
 
 export const editProduct = async ({ product, id }: ProductEditInput): Promise<void | string> => {
   try {
-    await axiosPublic.put(`/products/?id=${id}`, product, {
-      headers: {
-        "X-CSRFToken": cookies.get("csrftoken"),
-        "Content-Type": "application/json",
-      },
-    });
+    await axiosPublic.put(`/products/?id=${id}`, product);
   } catch (error: unknown) {
     logError(error, "editProduct");
     return "An error occurred while updating the product. Please try again.";

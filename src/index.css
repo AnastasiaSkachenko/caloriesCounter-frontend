@@ -30,6 +30,8 @@ html, body {
 }
 
 
+
+ 
 .full-length-label {
   width: 100%;
 }
@@ -59,7 +61,7 @@ html, body {
 .custom-dish-container {
   position: relative;
   width: 100%;
-  height: 36em ;
+  height: 34em ;
 }
 
 .myCard {
@@ -93,6 +95,36 @@ html, body {
 
 }
 
+
+.record-container {
+  flex-wrap: wrap;
+  align-items: start;
+}
+
+
+.record-container > :first-child {
+  flex-basis: 400px;
+  flex-grow: 999;
+}
+
+.record-container > :last-child {
+  flex-basis: 200px;
+  flex-grow: 1;
+}
+
+ 
+.my-flex-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap:1rem;
+}
+
+.my-flex-grid > :last-child {
+  flex:1
+}
+
+
+
 .custom-dish-container:hover > .myCard {
   transform: rotateY(180deg);
 }
@@ -120,8 +152,7 @@ html, body {
   opacity: 1; /* Show the nutrition info */
 }
 
-.product-name, .ingredients {
-  height: 4ch;
+.card-name, .ingredients {
   display: -webkit-box;
   -webkit-box-orient: vertical;
   overflow: hidden;
@@ -129,7 +160,11 @@ html, body {
 
 }
 
-.product-name {
+.ingredients {
+  height: 4ch;
+}
+
+.card-name {
   height: 5ch;
   line-clamp: 2;
   -webkit-line-clamp: 2;
@@ -220,32 +255,21 @@ button:focus-visible {
   }
 
   .btn {
-    padding: 0.5em
+    padding: 0.6em 0.8em 
   }
 }
 
 @media (min-width: 2100px) {
   body, html {
-    font-size: xx-large;
-  }
-  .card-img-container {
-    height: 10em;
+    font-size: x-large;
   }
 
+   
+  .record-container > :last-child {
+    flex-basis: 400px;
+  }
+  
+ 
 }
 
-
-@media (min-width: 2100px) {
-  body, html {
-    font-size: xx-large;
-  }
-
-
-  .card-img-container {
-    height: 10em;
-  }
-
-
-
-}
 

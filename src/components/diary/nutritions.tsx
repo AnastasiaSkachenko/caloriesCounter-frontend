@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { RadialBarChart, RadialBar, PolarAngleAxis } from "recharts";
 import { DiaryRecord, User } from "../interfaces";
 
@@ -7,6 +8,37 @@ interface NutritionProgressProps {
 }
 
 const NutritionProgress: React.FC<NutritionProgressProps> = ({ user, filteredRecords }) => {
+  const [chartSize, setChartSize] = useState(120); // Default chart size
+  const [itemsPerRow, setItemsPerRow] = useState(4); // Default to 4 items in a row
+
+  // Adjust chart size & items per row based on screen width
+  useEffect(() => {
+    const updateLayout = () => {
+      const width = window.innerWidth;
+
+      if (width < 400) {
+        setChartSize(70);
+        setItemsPerRow(2);
+      } else if (width < 768) {
+        setChartSize(100);
+        setItemsPerRow(2);
+      } else if (width < 1024) {
+        setChartSize(120);
+        setItemsPerRow(4);
+      } else if (width < 1200) {
+        setChartSize(130);
+        setItemsPerRow(4);
+      } else {
+        setChartSize(150);
+        setItemsPerRow(4);
+      }
+    };
+
+    updateLayout();
+    window.addEventListener("resize", updateLayout);
+    return () => window.removeEventListener("resize", updateLayout);
+  }, []);
+
   const totalCalories = filteredRecords?.reduce((acc, record) => acc + record.calories, 0) || 0;
   const totalProtein = filteredRecords?.reduce((acc, record) => acc + record.protein, 0) || 0;
   const totalCarbs = filteredRecords?.reduce((acc, record) => acc + record.carbohydrate, 0) || 0;
@@ -22,33 +54,34 @@ const NutritionProgress: React.FC<NutritionProgressProps> = ({ user, filteredRec
     if (percentage >= 80 && percentage <= 120) return "#FFD700"; // 5-20% to goal → Yellow
     return "#32CD32"; // Less than 5% to goal → Green
   };
-//(totalCalories / goalCalories) * 100
 
   const data = [
-    { name: "Calories", value: (totalCalories / goalCalories) * 100, color: calculateColor((totalCalories / goalCalories) * 100), total:totalCalories, goal: goalCalories },
-    { name: "Protein", value: (totalProtein / goalProtein) * 100, color: calculateColor((totalProtein / goalProtein) * 100), total:totalProtein, goal: goalProtein },
+    { name: "Calories", value: (totalCalories / goalCalories) * 100, color: calculateColor((totalCalories / goalCalories) * 100), total: totalCalories, goal: goalCalories },
+    { name: "Protein", value: (totalProtein / goalProtein) * 100, color: calculateColor((totalProtein / goalProtein) * 100), total: totalProtein, goal: goalProtein },
     { name: "Carbs", value: (totalCarbs / goalCarbs) * 100, color: calculateColor((totalCarbs / goalCarbs) * 100), total: totalCarbs, goal: goalCarbs },
-    { name: "Fats", value: (totalFats / goalFats) * 100, color: calculateColor((totalFats / goalFats) * 100), total:totalFats, goal:goalFats },
+    { name: "Fats", value: (totalFats / goalFats) * 100, color: calculateColor((totalFats / goalFats) * 100), total: totalFats, goal: goalFats },
   ];
 
-  console.log(data)
-
-
   return (
-    <div className="d-flex justify-content-around">
+    <div className="d-flex flex-wrap justify-content-center gap-4 w-100">
       {data.map((item, index) => (
-        <div 
-          key={index} 
+        <div
+          key={index}
           className="d-flex flex-column align-items-center text-center"
+          style={{ 
+            minWidth: "100px", 
+            flex: `0 0 calc(${100 / itemsPerRow}% - 10px)`, // Ensures 4 or 2 items per row
+            maxWidth: "200px" 
+          }}
         >
           <RadialBarChart
-            width={120}
-            height={120}
-            cx={60}
-            cy={60}
-            innerRadius={30}
-            outerRadius={50}
-            barSize={10}
+            width={chartSize}
+            height={chartSize}
+            cx={chartSize / 2}
+            cy={chartSize / 2}
+            innerRadius={chartSize * 0.25}
+            outerRadius={chartSize * 0.4}
+            barSize={chartSize * 0.1}
             data={[item]}
           >
             <PolarAngleAxis 
@@ -59,26 +92,24 @@ const NutritionProgress: React.FC<NutritionProgressProps> = ({ user, filteredRec
             />
             <RadialBar 
               dataKey="value" 
-              cornerRadius={10} 
+              cornerRadius={chartSize * 0.08} 
               fill={item.color} 
             />
-            {/* Centered text inside the circle */}
             <text 
-              x={60} 
-              y={60} 
+              x={chartSize / 2} 
+              y={chartSize / 2} 
               textAnchor="middle" 
               dominantBaseline="central" 
-              fontSize="14" 
+              fontSize={chartSize * 0.12} 
               fontWeight="bold" 
               fill={item.color}
             >
               {item.value.toFixed(0)}%
             </text>
           </RadialBarChart>
-          <p className="mb-1">Consumed {item.name}: {item.total}</p>
+          <p className="mb-1">{item.name}: {item.total}</p>
           <p className="mb-0">Goal: {item.goal}</p>
         </div>
-
       ))}
     </div>
   );

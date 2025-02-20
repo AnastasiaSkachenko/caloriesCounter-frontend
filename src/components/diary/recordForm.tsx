@@ -256,8 +256,8 @@ const RecordForm: React.FC<RecordFormProps> = ({onSuccess, onCancel, recordData}
                   onFocus={(e) => e.target.select()}
                   disabled={!currentDish}
                   />
-                  <button className='btn btn-dark' type="button" onClick={toggleInputMode}>
-                    Switch to {inputMode === "weight" ? "Portions" : "Weight"}
+                  <button className='btn btn-dark flex-shrink-0' type="button" onClick={toggleInputMode}>
+                      {inputMode === "weight" ? "Portions" : "Weight"}
                   </button>
               </div>
 

@@ -65,7 +65,7 @@ const ProductsGrid: React.FC<ProductGrid> = ({ searchQuery, setEditProduct, dele
                   </div>
                 </div>
                 <div className="card-body py-2 bg-light">
-                  <p className="product-name mb-0">{product.name}</p>
+                  <p className="card-name mb-0">{product.name}</p>
                   <p className="text-secondary mb-0">{product.user === currentUser ? "Own product" : "Other creator"}</p>
                   <div className="d-flex justify-content-center">
                     <button onClick={() => setEditProduct(product)} className="btn btn-primary me-2" data-bs-toggle="modal" data-bs-target="#modalEdit">

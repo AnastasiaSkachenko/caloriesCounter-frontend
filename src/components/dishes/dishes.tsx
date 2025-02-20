@@ -41,7 +41,7 @@ const Dishes: React.FC = () => {
         {editDish?.type == 'pre_made' ? (
           <BoughtDishForm  onSuccess={() => setEditDish(undefined)}  onCancel={() => setEditDish(undefined)}  dishToEdit={editDish}/>
         ): editDish && (
-          <OwnDishForm   dishToEdit={editDish} ingredientsData={editDish.ingredients} />
+          <OwnDishForm onSuccess={() => setEditDish(undefined)}  onCancel={() => setEditDish(undefined)}   dishToEdit={editDish} ingredientsData={editDish.ingredients} />
         )}
       </Modal>
 

@@ -20,10 +20,12 @@ const PreMadeDishCard: React.FC<PreMadeDishProps> = ({dish, setEditDish}) => {
     }
   }
 
+  
+
  
   
   return (
-    <div className="bg-light border rounded p-3" style={{ height: '36em'}}>
+    <div className="bg-light border rounded p-3" style={{ height: '33em'}}>
     <div className="d-flex justify-content-center mb-2" style={{ height: "12em", overflow: "hidden" }}>
       <img className="border rounded"
         src={
@@ -35,16 +37,16 @@ const PreMadeDishCard: React.FC<PreMadeDishProps> = ({dish, setEditDish}) => {
         style={{ width: "15em", height: "100%", objectFit: "cover" }}
       />
     </div>
-    <h3 className=" " style={{height:'2.2em'}}>{dish.name} ({dish.portions + (dish.portions > 1 ? " portions" : " portion")})</h3>
-    <div className=" d-flex align-items-center p-1" style={{height: '12em'}} >
+    <h3 className="card-name" >{dish.name} ({dish.portions + (dish.portions > 1 ? " portions" : " portion")})</h3>
+    <div className=" d-flex align-items-center p-1" style={{height: '8em'}} >
       <div>   
         <div className="mb-4">
-          <p className="fw-bold my-0">Macros for total:</p>
-          Calories: {dish.calories}, Protein: {dish.protein}, Carbs: {dish.carbohydrate}, Fats: {dish.fat}  
+          <p className="fw-bold my-0">Macros for {dish.portion} g:</p>
+          Calories: {Math.round(dish.calories_100*dish.portion/100)}, Protein: {Math.round(dish.protein_100*dish.portion/100)}, Carbs: {Math.round(dish.carbohydrate_100*dish.portion/100)}, Fats: {Math.round(dish.fat_100*dish.portion/100)}
         </div>
         <div >
           <p className="fw-bold my-0">Macros for  100g: </p>
-          Calories: {dish.calories_100}, Protein: {dish.protein_100}, Carbs: {Math.round(dish.carbohydrate_100*dish.portion/100)}, Fats: {Math.round(dish.fat_100*dish.portion/100)}
+          Calories: {dish.calories_100}, Protein: {dish.protein_100}, Carbs: {dish.carbohydrate_100}, Fats: {dish.fat_100}
         </div>
       </div>
     </div>

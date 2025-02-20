@@ -30,7 +30,7 @@ const Profile = () => {
 
 
           <div className="d-flex justify-content-center align-items-center" style={{minHeight: '70vh'}}>
-            <div className="border rounded shadow px-5 py-4 " style={{minWidth: '45%', minHeight: '30em'}}>
+            <div className="border rounded shadow px-2 px-md-5 py-4 " style={{minWidth: '45%', minHeight: '30em'}}>
               <h2 className="text-center">Profile <button className="btn bg-transparent p-2 m-0" onClick={() => setEditProfile(true)}><i className="fa fa-user-pen"></i></button></h2>
               <div className="d-flex justify-content-center">  
                 <img style={{ height: '7em', borderRadius: '2em'}}  src={typeof user.image === "string" 
@@ -41,23 +41,39 @@ const Profile = () => {
               {editProfile ? (
                 <EditProfile onExit={() => setEditProfile(false)}/>
               ): (
-                <div className="row align-items-center pt-3">
-                  <div className="col d-flex flex-column">
-                    <h5 className="my-3" >General info:</h5>
-                    <p>Height: {user.height}</p>
-                    <p>Weight: {user.weight}</p>
-                    <p>Gender: {user.gender}</p>
-                    <p>goal: {user.goal}</p>
-                    <p>Activity level: {user?.activity_level}</p>
+                <div className="align-items-center pt-3">
+                  <h5 className=" text-center">General info:</h5>
+                  <div className="row">
+                    <div className="col-6">
+                      <p className="text-center">Height: {user.height}</p>
+                      <p className="text-center">Gender: {user.gender}</p>
+                    </div>
+                    <div className="col-6">
+                      <p className="text-center">Weight: {user.weight}</p>
+                      <p className="text-center">Goal: {user.goal}</p>
+                    </div>
+                    <p className="text-center">Activity level: {user?.activity_level}</p>
                   </div>
-                  <div className="col d-flex flex-column">
-                    <h5 className="my-3">Macros Info <button className="btn bg-transparent p-2 m-0"  data-bs-toggle='modal' data-bs-target='#editMacros'><i className="fa fa-pen"></i></button>:</h5>
-                    <p>Energy for one day: {user.calories_d} ccal</p>
-                    <p>Protein for one day: {user.protein_d} g</p>
-                    <p>Carbs for one day: {user.carbohydrate_d} g</p>
-                    <p>Fats for one day: {user.fat_d} g</p>
+
+                  <h5 className="text-center">
+                    Macros Info  for a day:
+                    <button className="btn bg-transparent p-2 m-0" data-bs-toggle='modal' data-bs-target='#editMacros'>
+                      <i className="fa fa-pen"></i>
+                    </button>:
+                  </h5>
+                  <div className="row">
+                    <div className="col-6">
+                      <p className="text-center">Energy: {user.calories_d} ccal</p>
+                      <p className="text-center">Carbs: {user.carbohydrate_d} g</p>
+                    </div>
+                    <div className="col-6">
+                      <p className="text-center">Protein: {user.protein_d} g</p>
+                      <p className="text-center">Fats: {user.fat_d} g</p>
+                    </div>
                   </div>
-                  <button onClick={() => logout()}>Log out</button>
+                  <div className="d-flex justify-content-center">
+                    <button className="btn btn-dark" onClick={() => logout()}>Log out</button>
+                  </div>
                 </div>
               )}
             </div>

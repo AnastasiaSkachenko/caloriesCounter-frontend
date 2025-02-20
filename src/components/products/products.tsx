@@ -37,6 +37,8 @@ const Products: React.FC = () => {
 		}
 	   
 	};
+
+	console.log(editProduct, 'edit product')
   
  
 	return (
@@ -53,7 +55,7 @@ const Products: React.FC = () => {
 				<ProductForm onSubmitSuccess={() => setEditProduct(null)} onCancel={() => setEditProduct(null)} onError={(errorMessage) => setError(errorMessage)}/>
 			</Modal>
 
-			<Modal id="modalEdit" title="Edit product product">
+			<Modal id="modalEdit" title="Edit product">
 				{editProduct && (
 				<ProductForm onSubmitSuccess={() => setEditProduct(null)} onCancel={() => setEditProduct(null)} product={editProduct} onError={(errorMessage) => setError(errorMessage)}/>
 				)}

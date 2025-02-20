@@ -22,8 +22,16 @@ const PreMadeDishForm: React.FC<DishFormProps> = ({ onSuccess, onCancel, dishToE
   const dishNameExists = useQuery({
     queryKey: ["checkDishExists", dishInfo.name],
     queryFn: () => checkDishExists(dishInfo.name),
-    enabled: !!dishInfo.name, // Runs query only when name is provided
+    enabled: !!dishInfo.name, 
   });
+
+    useEffect(() => {
+      if (dishToEdit ) {
+        setDishInfo(dishToEdit);
+  
+      }
+    }, [dishToEdit]);
+  
 
   const { putDish } = usePutDish();
   const { setDish } = useSetDish();

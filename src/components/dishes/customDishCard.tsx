@@ -24,7 +24,7 @@ const CustomDishCard: React.FC<CustomDishProps> = ({ dish, setEditDish }) => {
     <div className="custom-dish-container">
       <div className="myCard bg-light " >
         <div className="front p-3">
-          <div className="d-flex justify-content-center mb-2" style={{ height: "12em", overflow: "hidden" }}>
+          <div className="d-flex justify-content-center mb-2" style={{ height: "35%", overflow: "hidden" }}>
             <img className="border rounded"
               src={
                 typeof dish.image === "string"
@@ -35,20 +35,20 @@ const CustomDishCard: React.FC<CustomDishProps> = ({ dish, setEditDish }) => {
               style={{ width: "15em", height: "100%", objectFit: "cover" }}
             />
           </div>
-          <h3 className=" " style={{height:'2.2em'}}>{dish.name} ({dish.portions + (dish.portions > 1 ? " portions" : " portion")})</h3>
-          <div className=" d-flex align-items-center p-1" style={{height: '12em'}} >
+          <h3 className="card-name mb-1 mb-sm-2"  >{dish.name} ({dish.portions + (dish.portions > 1 ? " portions" : " portion")})</h3>
+          <div className=" d-flex p-1"  style={{height: '35%'}}>
             <div>   
-              <div className="mb-4">
-                <p className="fw-bold my-0">Macros for total:</p>
+              <div className=" mb-1 mb-sm-2">
+                <p className="fw-bold my-1">Macros for total:</p>
                 Calories: {dish.calories}, Protein: {dish.protein}, Carbs: {dish.carbohydrate}, Fats: {dish.fat}  
               </div>
               <div >
-                <p className="fw-bold my-0">Macros for  1 portion ({dish.portion} g): </p>
+                <p className="fw-bold my-1">Macros for  1 portion ({dish.portion} g): </p>
                 Calories: {Math.round(dish.calories_100*dish.portion /100)}, Protein: {Math.round(dish.protein*dish.portion/100)}, Carbs: {Math.round(dish.carbohydrate_100*dish.portion/100)}, Fats: {Math.round(dish.fat_100*dish.portion/100)}
               </div>
+              <p className="text-secondary mt-3" > {dish.user == auth.user?.id ? 'Own dish': 'Other creator'}</p>
             </div>
           </div>
-          <p className="text-secondary mb-0"> {dish.user == auth.user?.id ? 'Own dish': 'Other creator'}</p>
 
 
           <div className="d-flex justify-content-center">
@@ -75,7 +75,7 @@ const CustomDishCard: React.FC<CustomDishProps> = ({ dish, setEditDish }) => {
                 </p>
               </div>
             </div>
-            <div className="d-flex align-items-center" style={{ height: '20em', width: '100%', overflow: 'hidden' }}>
+            <div className="d-flex align-items-center" style={{ height: '18em', width: '100%', overflow: 'hidden' }}>
               <div style={{ overflowY: 'auto', height: '100%' }}>
                 <p   style={{ overflowWrap: 'break-word', wordWrap: 'break-word', whiteSpace: 'normal' }}>
                   <b>Instructions:</b> {dish.description}

@@ -60,7 +60,7 @@ const DishGrid: React.FC<DishGridQuery> = ({query, setEditDish}) => {
           <p>No dish match your search.</p>
       ) : (
         dishes?.map((dish, index) => (
-          <div className="col-md-12 col-sm-12 col-lg-4" key={index}>
+          <div className="col-md-6 col-sm-12 col-lg-4" key={index}>
             {dish.type === 'custom' ? (
               <CustomDishCard dish={dish} setEditDish={(dish) => setEditDish(dish)}/>
             ): (
