@@ -11,18 +11,18 @@ const RecordComponent: React.FC<RecordComponentProps> = ({record, editRecord}) =
   const { popDiaryRecord } = usePopDiaryRecord()
 
   return (
-    <div className="bg-secondary border rounded p-3 m-2" >
-      <div className="d-flex gap-2 profile-info">
+    <div className="bg-secondary border rounded p-3 pb-1 m-2" >
+      <div className="d-flex  justify-content-between flex-wrap ">
         <div>
           <h5>{record.name}: </h5>
           <p>{(record.weight ? 'Weight:' : 'Portions:')} {record.weight ? record.weight + 'g' : record.portions} Calories: {record.calories} Protein: {record.protein}g Carbs: {record.carbohydrate}g Fat: {record.fat}g</p>
         </div>
-        <div className='d-flex  justify-content-around justify-content-sm-center align-items-center gap-2 flex-sm-column'>
+        <div className='d-flex flex-wrap  justify-content-center align-items-center gap-2 flex-sm-column'>
           <div>
             <button className="btn btn-dark" onClick={() => editRecord(record)} data-bs-toggle='modal' data-bs-target='#modalEdit' disabled={record.dish == null}>Edit</button>
             <button className="btn btn-danger" onClick={() => popDiaryRecord({ id: record.id })}>Delete</button>
           </div>
-          <p className="text-end  mb-0">{record.date}</p>
+          <p className="text-end  mb-0">{record.date.split(' ')[1]}</p>
 
         </div>
       </div>
