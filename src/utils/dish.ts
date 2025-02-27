@@ -31,15 +31,29 @@ export const getDishNames = async (): Promise<string[]> => {
 
 }
 
-export const checkDishExists = async (name: string) => {
-  if (!name) return null;
+export const  checkDishExists = () => {
+  return false
+}
 
-  const response = await axiosPublic.get(`/checkDishName/`, {
-    params: { name },
-  });
-
-  return response.data.exists;
+export const IsNameUnique = async (name: string) => {
+  try {
+    const response = await axiosPublic.get(`/isNameUnique/`, {params: { name },});
+      return {
+      unique: !response.data.exists_product && !response.data.exists_dish,
+      message: response.data.exists_product
+        ? 'Product with this name already exists.'
+        : response.data.exists_dish
+        ? 'Dish with this name already exists.'
+        : undefined
+    };
+  } catch (error) {
+    console.error(error);
+    return { unique: false, message: 'Error checking name uniqueness.' };
+  }
 };
+
+
+
 
 
 export const fetchDish = async (id:number)  => { 

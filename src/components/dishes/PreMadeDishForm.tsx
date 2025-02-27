@@ -3,9 +3,8 @@ import { Dish, DishFormProps } from '../interfaces';
 import { usePutDish, useSetDish} from '../../hooks/caloriesCounter';
 import '../../index.css'
 import '../../style.css' ;
-import { useQuery } from '@tanstack/react-query';
-import { checkDishExists } from '../../utils/dish';
 import useAuth from '../../hooks/useAuth';
+import { PreMadeDishSchema } from '../../utils/validation schemes';
 
 
 const PreMadeDishForm: React.FC<DishFormProps> = ({ onSuccess, onCancel, dishToEdit }) => {
@@ -19,16 +18,11 @@ const PreMadeDishForm: React.FC<DishFormProps> = ({ onSuccess, onCancel, dishToE
   const [validation, setValidation] = useState<{ message: string | undefined, valid: boolean }>({ message: undefined, valid: false });
   const addDishButtonRef = useRef<HTMLButtonElement>(null);
 
-  const dishNameExists = useQuery({
-    queryKey: ["checkDishExists", dishInfo.name],
-    queryFn: () => checkDishExists(dishInfo.name),
-    enabled: !!dishInfo.name, 
-  });
+ 
 
     useEffect(() => {
       if (dishToEdit ) {
         setDishInfo(dishToEdit);
-  
       }
     }, [dishToEdit]);
   
@@ -46,25 +40,16 @@ const PreMadeDishForm: React.FC<DishFormProps> = ({ onSuccess, onCancel, dishToE
     portionRef: useRef<HTMLInputElement>(null),
   };
 
+
   useEffect(() => {
-    if (!dishNameExists || !dishInfo) return;
+    PreMadeDishSchema.validate(dishInfo)
+      .then(() => setValidation({ valid: true, message: undefined }))
+      .catch((err) => setValidation({ valid: false, message: err.message }));
+  }, [dishInfo]);
+    
 
-    let newValidation = { ...validation };
+  
 
-    if ((dishNameExists.data && !dishToEdit) || (dishNameExists.data && dishToEdit && dishToEdit.name !== dishInfo.name)) {
-      console.log(dishNameExists)
-      newValidation = { message: "Dish with this name already exists", valid: false };
-    } else if (dishInfo.name === "") {
-      newValidation = { message: "Dish should have a name.", valid: false };
-    } else {
-      newValidation = { message: undefined, valid: true };
-    }
-
-    // 🛠 Prevent unnecessary state updates to avoid re-renders
-    if (JSON.stringify(validation) !== JSON.stringify(newValidation)) {
-      setValidation(newValidation);
-    }
-  }, [validation, dishInfo, dishNameExists, dishToEdit]);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>, next?: string) => {
     if (e.key === 'Enter') {
@@ -89,7 +74,7 @@ const PreMadeDishForm: React.FC<DishFormProps> = ({ onSuccess, onCancel, dishToE
     console.log(newValue);
     if (field === 'name') {
       setDishInfo((prevDish) => ({ ...prevDish, [field]: newValue.slice(0, 1).toUpperCase() + newValue.slice(1) }));
-    } else if (field === 'portion') {
+    } else if (field === 'portion' && Number(newValue) > 0) {
       setDishInfo((prevDish) => ({ ...prevDish, [field]: Number(newValue) }));
     } else {
       setDishInfo((prevDish) => ({ ...prevDish, [field]: newValue }));
@@ -108,7 +93,11 @@ const PreMadeDishForm: React.FC<DishFormProps> = ({ onSuccess, onCancel, dishToE
   };
 
   const handleSubmit = async () => {
-    console.log('dishInfo', dishInfo);
+    if (typeof dishInfo.portion != 'number' || dishInfo.portion == null ||  dishInfo.portion < 1) {
+      setValidation({message: 'Weight of portion cannot be less than 1g', valid: false})
+      return
+    }
+
     const formData = new FormData();
 
     if (dishInfo.image && typeof dishInfo.image !== 'string') formData.append('image', dishInfo.image);

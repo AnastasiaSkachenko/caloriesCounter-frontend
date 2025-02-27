@@ -2,9 +2,8 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Dish, DishFormProps, Ingredient } from '../interfaces';
 import { usePopIngredient, usePutDish, useSetDish, useSetIngredient } from '../../hooks/caloriesCounter';
 import IngredientForm from '../ingredients/ingredientForm';
-import { useQuery } from '@tanstack/react-query';
-import { checkDishExists } from '../../utils/dish';
 import useAuth from '../../hooks/useAuth';
+import { CustomDishSchema } from '../../utils/validation schemes';
 
 
 const CustomDishForm: React.FC<DishFormProps> = ({onSuccess,onCancel, dishToEdit, ingredientsData}) => {
@@ -24,11 +23,6 @@ const CustomDishForm: React.FC<DishFormProps> = ({onSuccess,onCancel, dishToEdit
 
 
 
-  const dishNameExists = useQuery({
-    queryKey: ["checkDishExists", dishInfo.name],
-    queryFn: () => checkDishExists(dishInfo.name),
-    enabled: !!dishInfo.name, // Runs query only when name is provided
-  })
   
   const { setDish } = useSetDish()
   const { setIngredient } = useSetIngredient()
@@ -43,25 +37,19 @@ const CustomDishForm: React.FC<DishFormProps> = ({onSuccess,onCancel, dishToEdit
     }
   }, [dishToEdit, ingredientsData]);
 
-  useEffect(() => {
-    if (!dishNameExists || !dishInfo) return;
-  
-    let newValidation = { ...validation };
-  
-    if ((dishNameExists.data && !dishToEdit) || (dishNameExists.data && dishToEdit && dishToEdit.name !== dishInfo.name)) {
-      newValidation = { message: "Dish with this name already exists", valid: false };
-    } else if (dishInfo.name === "") {
-      newValidation = { message: "Dish should have a name.", valid: false };
-    } else {
-      newValidation = { message: undefined, valid: true };
-    }
-  
-    // 🛠 Prevent unnecessary state updates to avoid re-renders
-    if (JSON.stringify(validation) !== JSON.stringify(newValidation)) {
-      setValidation(newValidation);
-    }
-  }, [validation, dishInfo, dishNameExists, dishToEdit]);
 
+    useEffect(() => {
+      if (ingredients.length == 0) {
+        // If currentProduct is undefined, set the validation state accordingly
+        setValidation({ valid: false, message: 'Dish should have at least one ingredient.' });
+        return;
+      }
+    
+      // Proceed with IngredientSchema validation if currentProduct is defined
+      CustomDishSchema.validate(dishInfo)
+        .then(() => setValidation({ valid: true, message: undefined }))
+        .catch((err) => setValidation({ valid: false, message: err.message }));
+    }, [dishInfo, ingredients]);    
 
   const inputRefs = {
     nameRef: useRef<HTMLInputElement>(null),
@@ -109,7 +97,7 @@ const CustomDishForm: React.FC<DishFormProps> = ({onSuccess,onCancel, dishToEdit
     const newValue = e.target.value;
     if (field == 'name') {
       setDishInfo((prevDish) => ({ ...prevDish, [field]: newValue.slice(0,1).toUpperCase() + newValue.slice(1) })); 
-    } else if (field == 'portions') {
+    } else if (field == 'portions' && Number(newValue) > 0) {
       setDishInfo((prevDish) => ({ ...prevDish, [field]: Number(newValue) })); 
     } else {
       setDishInfo((prevDish) => ({ ...prevDish, [field]: newValue })); 
@@ -176,7 +164,11 @@ const CustomDishForm: React.FC<DishFormProps> = ({onSuccess,onCancel, dishToEdit
   };
 
   const recalculateMacros = () => {
-    dishInfo.portion = Math.round(dishInfo.weight / dishInfo.portions) 
+    if (!dishInfo.portions) {
+      dishInfo.portion = 100
+      dishInfo.portions = 1
+    }
+    dishInfo.portion = dishInfo.portions ?  Math.round(dishInfo.weight / dishInfo.portions) : 1
     dishInfo.calories_100 = Math.round(dishInfo.calories / dishInfo.weight * 100)
     dishInfo.protein_100 = Math.round(dishInfo.protein / dishInfo.weight * 100)
     dishInfo.carbohydrate_100 = Math.round(dishInfo.carbohydrate / dishInfo.weight * 100)
@@ -186,7 +178,6 @@ const CustomDishForm: React.FC<DishFormProps> = ({onSuccess,onCancel, dishToEdit
   const handleSubmit = async () => { 
     recalculateMacros()
     const formData = new FormData()
-    console.log(dishInfo)
 
     if (dishInfo.image instanceof File) formData.append('image', dishInfo.image)
 

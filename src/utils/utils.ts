@@ -22,6 +22,7 @@ export const validateForm = (nameExists: boolean, nameState: string, type: 'Dish
 	if (nameState === "") {
 		return { message: `${type} should have a name.`, valid: false };
 	}
+	
 	return { message: undefined, valid: true };
   };
       

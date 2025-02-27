@@ -4,6 +4,7 @@ import { Product, Ingredient } from '../interfaces';
 import {  fetchProducts, getProductNames } from '../../utils/product'
 import ProductForm from '../products/ProductForm';
 import { useHandleKeyDown } from '../../utils/utils';
+import { IngredientSchema } from '../../utils/validation schemes';
  
 interface IngredientFormProps {
   onSuccess: (ingredient:Ingredient) => void
@@ -38,7 +39,7 @@ const IngredientForm: React.FC<IngredientFormProps> = ({onSuccess, onCancel, ing
  
   const [filteredSuggestions, setFilteredSuggestions] = useState<string[]>([''])
   const [CreatingNewProduct, setCreatingNewProduct] = useState<string | null>(null);
-  const [validationError, setValidationError] = useState<string | null>(null)
+  const [validation, setValidation] = useState<{message: string | undefined, valid: boolean}>({message: undefined, valid: false})
   const addIngredientButtonRef = useRef<HTMLButtonElement>(null);
   const [currentProduct, setCurrentProduct] = useState<Product | null>()
   const [focus, setFocus] = useState(true)
@@ -100,6 +101,20 @@ const IngredientForm: React.FC<IngredientFormProps> = ({onSuccess, onCancel, ing
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ingredientData?.name, currentProduct]);
 
+  useEffect(() => {
+    if (!currentProduct) {
+      // If currentProduct is undefined, set the validation state accordingly
+      setValidation({ valid: false, message: 'Choose product first.' });
+      return;
+    }
+  
+    // Proceed with IngredientSchema validation if currentProduct is defined
+    IngredientSchema.validate(ingredient)
+      .then(() => setValidation({ valid: true, message: undefined }))
+      .catch((err) => setValidation({ valid: false, message: err.message }));
+  }, [ingredient, currentProduct]);    
+
+
 
   const handleProductInputFocus = () => { 
     setCreatingNewProduct(null) 
@@ -126,7 +141,6 @@ const IngredientForm: React.FC<IngredientFormProps> = ({onSuccess, onCancel, ing
       }
     }); 
   
-    setValidationError(null);
   };
     
 
@@ -143,8 +157,9 @@ const IngredientForm: React.FC<IngredientFormProps> = ({onSuccess, onCancel, ing
         ...prevIngredient,
         name: '',  
       }));  
-
+      setFilteredSuggestions([])
       setCreatingNewProduct(value.slice(5, -16));
+      return
       } else {
       setIngredient((prevIngredient) => ({
         ...prevIngredient,
@@ -162,18 +177,10 @@ const IngredientForm: React.FC<IngredientFormProps> = ({onSuccess, onCancel, ing
  
 
   const handleSubmit = async () => {  
-    if (!currentProduct){
-      setValidationError('Choose product you want to add to dish')
-    }
 
-    if ( ingredient.weight < 1) {
-      setValidationError('Weight must be greater than 0.');
-      return;
-    }  
-    if ( ingredient.name == '') {
-      setValidationError('Product name cant be empty.');
-      return;
-    }  
+
+
+
    
     onSuccess(ingredient)
   }
@@ -187,7 +194,7 @@ const IngredientForm: React.FC<IngredientFormProps> = ({onSuccess, onCancel, ing
 
     setCurrentProduct(product)
     setCreatingNewProduct(null); 
-    setValidationError(null);
+    setFilteredSuggestions(prev => ([...prev, product.name]))
   };
 
   const handleProductCancel = () => { 
@@ -217,54 +224,59 @@ const IngredientForm: React.FC<IngredientFormProps> = ({onSuccess, onCancel, ing
   return (
     <div className='border rounded m-1 p-3'> 
       <h4 className='text-center'> {ingredientData ? 'Edit ingredient': 'Add ingredient'}</h4> 
-        <div>
-          <label className='d-flex justify-content-between align-items-center my-2'>
-            Product Name:
-            <input list='suggestions' type="text" value={ingredient.name || ''} ref={inputRefs[0]}  className='border border-light rounded p-1 mx-2'onFocus={() => handleProductInputFocus()}  onChange={(e) => handleProductNameChange(e)} onKeyDown={(e) => handleKeyDown(e, inputRefs[1])}  />
-            <datalist id='suggestions'>
-            {filteredSuggestions.map((product, index) => (
-              <option key={index} value={product}/>
-            ))}  
-            </datalist> 
-          </label>   
+      <div>
+        <label className='d-flex justify-content-between align-items-center my-2'>
+          Product Name:
+          <input list='suggestions' type="text" value={ingredient.name || ''} ref={inputRefs[0]}  className='border border-light rounded p-1 mx-2'onFocus={() => handleProductInputFocus()}  onChange={(e) => handleProductNameChange(e)} onKeyDown={(e) => handleKeyDown(e, inputRefs[1])}  />
+          <datalist id='suggestions'>
+          {filteredSuggestions.map((product, index) => (
+            <option key={index} value={product}/>
+          ))}  
+          </datalist> 
+        </label>   
 
-          {CreatingNewProduct && (
-            <div>
-              <ProductForm onSubmitSuccess={(product) => handleProductSubmit(product)} onCancel={handleProductCancel} productName={CreatingNewProduct} />
-            </div>
-          )}
- 
+        {CreatingNewProduct && (
           <div>
-            <label className='d-flex justify-content-between align-items-center mt-2'>
-              Weight (g):
-              <input className='border border-light rounded p-1 mx-2' type="number" value={ingredient.weight } ref={inputRefs[1]} onKeyDown={(e) => handleKeyDown(e, inputRefs[2])}  onChange={(e) => handleIngredientChange('weight', e.target.value)}  onFocus={(e) => e.target.select()} disabled={!currentProduct} />
-            </label>
-
-            <label className='d-flex justify-content-between align-items-center mt-2'>
-              Calories (g):
-              <input type="number" className='border border-light rounded p-1 mx-2' value={ingredient.weight? ingredient.calories : '0'} ref={inputRefs[2]} onChange={(e) => handleIngredientChange('calories', e.target.value)} onKeyDown={(e) => handleKeyDown(e, inputRefs[3])}   onFocus={(e) => e.target.select()} disabled={!currentProduct}/>
-            </label>
-
-            <label className='d-flex justify-content-between align-items-center mt-2'>
-              Protein (g):
-              <input type="number" className='border border-light rounded p-1 mx-2' value={ingredient.weight? ingredient.protein : '0'} ref={inputRefs[3]} onChange={(e) => handleIngredientChange('protein', e.target.value)} onKeyDown={(e) => handleKeyDown(e, inputRefs[4])}   onFocus={(e) => e.target.select()} disabled={!currentProduct}/>
-            </label>
-
-            <label className='d-flex justify-content-between align-items-center mt-2'>
-              Carbohydrates (g):
-              <input type="number" className='border border-light rounded p-1 mx-2' value={ingredient.weight? ingredient.carbohydrate : '0' } ref={inputRefs[4]} onChange={(e) => handleIngredientChange('carbohydrate', e.target.value)} onKeyDown={(e) => handleKeyDown(e, inputRefs[5])}   onFocus={(e) => e.target.select()} disabled={!currentProduct}/>
-            </label>
-
-            <label className='d-flex justify-content-between align-items-center my-2'>
-              Fat (g):
-              <input type="number"  value={ingredient.weight? ingredient.fat : '0' } className='border border-light rounded p-1 mx-2' ref={inputRefs[5]} onChange={(e) => handleIngredientChange('fat', e.target.value)} onKeyDown={(e) => handleKeyDown(e, addIngredientButtonRef, true)}   onFocus={(e) => e.target.select()} disabled={!currentProduct}/>
-            </label>
+            <ProductForm onSubmitSuccess={(product) => handleProductSubmit(product)} onCancel={handleProductCancel} productName={CreatingNewProduct} />
           </div>
+        )}
+
+        <div>
+          <label className='d-flex justify-content-between align-items-center mt-2'>
+            Weight (g):
+            <input className='border border-light rounded p-1 mx-2' type="number" value={ingredient.weight } ref={inputRefs[1]} onKeyDown={(e) => handleKeyDown(e, inputRefs[2])}  onChange={(e) => handleIngredientChange('weight', e.target.value)}  onFocus={(e) => e.target.select()} disabled={!currentProduct} />
+          </label>
+
+          <label className='d-flex justify-content-between align-items-center mt-2'>
+            Calories (g):
+            <input type="number" className='border border-light rounded p-1 mx-2' value={ingredient.weight? ingredient.calories : '0'} ref={inputRefs[2]} onChange={(e) => handleIngredientChange('calories', e.target.value)} onKeyDown={(e) => handleKeyDown(e, inputRefs[3])}   onFocus={(e) => e.target.select()} disabled={!currentProduct}/>
+          </label>
+
+          <label className='d-flex justify-content-between align-items-center mt-2'>
+            Protein (g):
+            <input type="number" className='border border-light rounded p-1 mx-2' value={ingredient.weight? ingredient.protein : '0'} ref={inputRefs[3]} onChange={(e) => handleIngredientChange('protein', e.target.value)} onKeyDown={(e) => handleKeyDown(e, inputRefs[4])}   onFocus={(e) => e.target.select()} disabled={!currentProduct}/>
+          </label>
+
+          <label className='d-flex justify-content-between align-items-center mt-2'>
+            Carbohydrates (g):
+            <input type="number" className='border border-light rounded p-1 mx-2' value={ingredient.weight? ingredient.carbohydrate : '0' } ref={inputRefs[4]} onChange={(e) => handleIngredientChange('carbohydrate', e.target.value)} onKeyDown={(e) => handleKeyDown(e, inputRefs[5])}   onFocus={(e) => e.target.select()} disabled={!currentProduct}/>
+          </label>
+
+          <label className='d-flex justify-content-between align-items-center my-2'>
+            Fat (g):
+            <input type="number"  value={ingredient.weight? ingredient.fat : '0' } className='border border-light rounded p-1 mx-2' ref={inputRefs[5]} onChange={(e) => handleIngredientChange('fat', e.target.value)} onKeyDown={(e) => handleKeyDown(e, addIngredientButtonRef, true)}   onFocus={(e) => e.target.select()} disabled={!currentProduct}/>
+          </label>
         </div>
- 
-      {validationError && <p style={{ color: 'red' }}>{validationError}</p>} 
+      </div>
+
+      {!validation.valid && (
+        <div className="alert alert-danger mt-3 p-2" role="alert">
+          {validation.message}
+        </div>
+      )}
+
       <div className='d-flex justify-content-center'>
-        <button type='button' className='btn btn-primary' ref={addIngredientButtonRef} onClick={() => handleSubmit()} > {ingredientData ? 'Edit ingredient' : 'Add ingredient to dish'}</button>
+        <button type='button' className='btn btn-primary' ref={addIngredientButtonRef} onClick={() => handleSubmit()} disabled={!validation.valid} > {ingredientData ? 'Edit ingredient' : 'Add ingredient to dish'}</button>
         <button type='button' className='btn btn-danger' onClick={handleOnCancel}>Cancel</button>
       </div>
           

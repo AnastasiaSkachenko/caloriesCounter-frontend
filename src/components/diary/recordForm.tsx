@@ -23,13 +23,10 @@ const RecordForm: React.FC<RecordFormProps> = ({onSuccess, onCancel, recordData}
   const [validation, setValidation] = useState<{message: string | undefined, valid: boolean}>({message: undefined, valid: false})
   const [inputMode, setInputMode] = useState<"weight" | "portions">(recordData? (recordData.weight  ? 'weight': 'portions'):"weight");
   const [record, setRecordInfo] = useState<DiaryRecord>(recordData??{
-    id: 0, name: '', image: '', weight: 100, calories: 0, protein: 0, carbohydrate: 0, fat: 0, dish: 0,date: '', portions: 1
+    id: 0, name: '', image: '',  calories: 0, protein: 0, carbohydrate: 0, fat: 0, dish: 0,date: '' 
   });
   const [currentDish, setCurrentDish] = useState<Dish | null>()
   const addRecordButtonRef = useRef<HTMLButtonElement>(null);
-
-  console.log(record, 'record data')
-  console.log('current dish', currentDish)
 
   const getDish = async (dishName:string) => {
     const dishNameExists = dishNames?.find(dish => dish === dishName);
@@ -42,13 +39,11 @@ const RecordForm: React.FC<RecordFormProps> = ({onSuccess, onCancel, recordData}
           ...prevRecord,
           name: dish.name,
           dish: dish.id
-      }));  
+      })); 
+
       setCurrentDish(dish)
       setFilteredSuggestions([])
 
-      if (inputRefs[1].current) {
-        inputRefs[1].current.focus();
-      }
     } 
   }
   }
@@ -58,13 +53,12 @@ const RecordForm: React.FC<RecordFormProps> = ({onSuccess, onCancel, recordData}
     useRef<HTMLInputElement>(null),
     useRef<HTMLInputElement>(null),
   ]);
-  
+
+  //focus dependent on data
   useEffect(() => {
     const modalElement = document.getElementById(recordData ? 'modalEdit' : 'modal');
     modalElement?.addEventListener('shown.bs.modal', () => {
-      if (inputRefs[1].current && recordData) {
-        inputRefs[1].current.focus();
-      } else if (inputRefs[0].current) {
+      if (inputRefs[0].current) {
         inputRefs[0].current.focus();
       }
     });
@@ -78,7 +72,7 @@ const RecordForm: React.FC<RecordFormProps> = ({onSuccess, onCancel, recordData}
     };
   }, [inputRefs, recordData]);
  
-    
+    //validations
   useEffect(() => {
     if (filteredSuggestions.length == 0  && !currentDish ) {
       setValidation({message: 'No such dish. Create one first', valid: false})
@@ -95,17 +89,15 @@ const RecordForm: React.FC<RecordFormProps> = ({onSuccess, onCancel, recordData}
     } 
   }, [currentDish, inputMode, record.name, record.portions, record.weight, filteredSuggestions])
 
+  //get dish
   useEffect(() => {
     const fetchDish = async () => {
       if (recordData?.name) {
-        console.log('calledddd', recordData.name)
         await getDish(recordData.name);
-        console.log('loaded')
       }
     };
 
     fetchDish(); // Call the async function to fetch the product
-    console.log(currentDish, 'current dish')
 
   }, [recordData?.name]);
   
@@ -116,47 +108,80 @@ const RecordForm: React.FC<RecordFormProps> = ({onSuccess, onCancel, recordData}
   };
 
   useEffect(() => {
-    if (!currentDish) return;
+    if (currentDish && inputRefs[1]?.current) {
+      inputRefs[1].current.focus();
+    }
+  }, [currentDish]);
+
+  useEffect(() => {
+    const handleMacros = () => {
+      if (!currentDish) return;
+     
+      setRecordInfo((prevRecord) => {
+        const { weight, portions } = prevRecord;
+    
+        if (inputMode === "weight" ) {
+          if (weight) {
+            return {
+              ...prevRecord,
+              calories: Math.round((weight * currentDish.calories_100) / 100),
+              protein: Math.round((weight * currentDish.protein_100) / 100),
+              carbohydrate: Math.round((weight * currentDish.carbohydrate_100) / 100),
+              fat: Math.round((weight * currentDish.fat_100) / 100),
+            };  
+          } else {
+            return {
+              ...prevRecord,
+              calories: 0,
+              protein: 0,
+              carbohydrate: 0,
+              fat: 0,
+            };  
+          }
+        }
+    
+        if (inputMode === "portions" && portions && portions > 0) {
+          if (portions) {
+            return {
+              ...prevRecord,
+              calories: Math.round((portions * currentDish.calories_100 * currentDish.portion) / 100),
+              protein: Math.round((portions * currentDish.protein_100 * currentDish.portion) / 100),
+              carbohydrate: Math.round((portions * currentDish.carbohydrate_100 * currentDish.portion) / 100),
+              fat: Math.round((portions * currentDish.fat_100 * currentDish.portion) / 100),
+            };  
+          } else {
+            return {
+              ...prevRecord,
+              calories: 0,
+              protein: 0,
+              carbohydrate: 0,
+              fat: 0,
+            };  
+          }
+        }
+    
+        return prevRecord;
+      });
   
-    setRecordInfo((prevRecord) => {
-      const { weight, portions } = prevRecord;
-  
-      if (inputMode === "weight" && weight && weight > 0) {
-        return {
-          ...prevRecord,
-          calories: Math.round((weight * currentDish.calories_100) / 100),
-          protein: Math.round((weight * currentDish.protein_100) / 100),
-          carbohydrate: Math.round((weight * currentDish.carbohydrate_100) / 100),
-          fat: Math.round((weight * currentDish.fat_100) / 100),
-        };
-      }
-  
-      if (inputMode === "portions" && portions && portions > 0) {
-        return {
-          ...prevRecord,
-          calories: Math.round((portions * currentDish.calories_100 * currentDish.portion) / 100),
-          protein: Math.round((portions * currentDish.protein_100 * currentDish.portion) / 100),
-          carbohydrate: Math.round((portions * currentDish.carbohydrate_100 * currentDish.portion) / 100),
-          fat: Math.round((portions * currentDish.fat_100 * currentDish.portion) / 100),
-        };
-      }
-  
-      return prevRecord;
-    });
-  
-  }, [currentDish, inputMode, record.weight, record.portions]);
-  
+    }
+
+    handleMacros()
+  }, [inputMode, record.portions, record.weight, currentDish])
+
+
   const { setDiaryRecord } = useSetDiaryRecord()
   const { putDiaryRecord } = usePutDiaryRecord()
 
 
-  const handleRecordChange = (field: "weight" | "portions", valueRaw: number) => {
-    const value = Number(valueRaw);
+  const handleRecordChange = (field: "weight" | "portions", valueRaw: string |number) => {
+    console.log(Number(valueRaw), 'here')
+    const value = Number(valueRaw) > 0 ?  Number(valueRaw) : valueRaw;
+    console.log('value', value)
     setRecordInfo((prevRecord) => ({
       ...prevRecord,
       [field]: value,
     }));
-  };
+   };
 
  
   
@@ -165,7 +190,7 @@ const RecordForm: React.FC<RecordFormProps> = ({onSuccess, onCancel, recordData}
 
   const handleDishNameChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value.charAt(0).toUpperCase() + e.target.value.slice(1);
-    setRecordInfo((prevRecord) => ({
+     setRecordInfo((prevRecord) => ({
       ...prevRecord,
       name: value
     }))
@@ -175,26 +200,34 @@ const RecordForm: React.FC<RecordFormProps> = ({onSuccess, onCancel, recordData}
     }
 
     const filterSuggestions = dishNames?.filter(dish => dish.startsWith(value));
-
-    setFilteredSuggestions(filterSuggestions || []);
+ 
+    setFilteredSuggestions(filterSuggestions ?? []);
  
     getDish(value) 
   };
  
 
   const handleSubmit = async () => {  
-    console.log(record, 'before sending')
+    if (inputMode == 'portions') {
+      setRecordInfo(prev => ({
+        ...prev,
+        weight: undefined
+      }))
+    } else {
+      setRecordInfo(prev => ({
+        ...prev,
+        portions: undefined
+      }))
+    }
     if (recordData) {
-      console.log("put is called")
 
       putDiaryRecord({diaryRecord:record})
     } else {
-      console.log("set is called", record)
       setDiaryRecord({diaryRecord:record})
     }
 
     setRecordInfo({
-      id: 0, name: '', image: '', weight: 0, calories: 0, protein: 0, carbohydrate: 0, fat: 0, dish: 0, date: ''})
+      id: 0, name: '', image: '', weight: 0, calories: 0, protein: 0, carbohydrate: 0, fat: 0, dish: 0, date: '', portions: 0})
     setCurrentDish(null)
   
     if (onSuccess) onSuccess()
@@ -223,6 +256,8 @@ const RecordForm: React.FC<RecordFormProps> = ({onSuccess, onCancel, recordData}
       id: 0, name: '', image: '', weight: 0, calories: 0, protein: 0, carbohydrate: 0, fat: 0, dish: 0, date: ''})
     if (onCancel) onCancel()
   }
+
+ 
  
   if (isLoading) return <h1>Loading...</h1>;
   if (status=== 'error') return <h1>{JSON.stringify(error)}</h1>;
@@ -247,10 +282,10 @@ const RecordForm: React.FC<RecordFormProps> = ({onSuccess, onCancel, recordData}
                 <input
                   type="number"
                   className='border border-light rounded p-1 '
-                  value={inputMode === "weight" ? record.weight || 100 : record.portions || 1}
+                  value={inputMode === "weight" ? record.weight : record.portions }
                   ref={inputRefs[1]}
                   onChange={(e) =>
-                    handleRecordChange(inputMode, Number(e.target.value))
+                    handleRecordChange(inputMode,e.target.value)
                   }
                   onKeyDown={handleKeyDown}
                   onFocus={(e) => e.target.select()}

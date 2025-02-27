@@ -37,11 +37,11 @@ const PreMadeDishCard: React.FC<PreMadeDishProps> = ({dish, setEditDish}) => {
         style={{ width: "15em", height: "100%", objectFit: "cover" }}
       />
     </div>
-    <h3 className="card-name" >{dish.name} ({dish.portions + (dish.portions > 1 ? " portions" : " portion")})</h3>
+    <h3 className="card-name" >{dish.name} </h3>
     <div className=" d-flex align-items-center p-1" style={{height: '8em'}} >
       <div>   
         <div className="mb-4">
-          <p className="fw-bold my-0">Macros for {dish.portion} g:</p>
+          <p className="fw-bold my-0">Macros for one portion ({dish.portion} g):</p>
           Calories: {Math.round(dish.calories_100*dish.portion/100)}, Protein: {Math.round(dish.protein_100*dish.portion/100)}, Carbs: {Math.round(dish.carbohydrate_100*dish.portion/100)}, Fats: {Math.round(dish.fat_100*dish.portion/100)}
         </div>
         <div >
