@@ -52,10 +52,11 @@ const ProductForm: React.FC<ProductFormProps> = ({ onSubmitSuccess, onCancel, pr
 
 
   useEffect(() => {
-    productSchema.validate(formState)
+    const validationSchema = productSchema(product && product.name  )
+    validationSchema.validate(formState)
       .then(() => setValidation({ valid: true, message: undefined }))
       .catch((err) => setValidation({ valid: false, message: err.message }));
-  }, [formState]);
+  }, [formState, product]);
     
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>, name?: string) => {
     const { name: fieldName, value } = e.target;

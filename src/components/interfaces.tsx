@@ -53,7 +53,8 @@ export interface Dish extends Base {
   type: 'pre_made' | 'custom'
   ingredients?: Ingredient[]
   description: string,
-  user: number
+  user: number,
+  weight_of_ready_product?: number
 }
 
 export interface DishInput {

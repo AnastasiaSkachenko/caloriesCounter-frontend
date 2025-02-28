@@ -23,7 +23,7 @@ const RecordForm: React.FC<RecordFormProps> = ({onSuccess, onCancel, recordData}
   const [validation, setValidation] = useState<{message: string | undefined, valid: boolean}>({message: undefined, valid: false})
   const [inputMode, setInputMode] = useState<"weight" | "portions">(recordData? (recordData.weight  ? 'weight': 'portions'):"weight");
   const [record, setRecordInfo] = useState<DiaryRecord>(recordData??{
-    id: 0, name: '', image: '',  calories: 0, protein: 0, carbohydrate: 0, fat: 0, dish: 0,date: '' 
+    id: 0, name: '', image: '',  calories: 0, protein: 0, carbohydrate: 0, fat: 0, dish: 0, date: '', weight: 100, portions: 1
   });
   const [currentDish, setCurrentDish] = useState<Dish | null>()
   const addRecordButtonRef = useRef<HTMLButtonElement>(null);

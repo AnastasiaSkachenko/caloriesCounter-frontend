@@ -4,7 +4,8 @@ import { usePutDish, useSetDish} from '../../hooks/caloriesCounter';
 import '../../index.css'
 import '../../style.css' ;
 import useAuth from '../../hooks/useAuth';
-import { PreMadeDishSchema } from '../../utils/validation schemes';
+import { preMadeDishSchema } from '../../utils/validation schemes';
+import { useHandleKeyDown } from '../../utils/utils';
 
 
 const PreMadeDishForm: React.FC<DishFormProps> = ({ onSuccess, onCancel, dishToEdit }) => {
@@ -17,6 +18,7 @@ const PreMadeDishForm: React.FC<DishFormProps> = ({ onSuccess, onCancel, dishToE
 
   const [validation, setValidation] = useState<{ message: string | undefined, valid: boolean }>({ message: undefined, valid: false });
   const addDishButtonRef = useRef<HTMLButtonElement>(null);
+  const {handleKeyDown} = useHandleKeyDown()
 
  
 
@@ -30,44 +32,26 @@ const PreMadeDishForm: React.FC<DishFormProps> = ({ onSuccess, onCancel, dishToE
   const { putDish } = usePutDish();
   const { setDish } = useSetDish();
 
-  const inputRefs = {
-    nameRef: useRef<HTMLInputElement>(null),
-    descriptionRef: useRef<HTMLTextAreaElement>(null),
-    caloriesRef: useRef<HTMLInputElement>(null),
-    proteinRef: useRef<HTMLInputElement>(null),
-    carbohydrateRef: useRef<HTMLInputElement>(null),
-    fatRef: useRef<HTMLInputElement>(null),
-    portionRef: useRef<HTMLInputElement>(null),
-  };
-
+ 
 
   useEffect(() => {
-    PreMadeDishSchema.validate(dishInfo)
+    const validationSchema = preMadeDishSchema(dishToEdit && dishToEdit.name)
+    validationSchema.validate(dishInfo)
       .then(() => setValidation({ valid: true, message: undefined }))
       .catch((err) => setValidation({ valid: false, message: err.message }));
-  }, [dishInfo]);
+  }, [dishInfo, dishToEdit]);
     
-
+    const [inputRefs] = useState([
+      useRef<HTMLInputElement>(null),
+      useRef<HTMLInputElement>(null),
+      useRef<HTMLInputElement>(null),
+      useRef<HTMLInputElement>(null),
+      useRef<HTMLInputElement>(null),
+      useRef<HTMLInputElement>(null),
+    ]);
   
-
-
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>, next?: string) => {
-    if (e.key === 'Enter') {
-      e.preventDefault();
   
-      if (next) {
-        // Use the next string value to determine the next ref
-        const nextRef = inputRefs[next as keyof typeof inputRefs]?.current;
-        if (nextRef) {
-          nextRef.focus();
-        }
-      } else {
-        if (addDishButtonRef.current) {
-          addDishButtonRef.current.click();
-        }
-      }
-    }
-  };
+ 
   
     const handleDishChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>, field: 'name' | 'image' | 'drink' | 'calories_100' | 'protein_100' | 'carbohydrate_100' | 'fat_100' | 'portion' | 'type' ) => {
     const newValue = e.target.value;
@@ -86,7 +70,7 @@ const PreMadeDishForm: React.FC<DishFormProps> = ({ onSuccess, onCancel, dishToE
       files: FileList
     }
     setDishInfo((prevFormSate) => ({ ...prevFormSate, image: target.files[0] }));
-    const nextRef = dishInfo.name === '' ? inputRefs.nameRef.current : inputRefs.descriptionRef.current;
+    const nextRef = dishInfo.name === '' ? inputRefs[0].current : inputRefs[1].current;
     if (nextRef) {
       nextRef.focus();
     }
@@ -142,7 +126,7 @@ const PreMadeDishForm: React.FC<DishFormProps> = ({ onSuccess, onCancel, dishToE
     <div className='modal-body'>
       <label className='form-label full-length-label'>
         Dish Name:
-        <input className='form-control full-length-input form-control-sm my-2' type="text" ref={inputRefs.nameRef} onKeyDown={(e) => handleKeyDown(e, 'description')} value={dishInfo.name} onChange={(e) => handleDishChange(e, 'name')} />
+        <input className='form-control full-length-input form-control-sm my-2' type="text" ref={inputRefs[0]} onKeyDown={(e) => handleKeyDown(e, inputRefs[1])} value={dishInfo.name} onChange={(e) => handleDishChange(e, 'name')} />
       </label>
       <label className='form-label full-length-label my-2'>
         <input className='form-control form-control-file bg-secondary text-white' type='file' name='image' accept='image/png, image/jpg, image/jpeg' onChange={(e) => handleImageChange(e)} />
@@ -156,27 +140,27 @@ const PreMadeDishForm: React.FC<DishFormProps> = ({ onSuccess, onCancel, dishToE
 
       <label className='d-flex justify-content-between align-items-center mt-2'>
         Calories for 100g:
-        <input className='border border-light rounded p-1 mx-2' type="number" value={dishInfo.calories_100} ref={inputRefs.caloriesRef} onChange={(e) => handleDishChange(e, 'calories_100')} onKeyDown={(e) => handleKeyDown(e, 'proteinRef')}   onFocus={(e) => e.target.select()} />
+        <input className='border border-light rounded p-1 mx-2' type="number" value={dishInfo.calories_100} ref={inputRefs[1]} onChange={(e) => handleDishChange(e, 'calories_100')} onKeyDown={(e) => handleKeyDown(e, inputRefs[2])}   onFocus={(e) => e.target.select()} />
       </label>
 
       <label className='d-flex justify-content-between align-items-center mt-2'>
         Protein for 100g:
-        <input className='border border-light rounded p-1 mx-2' type="number" value={dishInfo.protein_100} ref={inputRefs.proteinRef} onChange={(e) => handleDishChange(e, 'protein_100')} onKeyDown={(e) => handleKeyDown(e, 'carbohydrateRef')}   onFocus={(e) => e.target.select()} />
+        <input className='border border-light rounded p-1 mx-2' type="number" value={dishInfo.protein_100} ref={inputRefs[2]} onChange={(e) => handleDishChange(e, 'protein_100')} onKeyDown={(e) => handleKeyDown(e, inputRefs[3])}   onFocus={(e) => e.target.select()} />
       </label>
 
       <label className='d-flex justify-content-between align-items-center mt-2'>
         Carbohydrates for 100g:
-        <input className='border border-light rounded p-1 mx-2' type="number" value={dishInfo.carbohydrate_100} ref={inputRefs.carbohydrateRef} onChange={(e) => handleDishChange(e, 'carbohydrate_100')} onKeyDown={(e) => handleKeyDown(e, 'fatRef')}   onFocus={(e) => e.target.select()} />
+        <input className='border border-light rounded p-1 mx-2' type="number" value={dishInfo.carbohydrate_100} ref={inputRefs[3]} onChange={(e) => handleDishChange(e, 'carbohydrate_100')} onKeyDown={(e) => handleKeyDown(e, inputRefs[4])}   onFocus={(e) => e.target.select()} />
       </label>
 
       <label className='d-flex justify-content-between align-items-center mt-2'>
         Fat for 100g:
-        <input className='border border-light rounded p-1 mx-2' type="number" value={dishInfo.fat_100 } ref={inputRefs.fatRef} onChange={(e) => handleDishChange(e, 'fat_100')} onKeyDown={(e) => handleKeyDown(e, 'portionRef')}   onFocus={(e) => e.target.select()}/>
+        <input className='border border-light rounded p-1 mx-2' type="number" value={dishInfo.fat_100 } ref={inputRefs[4]} onChange={(e) => handleDishChange(e, 'fat_100')} onKeyDown={(e) => handleKeyDown(e, inputRefs[5])}   onFocus={(e) => e.target.select()}/>
       </label>
 
       <label className='d-flex justify-content-between align-items-center mt-2'>
         Weight of 1 portion (g):
-        <input className='border border-light rounded p-1 mx-2' value={dishInfo.portion} onChange={(e) => handleDishChange(e, 'portion')} ref={inputRefs.portionRef} onKeyDown={(e) => handleKeyDown(e)} />
+        <input className='border border-light rounded p-1 mx-2' value={dishInfo.portion} onChange={(e) => handleDishChange(e, 'portion')} ref={inputRefs[5]} onKeyDown={(e) => handleKeyDown(e, addDishButtonRef)} />
       </label>
 
       {!validation.valid && (

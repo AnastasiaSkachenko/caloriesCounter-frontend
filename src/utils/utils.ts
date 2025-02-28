@@ -29,7 +29,7 @@ export const validateForm = (nameExists: boolean, nameState: string, type: 'Dish
 
 
 export const useHandleKeyDown = () => {
-	const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, nextRef:React.RefObject<HTMLInputElement> | React.RefObject<HTMLButtonElement>, button?: boolean ) => {
+	const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement> | React.KeyboardEvent<HTMLTextAreaElement>, nextRef:React.RefObject<HTMLInputElement> | React.RefObject<HTMLButtonElement> | React.RefObject<HTMLTextAreaElement>, button?: boolean ) => {
 		if (e.key === 'Enter') {
 			e.preventDefault();
 	

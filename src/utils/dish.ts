@@ -33,9 +33,9 @@ export const getDishNames = async (): Promise<string[]> => {
 
  
 
-export const IsNameUnique = async (name: string) => {
+export const IsNameUnique = async (name: string, editingName?: string) => {
   try {
-    const response = await axiosPublic.get(`/isNameUnique/`, {params: { name },});
+    const response = await axiosPublic.get(`/isNameUnique/`, {params: { name, editingName },});
       return {
       unique: !response.data.exists_product && !response.data.exists_dish,
       message: response.data.exists_product
