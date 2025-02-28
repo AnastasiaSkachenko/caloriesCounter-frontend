@@ -312,15 +312,14 @@ const CustomDishForm: React.FC<DishFormProps> = ({onSuccess,onCancel, dishToEdit
       <p>Dish weight: {dishInfo.weight} g</p>
       <p>Calories: {dishInfo.calories}, Protein: {dishInfo.protein}, Carbs: {dishInfo.carbohydrate}, Fat: {dishInfo.fat}</p>
   
-  
-      
- 
-      <div className='d-flex justify-content-center'>
-        <div className='tooltip-trigger p-0'>
-          {!validation.valid && <span className='tooltip'>{validation.message}</span>}
-          <button className='btn btn-dark p-2' ref={addDishButtonRef}  onClick={handleSubmit} data-bs-dismiss='modal' data-bs-target='#modalDishOwn' disabled={!validation.valid}>Submit</button>
+      {!validation.valid && (
+        <div className="alert alert-dark text-black mt-2 p-1 text-center" role="alert">
+          {validation.message}
         </div>
+      )}
 
+      <div className='d-flex justify-content-center'>
+        <button className='btn btn-dark p-2' ref={addDishButtonRef}  onClick={handleSubmit} data-bs-dismiss='modal' data-bs-target='#modalDishOwn' disabled={!validation.valid}>Submit</button>
         <button className='btn btn-danger btn-sm p-2' data-bs-dismiss='modal' data-bs-target='#modalDishOwn' type='button' onClick={handleCancel}>Cancel</button>
       </div>
       {successMessage && <p>{successMessage}</p>}

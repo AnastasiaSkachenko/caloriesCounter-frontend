@@ -6,7 +6,7 @@ import { IsNameUnique } from './dish';
 export const productSchema = Yup.object({
 	name: Yup.string()
 		.required('Product name is required')
-		.test('is-unique', 'Product name must be unique', async (value) => {
+		.test('is-unique', 'Product name must be unique. Even dishes count.', async (value) => {
 			if (!value) return true; // Skip validation if the name is not provided
 			const { unique } = await IsNameUnique(value); // Call the function to check uniqueness
 			if (!unique) return false;  // If not unique, return the error message
@@ -49,12 +49,11 @@ export const productSchema = Yup.object({
 		})
 		.min(0, 'Fat must be zero or greater')
 		.required('Fat is required'),
-})  
-		
+})  	
 
 
 export const IngredientSchema = Yup.object({
-	name: Yup.string().required('Product name is required'),
+	name: Yup.string().required('Ingredient name is required'),
 	weight: Yup.number()
 	.transform((value) => {
 		if (value === "" || isNaN(value)) {
@@ -69,8 +68,8 @@ export const IngredientSchema = Yup.object({
 
 export const PreMadeDishSchema = Yup.object({
 	name: Yup.string()
-		.required('Product name is required')
-		.test('is-unique', 'Dish name must be unique', async (value) => {
+		.required('Dish name is required')
+		.test('is-unique', 'Dish name must be unique. Even products count.', async (value) => {
 			if (!value) return true; // Skip validation if the name is not provided
 			const { unique } = await IsNameUnique(value); // Call the function to check uniqueness
 			if (!unique) return false;  // If not unique, return the error message
@@ -91,8 +90,8 @@ export const PreMadeDishSchema = Yup.object({
 
 export const CustomDishSchema = Yup.object({
 	name: Yup.string()
-		.required('Product name is required')
-		.test('is-unique', 'Dish name must be unique', async (value) => {
+		.required('Dish name is required')
+		.test('is-unique', 'Dish name must be unique. Even products count.', async (value) => {
 			if (!value) return true; // Skip validation if the name is not provided
 			const { unique } = await IsNameUnique(value); // Call the function to check uniqueness
 			if (!unique) return false;  // If not unique, return the error message

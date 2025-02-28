@@ -75,9 +75,9 @@ const RecordForm: React.FC<RecordFormProps> = ({onSuccess, onCancel, recordData}
     //validations
   useEffect(() => {
     if (filteredSuggestions.length == 0  && !currentDish ) {
-      setValidation({message: 'No such dish. Create one first', valid: false})
+      setValidation({message: 'No such dish or product. Create one first', valid: false})
     } else if (!currentDish ) {
-      setValidation({message: 'Dish  is required', valid: false})
+      setValidation({message: 'Dish or product  is required', valid: false})
     } else if (inputMode == 'weight' && record.weight == 0) {
       setValidation({message: 'Enter weight.', valid: false})
     } else if (inputMode == 'portions' && record.portions == 0) {
@@ -323,11 +323,14 @@ const RecordForm: React.FC<RecordFormProps> = ({onSuccess, onCancel, recordData}
         </div>
       </div>  
 
-      <div className='d-flex justify-content-center'>
-        <div className='tooltip-trigger p-0'>
-          {!validation.valid && <span className='tooltip'>{validation.message}</span>}
-          <button type='button'  className='btn btn-dark' ref={addRecordButtonRef} onClick={() => handleSubmit()} data-bs-dismiss='modal' data-bs-target={recordData ? '#modalEdit' : '#modal'} disabled={!validation.valid}> {recordData ? 'Edit Record' : 'Add Record'}</button>
+      {!validation.valid && (
+        <div className="alert alert-dark text-black mt-2 p-1 text-center" role="alert">
+          {validation.message}
         </div>
+      )}
+
+      <div className='d-flex justify-content-center'>
+        <button type='button'  className='btn btn-dark' ref={addRecordButtonRef} onClick={() => handleSubmit()} data-bs-dismiss='modal' data-bs-target={recordData ? '#modalEdit' : '#modal'} disabled={!validation.valid}> {recordData ? 'Edit Record' : 'Add Record'}</button>
         <button type='button' className='btn btn-danger' onClick={handleOnCancel} data-bs-dismiss='modal' data-bs-target={recordData ? '#modalEdit' : '#modal'}  >Cancel</button>
         </div>
     </div>

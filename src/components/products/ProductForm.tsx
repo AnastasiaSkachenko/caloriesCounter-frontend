@@ -178,13 +178,13 @@ const ProductForm: React.FC<ProductFormProps> = ({ onSubmitSuccess, onCancel, pr
           onChange={(e) => handleInputChange(e)}
           onKeyDown={(e) => handleKeyDown(e, addProductButtonRef)}/>
       </label>
+      
       {!validation.valid && (
-        <div className="alert alert-danger mt-3 p-2" role="alert">
+        <div className="alert alert-dark text-black mt-2 p-1 text-center" role="alert">
           {validation.message}
         </div>
       )}
 
- 
       <div className='d-flex justify-content-center'>
         <button ref={addProductButtonRef} className='btn btn-primary p-2 flex-shrink-0' data-bs-dismiss={productName? '' : 'modal'} data-bs-target={product ? '#modalEdit' : '#modal'} type="button" onClick={handleSubmit} disabled={!validation.valid}>Submit</button>
         <button className='btn btn-danger btn-sm p-2 flex-shrink-0' data-bs-dismiss= { productName ? '':'modal'} data-bs-target={product ? '#modalEdit' : '#modal'} type='button' onClick={handleCancel}>Cancel</button>

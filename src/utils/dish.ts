@@ -31,9 +31,7 @@ export const getDishNames = async (): Promise<string[]> => {
 
 }
 
-export const  checkDishExists = () => {
-  return false
-}
+ 
 
 export const IsNameUnique = async (name: string) => {
   try {

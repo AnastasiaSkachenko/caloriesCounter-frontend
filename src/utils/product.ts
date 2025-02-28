@@ -48,20 +48,7 @@ export const getProductNames = async (): Promise<string[]> => {
     return ["Failed to load product names. Please try again."];
   }
 };
-
-export const checkProductExists = async (name: string): Promise<boolean> => {
-  if (!name) return false;
-
-  try {
-    const response = await axiosPublic.get(`/checkProductName/`, {
-      params: { name },
-    });
-    return response.data.exists;
-  } catch (error: unknown) {
-    logError(error, "checkProductExists");
-    return false;
-  }
-};
+ 
 
 export const saveProduct = async ({ product }: ProductInput): Promise<Product | string> => {
   try {

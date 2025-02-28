@@ -179,11 +179,14 @@ const PreMadeDishForm: React.FC<DishFormProps> = ({ onSuccess, onCancel, dishToE
         <input className='border border-light rounded p-1 mx-2' value={dishInfo.portion} onChange={(e) => handleDishChange(e, 'portion')} ref={inputRefs.portionRef} onKeyDown={(e) => handleKeyDown(e)} />
       </label>
 
-      <div className='d-flex justify-content-center align-items-center'>
-        <div className='tooltip-trigger p-0'>
-          {!validation.valid && <span className='tooltip'>{validation.message}</span>}
-          <button className='btn btn-dark' ref={addDishButtonRef} onClick={handleSubmit} data-bs-dismiss='modal' data-bs-target={dishToEdit ? '#modalEditDish' : '#modalDishBought'} disabled={!validation.valid}>Submit Dish</button>
+      {!validation.valid && (
+        <div className="alert alert-dark text-black mt-2 p-1 text-center" role="alert">
+          {validation.message}
         </div>
+      )}
+
+      <div className='d-flex justify-content-center align-items-center'>
+        <button className='btn btn-dark' ref={addDishButtonRef} onClick={handleSubmit} data-bs-dismiss='modal' data-bs-target={dishToEdit ? '#modalEditDish' : '#modalDishBought'} disabled={!validation.valid}>Submit Dish</button>
         <button className='btn btn-danger btn-sm p-2' data-bs-dismiss='modal' data-bs-target={dishToEdit ? '#modalEditDish' : '#modalDishBought'} type='button' onClick={handleCancel}>Cancel</button>
       </div>
     </div>
