@@ -4,6 +4,7 @@ import '../../style.css';
 import '../../index.css'
 import useAuth from '../../hooks/useAuth';
 import { useModify } from '../../utils/userUtils';
+import { useHandleKeyDown } from '../../utils/utils';
 
 
 
@@ -18,6 +19,7 @@ const EditMacros= () => {
   });
 
   const { modify} = useModify()
+  const { handleKeyDown } = useHandleKeyDown()
 
   const saveChangesButtonRef = useRef<HTMLButtonElement>(null)
  
@@ -78,45 +80,29 @@ const EditMacros= () => {
     })
     
   }
-
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, index?: number) => {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-
-      if (index) {
-        const nextRef = inputRefs[index].current;
-        if (nextRef) {
-          nextRef.focus();
-        }
-      } else {
-        if (saveChangesButtonRef.current) {
-          saveChangesButtonRef.current.click(); 
-        }
-      } 
-    }
-  }
+ 
 
   return (
     <div className='modal-body'>
       <label className='d-flex justify-content-between align-items-center mt-2' >Calories for a day:
         <input className='border border-light rounded p-2 mx-2' ref={inputRefs[0]} type="number" step="1" name="calories" value={formState.calories_d} required onFocus={(e) => e.target.select()}
           onChange={(e) => setFormState(prev => ({...prev, calories_d: Number(e.target.value)}))}
-          onKeyDown={(e) => handleKeyDown(e, 2)}/>
+          onKeyDown={(e) => handleKeyDown(e, inputRefs[2])}/>
       </label>
       <label  className='d-flex justify-content-between align-items-center mt-2'> Protein for a day: 
         <input className='border border-light rounded p-2 mx-2' ref={inputRefs[1]} type="number" step="1"  name="protein" value={formState.protein_d} required onFocus={(e) => e.target.select()}
           onChange={(e) => setFormState(prev => ({...prev, protein_d: Number(e.target.value)}))}
-          onKeyDown={(e) => handleKeyDown(e, 3)}/>
+          onKeyDown={(e) => handleKeyDown(e, inputRefs[3])}/>
       </label>
       <label className='d-flex justify-content-between align-items-center mt-2'  >Carbohydrate for a day: 
         <input className='border border-light rounded p-2 mx-2' ref={inputRefs[2]} type="number" step="1"   name="carbohydrate" value={formState.carbohydrate_d} required onFocus={(e) => e.target.select()}
           onChange={(e) => setFormState(prev => ({...prev, carbohydrate_d: Number(e.target.value)}))}
-          onKeyDown={(e) => handleKeyDown(e, 4)}/>
+          onKeyDown={(e) => handleKeyDown(e, inputRefs[4])}/>
       </label>
       <label className='d-flex justify-content-between align-items-center mt-2'> Fat for a day:
         <input className='border border-light rounded p-2 mx-2' ref={inputRefs[3]} type="number" step="1"  name="fat" value={formState.fat_d} required onFocus={(e) => e.target.select()}
           onChange={(e) => setFormState(prev => ({...prev, fat_d: Number(e.target.value)}))}
-          onKeyDown={(e) => handleKeyDown(e)}/>
+          onKeyDown={(e) => handleKeyDown(e, saveChangesButtonRef, true)}/>
       </label>
     
       <div className='d-flex justify-content-center'>

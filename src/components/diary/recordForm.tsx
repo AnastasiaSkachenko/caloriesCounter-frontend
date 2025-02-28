@@ -1,8 +1,9 @@
-import React, { useState, useRef, RefObject, useEffect } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';  
 import {  DiaryRecord, Dish } from '../interfaces';
 import { fetchDishes, getDishNames } from '../../utils/dish';
 import { usePutDiaryRecord, useSetDiaryRecord } from '../../hooks/caloriesCounter';
+import { useHandleKeyDown } from '../../utils/utils';
 
 interface RecordFormProps {
   onSuccess?: () => void
@@ -27,6 +28,7 @@ const RecordForm: React.FC<RecordFormProps> = ({onSuccess, onCancel, recordData}
   });
   const [currentDish, setCurrentDish] = useState<Dish | null>()
   const addRecordButtonRef = useRef<HTMLButtonElement>(null);
+  const { handleKeyDown } = useHandleKeyDown()
 
   const getDish = async (dishName:string) => {
     const dishNameExists = dishNames?.find(dish => dish === dishName);
@@ -234,22 +236,7 @@ const RecordForm: React.FC<RecordFormProps> = ({onSuccess, onCancel, recordData}
 
   }
  
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, next?:RefObject<HTMLInputElement>) => { 
-    if (e.key === 'Enter') {
-      e.preventDefault(); 
-
-      if (next) {
-        const nextRef = next.current; 
-        if (nextRef) {
-          nextRef.focus();
-        }  
-      } else {
-        if (addRecordButtonRef.current) {
-          addRecordButtonRef.current.click(); 
-        }
-      }
-    }
-  };
+ 
 
   const handleOnCancel = () => {
     setRecordInfo({
@@ -287,7 +274,7 @@ const RecordForm: React.FC<RecordFormProps> = ({onSuccess, onCancel, recordData}
                   onChange={(e) =>
                     handleRecordChange(inputMode,e.target.value)
                   }
-                  onKeyDown={handleKeyDown}
+                  onKeyDown={(e) => handleKeyDown(e, addRecordButtonRef, true)}
                   onFocus={(e) => e.target.select()}
                   disabled={!currentDish}
                   />
@@ -300,26 +287,8 @@ const RecordForm: React.FC<RecordFormProps> = ({onSuccess, onCancel, recordData}
           </div>            
         <br/>
 
-        <label className='d-flex justify-content-between align-items-center mt-2'>
-          Calories (g):
-          <input type="number" className='border border-light rounded p-1 mx-2 ' value={record.calories }  disabled />
-        </label>
+        <p >Calories: {record.calories}, Protein: {record.protein}, Carbs: {record.carbohydrate}, Fat: {record.fat}</p>
 
-
-        <label className='d-flex justify-content-between align-items-center mt-2'>
-          Protein (g):
-          <input type="number" className='border border-light rounded p-1 mx-2 ' value={record.protein } disabled />
-        </label>
-
-        <label className='d-flex justify-content-between align-items-center mt-2'>
-          Carbohydrates (g):
-          <input type="number" className='border border-light rounded p-1 mx-2 ' value={record.carbohydrate } ref={inputRefs[4]} disabled />
-        </label>
-
-        <label className='d-flex justify-content-between align-items-center mt-2'>
-          Fat (g):
-          <input type="number" className='border border-light rounded p-1 mx-2 ' value={record.fat } ref={inputRefs[5]}  disabled />
-        </label>
         </div>
       </div>  
 

@@ -52,10 +52,6 @@ const IngredientForm: React.FC<IngredientFormProps> = ({onSuccess, onCancel, ing
   const [inputRefs] = useState([
     useRef<HTMLInputElement>(null),
     useRef<HTMLInputElement>(null),
-    useRef<HTMLInputElement>(null),
-    useRef<HTMLInputElement>(null),
-    useRef<HTMLInputElement>(null),
-    useRef<HTMLInputElement>(null),
   ]);
 
 
@@ -244,28 +240,11 @@ const IngredientForm: React.FC<IngredientFormProps> = ({onSuccess, onCancel, ing
         <div>
           <label className='d-flex justify-content-between align-items-center mt-2'>
             Weight (g):
-            <input className='border border-light rounded p-1 mx-2' type="number" value={ingredient.weight } ref={inputRefs[1]} onKeyDown={(e) => handleKeyDown(e, inputRefs[2])}  onChange={(e) => handleIngredientChange('weight', e.target.value)}  onFocus={(e) => e.target.select()} disabled={!currentProduct} />
+            <input className='border border-light rounded p-1 mx-2' type="number" value={ingredient.weight } ref={inputRefs[1]} onKeyDown={(e) => handleKeyDown(e, addIngredientButtonRef, true)}  onChange={(e) => handleIngredientChange('weight', e.target.value)}  onFocus={(e) => e.target.select()} disabled={!currentProduct} />
           </label>
 
-          <label className='d-flex justify-content-between align-items-center mt-2'>
-            Calories (g):
-            <input type="number" className='border border-light rounded p-1 mx-2' value={ingredient.weight? ingredient.calories : '0'} ref={inputRefs[2]} onChange={(e) => handleIngredientChange('calories', e.target.value)} onKeyDown={(e) => handleKeyDown(e, inputRefs[3])}   onFocus={(e) => e.target.select()} disabled={!currentProduct}/>
-          </label>
+          <p className='pt-3 pb-1'>Calories: {ingredient.calories}, Protein: {ingredient.protein}, Carbs: {ingredient.carbohydrate}, Fat: {ingredient.fat}</p>
 
-          <label className='d-flex justify-content-between align-items-center mt-2'>
-            Protein (g):
-            <input type="number" className='border border-light rounded p-1 mx-2' value={ingredient.weight? ingredient.protein : '0'} ref={inputRefs[3]} onChange={(e) => handleIngredientChange('protein', e.target.value)} onKeyDown={(e) => handleKeyDown(e, inputRefs[4])}   onFocus={(e) => e.target.select()} disabled={!currentProduct}/>
-          </label>
-
-          <label className='d-flex justify-content-between align-items-center mt-2'>
-            Carbohydrates (g):
-            <input type="number" className='border border-light rounded p-1 mx-2' value={ingredient.weight? ingredient.carbohydrate : '0' } ref={inputRefs[4]} onChange={(e) => handleIngredientChange('carbohydrate', e.target.value)} onKeyDown={(e) => handleKeyDown(e, inputRefs[5])}   onFocus={(e) => e.target.select()} disabled={!currentProduct}/>
-          </label>
-
-          <label className='d-flex justify-content-between align-items-center my-2'>
-            Fat (g):
-            <input type="number"  value={ingredient.weight? ingredient.fat : '0' } className='border border-light rounded p-1 mx-2' ref={inputRefs[5]} onChange={(e) => handleIngredientChange('fat', e.target.value)} onKeyDown={(e) => handleKeyDown(e, addIngredientButtonRef, true)}   onFocus={(e) => e.target.select()} disabled={!currentProduct}/>
-          </label>
         </div>
       </div>
 

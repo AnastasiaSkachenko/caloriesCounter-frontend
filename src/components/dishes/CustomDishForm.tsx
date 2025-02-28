@@ -298,7 +298,7 @@ const CustomDishForm: React.FC<DishFormProps> = ({onSuccess, onCancel, dishToEdi
       <div>
         <label className='d-flex justify-content-between align-items-center mt-2'>
           Weight after cooking:
-          <input className='border border-light rounded p-2 mx-2' type="number" value={dishInfo.weight_of_ready_product || 0} ref={inputRefs[2]} onChange={(e) => handleDishChange(e, 'weight_of_ready_product')} onKeyDown={(e) => handleKeyDown(e, addDishButtonRef )} onFocus={(e) => e.target.select()}/>
+          <input className='border border-light rounded p-2 mx-2' type="number" value={dishInfo.weight_of_ready_product || 0} ref={inputRefs[2]} onChange={(e) => handleDishChange(e, 'weight_of_ready_product')} onKeyDown={(e) => handleKeyDown(e, addDishButtonRef, true )} onFocus={(e) => e.target.select()}/>
         </label>
       </div>  
 

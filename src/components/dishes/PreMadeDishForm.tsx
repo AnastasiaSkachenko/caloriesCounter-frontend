@@ -160,7 +160,7 @@ const PreMadeDishForm: React.FC<DishFormProps> = ({ onSuccess, onCancel, dishToE
 
       <label className='d-flex justify-content-between align-items-center mt-2'>
         Weight of 1 portion (g):
-        <input className='border border-light rounded p-1 mx-2' value={dishInfo.portion} onChange={(e) => handleDishChange(e, 'portion')} ref={inputRefs[5]} onKeyDown={(e) => handleKeyDown(e, addDishButtonRef)} />
+        <input className='border border-light rounded p-1 mx-2' value={dishInfo.portion} onChange={(e) => handleDishChange(e, 'portion')} ref={inputRefs[5]} onKeyDown={(e) => handleKeyDown(e, addDishButtonRef, true)} />
       </label>
 
       {!validation.valid && (
