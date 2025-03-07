@@ -1,6 +1,6 @@
 import {  Dish, DishEditInput, DishInput, PopInput } from "../components/interfaces";
 import Cookies from "universal-cookie"; 
-import { axiosPublic } from "./axios";
+import { axiosPrivate, axiosPublic } from "./axios";
 
 const cookies = new Cookies();
 
@@ -96,3 +96,8 @@ export const deleteDish = async ({id}: PopInput): Promise<string | void> => {
     return errorData.message;  
   }
 }
+
+export const toggleFavorite = async (dishId: number) => {
+  const response = await axiosPrivate.patch(`dish/${dishId}/favorite/`)
+  return response.data.favorite;
+};

@@ -47,6 +47,15 @@ const ProductForm: React.FC<ProductFormProps> = ({ onSubmitSuccess, onCancel, pr
   }, [product]);
 
   
+  useEffect(() => {
+    if (productName) {
+      if (inputRefs[1].current) {
+        inputRefs[1].current.focus()
+      }
+    }
+  }, [productName, inputRefs]);
+
+
   // Custom hook for managing modal focus
   useModalFocus(inputRefs, product);
 

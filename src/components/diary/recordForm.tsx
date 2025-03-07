@@ -170,6 +170,20 @@ const RecordForm: React.FC<RecordFormProps> = ({onSuccess, onCancel, recordData}
     handleMacros()
   }, [inputMode, record.portions, record.weight, currentDish])
 
+  useEffect(() => {
+    if (inputMode == 'portions') {
+      setRecordInfo(prev => ({
+        ...prev,
+        weight: 0
+      }))
+    } else {
+      setRecordInfo(prev => ({
+        ...prev,
+        portions: 0
+      }))
+    }
+  }, [inputMode])
+
 
   const { setDiaryRecord } = useSetDiaryRecord()
   const { putDiaryRecord } = usePutDiaryRecord()
@@ -179,6 +193,7 @@ const RecordForm: React.FC<RecordFormProps> = ({onSuccess, onCancel, recordData}
     console.log(Number(valueRaw), 'here')
     const value = Number(valueRaw) > 0 ?  Number(valueRaw) : valueRaw;
     console.log('value', value)
+
     setRecordInfo((prevRecord) => ({
       ...prevRecord,
       [field]: value,
@@ -210,26 +225,19 @@ const RecordForm: React.FC<RecordFormProps> = ({onSuccess, onCancel, recordData}
  
 
   const handleSubmit = async () => {  
-    if (inputMode == 'portions') {
-      setRecordInfo(prev => ({
-        ...prev,
-        weight: undefined
-      }))
-    } else {
-      setRecordInfo(prev => ({
-        ...prev,
-        portions: undefined
-      }))
-    }
-    if (recordData) {
 
+    if (recordData) {
+      console.log('edit mode, data sent', record)
       putDiaryRecord({diaryRecord:record})
     } else {
+      console.log( record)
+      console.log(inputMode)
+  
       setDiaryRecord({diaryRecord:record})
     }
 
     setRecordInfo({
-      id: 0, name: '', image: '', weight: 0, calories: 0, protein: 0, carbohydrate: 0, fat: 0, dish: 0, date: '', portions: 0})
+      id: 0, name: '', image: '', weight: 100, calories: 0, protein: 0, carbohydrate: 0, fat: 0, dish: 0, date: '', portions: 1})
     setCurrentDish(null)
   
     if (onSuccess) onSuccess()
@@ -240,7 +248,7 @@ const RecordForm: React.FC<RecordFormProps> = ({onSuccess, onCancel, recordData}
 
   const handleOnCancel = () => {
     setRecordInfo({
-      id: 0, name: '', image: '', weight: 0, calories: 0, protein: 0, carbohydrate: 0, fat: 0, dish: 0, date: ''})
+      id: 0, name: '', image: '', weight: 100, calories: 0, protein: 0, carbohydrate: 0, fat: 0, dish: 0, date: '', portions: 1})
     if (onCancel) onCancel()
   }
 

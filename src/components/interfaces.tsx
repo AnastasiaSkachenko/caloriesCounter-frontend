@@ -54,7 +54,8 @@ export interface Dish extends Base {
   ingredients?: Ingredient[]
   description: string,
   user: number,
-  weight_of_ready_product?: number
+  weight_of_ready_product?: number,
+  favorite: boolean
 }
 
 export interface DishInput {

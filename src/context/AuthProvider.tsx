@@ -3,8 +3,9 @@ import { User } from "../components/interfaces";
 import { axiosPrivate } from "../utils/axios";
 
 interface AuthContextType {
-    auth: { user?: User; access?: string };
-    setAuth: Dispatch<SetStateAction<{ user?: User; access?: string }>>;
+    auth: { user?: User; access?: string, favoriteDishes?: number[] };
+    setAuth: Dispatch<SetStateAction<{ user?: User; access?: string, favoriteDishes?: number[]}>>;
+    refreshUser: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -14,8 +15,11 @@ interface AuthProviderProps {
 }
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
-    const [auth, setAuth] = useState<{ user?: User; access?: string }>({});
+    const [auth, setAuth] = useState<{ user?: User; access?: string, favoriteDishes?: number[] }>({});
     const [retry, setRetry] = useState(false)
+    
+
+    console.log(auth)
 
 
     useEffect(() => {
@@ -40,6 +44,22 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
     }, [auth.access])
 
+    const refreshUser = async () => {  // Function to refresh user details
+        try {
+            const response = await axiosPrivate.get("/user/", {
+                withCredentials: true,
+            });
+            setAuth(prev => ({
+                ...prev,
+                user: response.data.user,
+                access: response.data.access ?? prev.access,
+                favoriteDishes: response.data.favoriteDishes
+            }));
+        } catch (error) {
+            console.error("Failed to fetch user:", error);
+        }
+    };
+
 
 
     useEffect(() => {
@@ -52,6 +72,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
                     ...prev,
                     user: response.data.user,
                     access: response.data.access ?? prev.access,
+                    favoriteDishes: response.data.favoriteDishes
                 }));
             } catch (error) {
                 console.error("Failed to fetch user:", error);
@@ -62,9 +83,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         if (auth.access && !auth.user) {
             fetchUser();
         }
-
- 
-
     }, [auth, auth.access, auth.user]); // Runs when auth changes (accessToken or user)
 
     useLayoutEffect(() => {
@@ -134,10 +152,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     };
 }, [auth.access, auth]); // Trigger effect when accessToken is available
 
-return <AuthContext.Provider value={{ auth, setAuth }}>{children}</AuthContext.Provider>;
+return <AuthContext.Provider value={{ auth, setAuth, refreshUser }}>{children}</AuthContext.Provider>;
 
-
-    return <AuthContext.Provider value={{ auth, setAuth }}>{children}</AuthContext.Provider>;
 };
 
 export default AuthContext;

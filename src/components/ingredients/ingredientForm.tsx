@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {  useQuery } from '@tanstack/react-query';  
 import { Product, Ingredient } from '../interfaces';
 import {  fetchProducts, getProductNames } from '../../utils/product'
@@ -112,64 +112,66 @@ const IngredientForm: React.FC<IngredientFormProps> = ({onSuccess, onCancel, ing
 
 
 
-  const handleProductInputFocus = () => { 
-    setCreatingNewProduct(null) 
-    setFocus(false)
-  };
-
-  const handleIngredientChange = (field: 'weight' | 'calories' | 'protein' | 'carbohydrate' | 'fat', value: string | number) => {
-    setIngredient((prevIngredient) => {
-      if (field == 'weight' && currentProduct && Number(value)>0) {
-        value = Number(value)
-        return {
-          ...prevIngredient,
-          weight: value,
-          calories: Math.round(value * currentProduct.calories / 100),
-          protein: Math.round(value * currentProduct.protein / 100),
-          carbohydrate: Math.round(value * currentProduct.carbohydrate / 100),
-          fat: Math.round(value * currentProduct.fat / 100),
-        }
-      } else {
-        return {
-          ...prevIngredient,
-          [field]:value
-        }
-      }
-    }); 
+  const handleProductInputFocus = useCallback(() => {
+    setCreatingNewProduct(null);
+    setFocus(false);
+  }, []);
   
-  };
-    
+  const handleIngredientChange = useCallback(
+    (field: 'weight' | 'calories' | 'protein' | 'carbohydrate' | 'fat', value: string | number) => {
+      setIngredient((prevIngredient) => {
+        if (field === 'weight' && currentProduct && Number(value) > 0) {
+          value = Number(value);
+          return {
+            ...prevIngredient,
+            weight: value,
+            calories: Math.round(value * currentProduct.calories / 100),
+            protein: Math.round(value * currentProduct.protein / 100),
+            carbohydrate: Math.round(value * currentProduct.carbohydrate / 100),
+            fat: Math.round(value * currentProduct.fat / 100),
+          };
+        } else {
+          return {
+            ...prevIngredient,
+            [field]: value,
+          };
+        }
+      });
+    },
+    [currentProduct]
+  );
+  
+  const handleProductNameChange = useCallback(
+    async (e: React.ChangeEvent<HTMLInputElement>) => {
+      const value = e.target.value.slice(0, 1).toUpperCase() + e.target.value.slice(1);
+  
+      if (currentProduct) {
+        setCurrentProduct(null);
+      }
+  
+      if (value.startsWith('Add "') && value.endsWith('" to my products')) {
+        setIngredient((prevIngredient) => ({
+          ...prevIngredient,
+          name: '',
+        }));
+        setFilteredSuggestions([]);
+        setCreatingNewProduct(value.slice(5, -16));
+        return;
+      } else {
+        setIngredient((prevIngredient) => ({
+          ...prevIngredient,
+          name: value,
+        }));
+        setCreatingNewProduct(null);
+      }
+  
+      setFilteredSuggestions([...suggestions, `Add "${value}" to my products`]);
+      getProduct(value);
+    },
+    [currentProduct, suggestions]
+  );
 
  
-  const handleProductNameChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value.slice(0,1).toUpperCase() + e.target.value.slice(1);
-    
-    if (currentProduct) {
-      setCurrentProduct(null)
-    }
-
-    if (value.startsWith('Add "') && value.endsWith('" to my products')) { 
-      setIngredient((prevIngredient) => ({
-        ...prevIngredient,
-        name: '',  
-      }));  
-      setFilteredSuggestions([])
-      setCreatingNewProduct(value.slice(5, -16));
-      return
-      } else {
-      setIngredient((prevIngredient) => ({
-        ...prevIngredient,
-        name: value
-      }));
-      setCreatingNewProduct(null);
-    }
-
-    console.log(ingredient.name)
-
-
-    setFilteredSuggestions([...suggestions, `Add "${value}" to my products`]);
-    getProduct(value) 
-  };
  
 
   const handleSubmit = async () => {  
