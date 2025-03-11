@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import '../../style.css';
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import EditProfile from "./editProfile";
 import { useLogout } from "../../utils/userUtils";
 import useAuth from "../../hooks/useAuth";
@@ -15,10 +15,22 @@ const Profile = () => {
 
   const [editProfile, setEditProfile] = useState(false)
 
+  useEffect(() => {
+    if (!auth.user) {   
+      const timeout = setTimeout(() => {
+        localStorage.setItem("message", "You need to be logged in to visit Profile page.")
+        navigate("/login");
+      }, 2000);  
+
+      return () => clearTimeout(timeout);
+    }
+  }, [auth.user, navigate]); // Add dependencies to prevent unnecessary re-renders
+  
+
 
   return (
     <div className="bg-secondary p-3" style={{minHeight: '100vh'}}>
-      {user ? (
+      {user && (
         <div>
           <button className="btn btn-primary" onClick={() => navigate('/')}>Diary <i className="bi bi-journal"></i> </button>
           <button className="btn btn-primary" onClick={() => navigate('/products')}>Products <i className="bi bi-basket"></i> </button>
@@ -79,14 +91,7 @@ const Profile = () => {
             </div>
           </div>
         </div>
-      ) : (
-       <div className="d-flex justify-content-center mt-5">
-        <div className="d-flex flex-column">
-          You are not logged in.
-          <button className="btn btn-primary" onClick={() => navigate('/login')} >Go to login page</button>
-        </div>
-       </div>
-      )}
+      ) }
     </div>
   );
 };

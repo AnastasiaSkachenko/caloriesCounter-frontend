@@ -193,12 +193,12 @@ const EditProfile: React.FC<EditProfile> = ({onExit}) => {
           value={formData.goal} 
           onChange={(e) => handleSelectChange(e, 'goal')} 
           required
-        >                     
-          <option value="lose">Lose Weight</option>
-          <option value="maintain">Maintain Weight</option>
-          <option value="gain">Gain Muscles</option>
-          <option value="active_lose">Active lose Weight</option>
-          <option value="active_gain">Active gain Weight</option>
+        >     
+          <option value="active_fat_loss">Active Fat Loss</option>
+          <option value="fat_loss">Fat Loss</option>
+          <option value="maintenance">Maintenance</option>
+          <option value="muscle_gain">Muscles Gain</option>
+          <option value="muscle_gain">Active Muscles ain</option>
         </select>
       </div>
 

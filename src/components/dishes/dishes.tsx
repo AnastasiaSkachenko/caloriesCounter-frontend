@@ -1,4 +1,4 @@
-import {  useState } from "react"; 
+import {  useEffect, useState } from "react"; 
 import { Dish } from "../interfaces";
 import { useNavigate } from "react-router-dom";
 import '../../style.css';
@@ -8,24 +8,96 @@ import BoughtDishForm from "./PreMadeDishForm";
 import OwnDishForm from "./CustomDishForm";
 import Modal from "../Modal";
 import DishGrid from "./dishesGrid";
+import NotLoggedIn from "../notLoggedIn";
+import useAuth from "../../hooks/useAuth";
+import { Popover } from "bootstrap";
 
 const Dishes: React.FC = () => {
   const [query, setQuery] = useState<string>('')
-  
+  const [filter, setFilter] = useState<string[]>(["all"])
   const [editDish, setEditDish] = useState<Dish | undefined>(undefined)
   const navigate = useNavigate()
+
+ 
+
+  const categories = [
+    {id: 'favorites', name: 'Favorites'},
+    {id: 'all', name: 'All'},
+    {id: 'custom', name: 'Custom'},
+    {id: 'pre_made', name: 'Pre-made'},
+    {id: 'own', name: 'Own'},
+    {id: 'suggestions', name: 'Suggestions'}, 
+    {id: 'high_protein', name: 'High Protein ( >15g/100g )'}, 
+    {id: 'low_carbs', name: 'Low carbs ( <10g/100g )'},
+    {id: 'low_fat', name: 'Low fat ( <3g/100g )'}
+  ]
+
+  const { auth } = useAuth()
+
+  useEffect(() => {
+    if (!auth.user) {
+      const popoverTriggerList = document.querySelectorAll('[data-bs-toggle="popover"]');
+      popoverTriggerList.forEach((popoverTriggerEl) => {
+        new Popover(popoverTriggerEl);
+      });
+    }
+  }, [auth.user]);
+  
+  const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    console.log(value, 'value');
+    
+    setFilter((prevFilters) => {
+      // If the "all" option is being changed, we handle it separately
+      if (value === 'all') {
+        // If "all" is checked, ensure it's checked and remove others
+        if (e.target.checked) {
+          return ['all']; // Only "all" is selected
+        } else {
+          return prevFilters.filter((filter) => filter !== 'all'); // Remove "all" if it's unchecked
+        }
+      }
+  
+      // If any other filter is being checked or unchecked
+      const newFilters = e.target.checked
+        ? [...prevFilters, value]  // Add value if checked
+        : prevFilters.filter((filter) => filter !== value);  // Remove value if unchecked
+  
+      // If there is any other filter selected, remove "all" from the list
+      if (newFilters.length > 0) {
+        console.log(newFilters, 'new');
+        return newFilters.filter((filter) => filter !== 'all');
+      } else {
+        // If no other filter is selected, keep "all" in the list
+        return ['all'];
+      }
+    });
+  };
+      
+
+  console.log(filter, 'filter')
 
 
 
    return (
-		<div className="bg-dark test-dark p-2  " > 
+		<div className="bg-dark test-dark p-2 min-vh-100 " > 
       <button className="btn btn-primary" onClick={() => navigate('/')}>Diary <i className="bi bi-journal"></i> </button>
       <button className="btn btn-primary" onClick={() => navigate('/products')}>Products <i className="bi bi-basket"></i> </button>
       <button onClick={() => navigate('/profile')} className="btn btn-primary">Profile <i className="bi bi-person"></i>
       </button>
       <h2 className="text-light ps-2">Dishes</h2>
-      <button className="btn btn-primary"  data-bs-toggle='modal' data-bs-target='#modalDishBought'>Add Pre-made Dish</button>
-      <button className="btn btn-primary"  data-bs-toggle='modal' data-bs-target='#modalDishOwn'>Add Custom Dish</button>
+      {auth.user ? (
+        <>
+          <button className="btn btn-primary"  data-bs-toggle='modal' data-bs-target='#modalDishBought'>Add Pre-made Dish</button>
+          <button className="btn btn-primary"  data-bs-toggle='modal' data-bs-target='#modalDishOwn'>Add Custom Dish</button>
+        </>
+        ): (
+          <span className="d-inline-block" tabIndex={0} data-bs-toggle= "popover" data-bs-trigger="hover focus" title="Login required" data-bs-placement="bottom" data-bs-content="You need to log in to create a dish." data-bs-custom-class="custom-popover">
+            <button className="btn btn-primary"  disabled>Add Pre-made Dish</button>
+            <button className="btn btn-primary" disabled>Add Custom Dish</button>
+          </span>
+        )}
+
 
 
       <Modal id="modalDishBought" title="Add a Pre-made">
@@ -36,6 +108,10 @@ const Dishes: React.FC = () => {
         <OwnDishForm   />
       </Modal>
 
+      <Modal id="notLoggedIn" title="You are not logged in">
+        <NotLoggedIn message="ou need to be logged in to save this dish." />
+      </Modal>
+
 
       <Modal id="modalEditDish" title={ editDish?.type == 'custom' ? "Edit a Pre-made Dish" : 'Edit custom dish'}>
         {editDish?.type == 'pre_made' ? (
@@ -44,14 +120,119 @@ const Dishes: React.FC = () => {
           <OwnDishForm onSuccess={() => setEditDish(undefined)}  onCancel={() => setEditDish(undefined)}   dishToEdit={editDish} ingredientsData={editDish.ingredients} />
         )}
       </Modal>
+        {/* 
+      <div className="filter-dropdown">
+      <label>
+        Filters:
+        <div className="checkbox-list">
+          <div>
+            <input
+              type="checkbox"
+              value="all"
+              checked={filter.includes('all')}
+              onChange={handleCheckboxChange}
+            />
+            <label>All</label>
+          </div>
+          <div>
+            <input
+              type="checkbox"
+              value="favorites"
+              checked={filter.includes('favorites')}
+              onChange={handleCheckboxChange}
+              disabled={!auth.user}
+            />
+            <label>Favorites</label>
+          </div>
+          <div>
+            <input
+              type="checkbox"
+              value="custom"
+              checked={filter.includes('custom')}
+              onChange={handleCheckboxChange}
+            />
+            <label>Custom</label>
+          </div>
+          <div>
+            <input
+              type="checkbox"
+              value="pre_made"
+              checked={filter.includes('pre_made')}
+              onChange={handleCheckboxChange}
+            />
+            <label>Pre-made</label>
+          </div>
+          <div>
+            <input
+              type="checkbox"
+              value="own"
+              checked={filter.includes('own')}
+              onChange={handleCheckboxChange}
+              disabled={!auth.user}
+            />
+            <label>Own</label>
+          </div>
+          <div>
+            <input
+              type="checkbox"
+              value="suggestions"
+              checked={filter.includes('suggestions')}
+              onChange={handleCheckboxChange}
+            />
+            <label>Suggestions</label>
+          </div>
+          <div>
+            <input
+              type="checkbox"
+              value="high_protein"
+              checked={filter.includes('high_protein')}
+              onChange={handleCheckboxChange}
+            />
+            <label>High Protein (&gt; 15g/100g)</label>
+          </div>
+          <div>
+            <input
+              type="checkbox"
+              value="low_carbs"
+              checked={filter.includes('low_carbs')}
+              onChange={handleCheckboxChange}
+            />
+            <label>Low carbs (&lt; 10g/100g)</label>
+          </div>
+          <div>
+            <input
+              type="checkbox"
+              value="low_fat"
+              checked={filter.includes('low_fat')}
+              onChange={handleCheckboxChange}
+            />
+            <label>Low fat (&lt; 3g/100g)</label>
+          </div>
+        </div>
+      </label>
+     </div>
+*/}
+ 
 
 
       <div className="d-flex justify-content-center">
-	  		<input className="form-control  my-3" style={{'maxWidth': '40em'}} type="text" placeholder="Search dishes..." 
+	  		<input className="form-control  mb-3" style={{'maxWidth': '40em'}} type="text" placeholder="Search dishes..." 
 						value={query} onChange={(e) => setQuery(e.target.value)}/>
 			</div>
 
-      <DishGrid query={query} setEditDish={(dish) => setEditDish(dish)} />
+      <div className="d-block">
+        <div className="d-flex justify-content-around">
+          {categories.map( category => (
+            <div key={category.id}>
+              <input type="checkbox" className="btn-check" id={category.id} value={category.id} checked={filter.includes(category.id)} onChange={handleCheckboxChange}/>
+              <label className="btn filter" htmlFor={category.id}>{category.name}</label>    
+            </div>
+          ) )}
+        </div>
+      </div>
+
+
+      <DishGrid query={query} filter={filter} setEditDish={(dish) => setEditDish(dish)} />
  		</div>
 
   );

@@ -6,12 +6,13 @@ const cookies = new Cookies();
 
 
 
-export const fetchDishes = async ({ pageParam = 1, query = "", onlyNoProduct = false }) => {
-  const response = await axiosPublic.get("/dishes/", {
+export const fetchDishes = async ({ pageParam = 1, query = "", onlyNoProduct = false, filterKey = ['all'] }) => {
+  const response = await axiosPrivate.get("/dishes/", {
       params: {
           page: pageParam,
           query: query,
           only_no_product: onlyNoProduct,
+          filter: filterKey
       },
   });
   return response.data;
@@ -97,7 +98,9 @@ export const deleteDish = async ({id}: PopInput): Promise<string | void> => {
   }
 }
 
-export const toggleFavorite = async (dishId: number) => {
+export const toggleFavorite = async (dishId: number) => {  
   const response = await axiosPrivate.patch(`dish/${dishId}/favorite/`)
   return response.data.favorite;
 };
+
+

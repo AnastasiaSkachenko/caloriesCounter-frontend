@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import RecordForm from "./recordForm";
 import { useQuery } from "@tanstack/react-query";
-import { fetchDiaryRecords } from "../../utils/diary";
 import '../../style.css';
 import '../../index.css'
 import { DiaryRecord } from "../interfaces";
@@ -10,12 +9,15 @@ import Modal from "../Modal";
 import useAuth from "../../hooks/useAuth";
 import NutritionProgress from "./nutritions";
 import RecordComponent from "./recordElement";
+import useAxiosPrivate from "../../hooks/useAxiosPrivate";
 
 
 
 const CaloriesCounter: React.FC = () => {
   const { auth } = useAuth()
+  const { fetchDiaryRecords } = useAxiosPrivate()
   const navigate = useNavigate()
+  console.log(auth.access, 'access')
   const {
     status: status, error: error, isLoading,data: records,  
   } = useQuery({
@@ -30,6 +32,7 @@ const CaloriesCounter: React.FC = () => {
   useEffect(() => {
     if (!auth.user) {   
       const timeout = setTimeout(() => {
+        localStorage.setItem("message", "To access Diary page you need to sign in")
         navigate("/login");
       }, 2000);  
 
@@ -53,7 +56,7 @@ const CaloriesCounter: React.FC = () => {
   ? records?.filter((record) => record.date.slice(0,10) === date) // Exact match
   : records
 
-  if (!auth.user) {
+  if (!auth.user || ! auth.access) {
     return <div className="d-flex ps-4 pt-2 vh-100 bg-secondary"><h3><i className="fa fa-spinner"></i>Loading...</h3></div>; 
   }
 

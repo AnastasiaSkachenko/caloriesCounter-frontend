@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom'; // If you're using react-router
 import { User } from '../interfaces';
 import { useRegister } from '../../utils/userUtils';
@@ -10,7 +10,6 @@ const RegisterPage = () => {
   });
   const [confirmPassword, setConfirmPassword] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const { register } = useRegister();
   const navigate = useNavigate(); // Redirect user after successful registration
@@ -24,6 +23,31 @@ const RegisterPage = () => {
     });
   };
 
+    useEffect(() => {
+      const forms = document.querySelectorAll(".needs-validation");
+  
+      const handleSubmit = (event: Event) => {
+        const form = event.target as HTMLFormElement;
+        if (!form.checkValidity()) {
+          event.preventDefault();
+          event.stopPropagation();
+        }
+        form.classList.add("was-validated");
+      };
+  
+      forms.forEach((form) => {
+        form.addEventListener("submit", handleSubmit);
+      });
+  
+      // Cleanup function to remove event listeners
+      return () => {
+        forms.forEach((form) => {
+          form.removeEventListener("submit", handleSubmit);
+        });
+      };
+    }, []);
+  
+
  
 
   // Handle form submission
@@ -32,12 +56,10 @@ const RegisterPage = () => {
 
     // Basic form validation
     if (password !== confirmPassword) {
-      setError('Passwords do not match');
       return;
     }
 
     setLoading(true);
-    setError(null);
 
     const userData = {
       ...formData,
@@ -64,36 +86,57 @@ const RegisterPage = () => {
   };
 
   return (
-    <div className='d-flex flex-column justify-content-center align-items-center bg-secondary' style={{minHeight: '100vh'}}>
+    <div className='d-flex flex-column justify-content-center align-items-center bg-secondary min-vh-100'>
 
-      <div className='border rounded px-5 py-4 shadow'>
-        {error && <p style={{ color: 'red' }}>{error}</p>}
+      <div className='border rounded px-5 py-4 shadow' style={{minWidth:'35%'}}>
         <h2 className='text-center mb-2'>Register</h2>
 
-        <form onSubmit={handleSubmit} >
+        <form onSubmit={handleSubmit} className='needs-validation' noValidate>
 
-          <div className='input-group m-2'>
+          <div className='input-group my-2'>
             <div className='input-group-text'><i className="bi bi-person-fill"></i></div>
-            <input className='form-control' placeholder='Name...' type="text" name="name" value={formData.name} onChange={handleChange} required />
+            <input className='form-control border rounded-end' placeholder='Name...' type="text" name="name" value={formData.name} onChange={handleChange} required />
+            <div className="invalid-feedback">
+              Please enter valid name.
+            </div>
           </div>
 
-          <div className='input-group m-2'>
+          <div className='input-group my-3'>
             <div className='input-group-text'><i className="bi bi-envelope-fill"></i></div>
-            <input className='form-control' placeholder='Email...' type="email" name="email" value={formData.email} onChange={handleChange}required />
+            <input className='form-control border rounded-end' placeholder='Email...' type="email" name="email" value={formData.email} onChange={handleChange}required />
+            <div className="invalid-feedback">
+              Please enter valid email.
+            </div>
+
           </div>
 
 
-          <div className='input-group m-2'>
+          <div className='input-group my-3'>
             <div className='input-group-text'><i className="bi bi-lock-fill"></i></div>
-            <input className='form-control' placeholder='Password...' type="password" value={password} onChange={(e) => setPassword(e.target.value)} required/>
+            <input className='form-control border rounded-end' placeholder='Password...' type="password" value={password} onChange={(e) => setPassword(e.target.value)} required/>
+            <div className="invalid-feedback">
+              Please enter password.
+            </div>
+
           </div>
 
-          <div className='input-group m-2'>
+          <div className='input-group my-3'>
             <div className='input-group-text'><i className="bi bi-lock-fill"></i></div>
-            <input className='form-control' placeholder='Confirm password...' type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)}required/>
+            <input className='form-control border rounded-end' placeholder='Confirm password...' type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)}required/>
+            {password !== confirmPassword && confirmPassword && (
+              <div className="invalid-feedback">
+                Passwords do not match.
+              </div>
+            )}
+            <div className="invalid-feedback">
+              Please enter password again.
+            </div>
+
           </div>
+          {password != confirmPassword && <div className="alert alert-warning p-2  text-center">Passwords do not match</div>  }
+
           <div className='d-flex justify-content-center'>
-            <button className='btn btn-dark' type="submit" disabled={loading}>
+            <button className='btn btn-dark' type="submit" disabled={loading || password !=confirmPassword}>
               {loading ? 'Registering...' : 'Register'}
             </button>
           </div>

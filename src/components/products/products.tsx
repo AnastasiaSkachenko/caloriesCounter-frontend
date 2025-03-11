@@ -6,6 +6,7 @@ import ProductForm from "./ProductForm";
 import Modal from "../Modal";
 import ProductsGrid from "./productsGrid";
 import useAuth from "../../hooks/useAuth";
+import { Popover } from "bootstrap";
 
 
 
@@ -17,6 +18,17 @@ const Products: React.FC = () => {
 	const navigate = useNavigate()
 	const { auth } = useAuth()
 	const { popProduct } = usePopProduct();
+
+
+  useEffect(() => {
+    if (!auth.user) {
+      const popoverTriggerList = document.querySelectorAll('[data-bs-toggle="popover"]');
+      popoverTriggerList.forEach((popoverTriggerEl) => {
+        new Popover(popoverTriggerEl);
+      });
+    }
+  }, [auth.user]);
+
 
 
 	useEffect(() => {
@@ -48,8 +60,15 @@ const Products: React.FC = () => {
 			<button onClick={() => navigate('/profile')} className="btn btn-primary">Profile <i className="bi bi-person"></i></button>
 
 			<h3 className="ms-3">Products</h3>
- 
-			<button onClick={() => setEditProduct(null)} className="btn btn-primary" data-bs-toggle='modal' data-bs-target='#modal' >Add product</button>
+
+			{auth.user ? (
+				<button onClick={() => setEditProduct(null)} className="btn btn-primary" data-bs-toggle='modal' data-bs-target='#modal' >Add product</button>
+			): (
+				<span className="d-inline-block" tabIndex={0} data-bs-toggle= "popover" data-bs-trigger="hover focus" title="Login required" data-bs-placement="bottom" data-bs-content="You need to log in to create a product." data-bs-custom-class="custom-popover">
+					<button  className="btn btn-primary" disabled >Add product</button>
+				</span>
+			)}
+
 
 			<Modal id="modal" title="Create new product">
 				<ProductForm onSubmitSuccess={() => setEditProduct(null)} onCancel={() => setEditProduct(null)} onError={(errorMessage) => setError(errorMessage)}/>

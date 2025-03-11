@@ -12,10 +12,10 @@ const RecordComponent: React.FC<RecordComponentProps> = ({record, editRecord}) =
 
   return (
     <div className="bg-secondary border rounded p-3 pb-1 m-2" >
-      <div className="d-flex  justify-content-between flex-wrap ">
-        <div>
-          <h5>{record.name}: </h5>
-          <p>{(record.weight ? 'Weight:' : 'Portions:')} {record.weight ? record.weight + 'g' : record.portions} Calories: {record.calories} Protein: {record.protein}g Carbs: {record.carbohydrate}g Fat: {record.fat}g</p>
+      <div className="d-flex  justify-content-between flex-wrap" >
+        <div style={{  maxWidth: '30em'}}>
+          <h5 className="record-text">{record.name}: </h5>
+          <p className="record-text"> {(record.weight ? 'Weight:' : 'Portions:')} {record.weight ? record.weight + 'g' : record.portions} Calories: {record.calories} Protein: {record.protein}g Carbs: {record.carbohydrate}g Fat: {record.fat}g</p>
         </div>
         <div className='d-flex flex-wrap  justify-content-center align-items-center gap-2 flex-sm-column'>
           <div>

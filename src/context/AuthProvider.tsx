@@ -6,6 +6,7 @@ interface AuthContextType {
     auth: { user?: User; access?: string, favoriteDishes?: number[] };
     setAuth: Dispatch<SetStateAction<{ user?: User; access?: string, favoriteDishes?: number[]}>>;
     refreshUser: () => void;
+    toggleFavorite: (dishId: number) => void
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -18,7 +19,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const [auth, setAuth] = useState<{ user?: User; access?: string, favoriteDishes?: number[] }>({});
     const [retry, setRetry] = useState(false)
     
-
+    const toggleFavorite = async (dishId: number) => {
+        const response = await axiosPrivate.patch(`dish/${dishId}/favorite/`)
+        return response.data.favorite;
+    };
+      
     console.log(auth)
 
 
@@ -152,7 +157,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     };
 }, [auth.access, auth]); // Trigger effect when accessToken is available
 
-return <AuthContext.Provider value={{ auth, setAuth, refreshUser }}>{children}</AuthContext.Provider>;
+return <AuthContext.Provider value={{ auth, setAuth, refreshUser, toggleFavorite }}>{children}</AuthContext.Provider>;
 
 };
 

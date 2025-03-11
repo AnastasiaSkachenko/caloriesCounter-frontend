@@ -2,19 +2,56 @@ import { axiosPrivate } from "../utils/axios";
 import { useEffect } from "react";
 import useRefreshToken from "./useRefreshToken";
 import useAuth from "./useAuth";
+import { DiaryRecord, DiaryRecordInput } from "../components/interfaces";
+import Cookies from "universal-cookie"; 
+
+const cookies = new Cookies();
+
+
 
 const useAxiosPrivate = () => {
     const refresh = useRefreshToken();
     const { auth } = useAuth();
 
+    const saveDiaryRecord = async ({diaryRecord}: DiaryRecordInput): Promise<void> => {
+      await axiosPrivate.post(`/diary-record/`, diaryRecord);
+    }
+
+    const fetchDiaryRecords = async ()  => { 
+    let accessToken = auth?.access;
+
+    if (!accessToken) {
+        console.log("Access token missing, attempting refresh...");
+        accessToken = await refresh();
+    }
+    
+    if (!accessToken) {
+        console.error("Failed to obtain access token");
+        return [];
+    }
+    
+    const response = await axiosPrivate.get(`diary-record/`, {
+			headers: {
+			"Content-Type": "application/json",
+			'Authorization': `Bearer ${accessToken}`,
+			'X-CSRFToken': cookies.get("csrftoken")
+			},
+    });     
+      const data = await response.data
+      const diaryRecords:DiaryRecord[] = data.diaryRecords
+      return diaryRecords ?? []
+    };
+    
+
     useEffect(() => {
         const requestIntercept = axiosPrivate.interceptors.request.use(
             config => {
                 // If no authorization header, add the token from auth context
-                if (!config.headers['Authorization'] && auth?.access) {
+                if (!config.headers['Authorization']  ) {
                     config.headers['Authorization'] = `Bearer ${auth?.access}`;
                 }
-                console.log('used')
+                console.log('correct', auth.access)
+
                 return config;
             },
             (error) => Promise.reject(error)
@@ -54,7 +91,7 @@ const useAxiosPrivate = () => {
         };
     }, [auth?.access, refresh]); // Dependency on auth.access and refresh
 
-    return axiosPrivate;
+    return {axiosPrivate, saveDiaryRecord, fetchDiaryRecords};
 }
 
 export default useAxiosPrivate;

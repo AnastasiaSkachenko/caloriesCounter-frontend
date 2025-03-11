@@ -2,10 +2,12 @@ import { useQueryClient, useMutation } from "@tanstack/react-query"
 import {  DiaryRecordInput, DishEditInput, DishInput, Ingredient, IngredientInput, PopInput, Product, ProductEditInput, ProductInput } from "../components/interfaces"
 import { deleteProduct, editProduct, fetchProducts, saveProduct } from "../utils/product"
 import { deleteIngredient, editIngredient, saveIngredient } from "../utils/ingredients"
-import { deleteDish, editDish, saveDish } from "../utils/dish"
-import { deleteDiaryRecord, editDiaryRecord, saveDiaryRecord } from "../utils/diary"
+import { deleteDish, editDish, saveDish, toggleFavorite } from "../utils/dish"
+import { deleteDiaryRecord, editDiaryRecord } from "../utils/diary"
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { useDebounce } from "../utils/utils"
+import useAuth from "./useAuth"
+import useAxiosPrivate from "./useAxiosPrivate"
 
 
 // useProducts.ts
@@ -181,6 +183,7 @@ export const usePopDish = () => {
 //                                                                                                                                   for diary
 
 export const useSetDiaryRecord = () => {
+    const {saveDiaryRecord} = useAxiosPrivate()
     const queryClient = useQueryClient()
     const {mutateAsync: setDiaryRecord} = useMutation<void, Error, DiaryRecordInput>({
         mutationFn: saveDiaryRecord,
@@ -213,3 +216,38 @@ export const usePopDiaryRecord = () => {
 
     return {popDiaryRecord,}
 }
+
+
+
+
+export const useToggleFavorite = (dishId: number, initialFavorite: boolean) => {
+  const queryClient = useQueryClient();
+  const { refreshUser } = useAuth();
+
+  const mutation = useMutation({
+    mutationFn: async () => toggleFavorite(dishId),
+    onMutate: async () => {
+      await queryClient.cancelQueries({ queryKey: ["dish", dishId] });
+
+      const previousState = queryClient.getQueryData<boolean>(["dish", dishId]) ?? initialFavorite;
+
+      queryClient.setQueryData(["dish", dishId], (prev: boolean | undefined) => !prev);
+
+      return { previousState };
+    },
+    onError: (_error, _newState, context) => {
+      if (context?.previousState !== undefined) {
+        queryClient.setQueryData(["dish", dishId], context.previousState);
+      }
+    },
+    onSuccess: (updatedFavorite) => {
+      queryClient.setQueryData(["dish", dishId], updatedFavorite);
+      refreshUser();
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["dish", dishId] });
+    },
+  });
+
+  return mutation;
+};

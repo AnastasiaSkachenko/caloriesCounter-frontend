@@ -101,6 +101,30 @@ html, body {
   align-items: start;
 }
 
+.custom-popover {
+  background-color: var(--bs-secondary);
+}
+
+.dish-card {
+  height: 34em;
+}
+
+.dish-img-container {
+  height: 12em;
+  overflow: hidden
+}
+
+.dish-img { 
+  width: 15em; 
+  height: 100%;
+  object-fit: "cover" 
+}
+ 
+
+.transparent-btn:hover, .transparent-btn:active {
+  border-color:transparent;
+  outline-color: none;
+}
 
 .record-container > :first-child {
   flex-basis: 400px;
@@ -165,10 +189,44 @@ html, body {
 }
 
 .card-name {
-  height: 5ch;
+  max-height: 5ch;
   line-clamp: 2;
   -webkit-line-clamp: 2;
 }
+
+.record-text {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 29em;
+}
+
+.filter {
+  scale: 1.1;
+  color: var(--bs-secondary);
+  border-color:var(--bs-secondary);
+  outline: 1px solid var(--bs-secondary) ;
+
+}
+
+
+
+.filter:hover {
+  scale: 1.1;
+  color: white !important;
+  border-color: white;
+  outline: 1px solid white ;
+}
+
+.btn-check:checked + .btn {
+  color: white !important;
+
+}
+
+
+
 
 .tooltip {
   opacity: 0;
@@ -252,6 +310,10 @@ button:focus-visible {
 
   .card-img-container {
     height: 7em;
+  }
+
+  .dish-card {
+    max-width: 82%;
   }
 
   .btn {
