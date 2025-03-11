@@ -101,6 +101,7 @@ const RecordForm: React.FC<RecordFormProps> = ({onSuccess, onCancel, recordData}
 
     fetchDish(); // Call the async function to fetch the product
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [recordData?.name]);
   
 
@@ -113,7 +114,7 @@ const RecordForm: React.FC<RecordFormProps> = ({onSuccess, onCancel, recordData}
     if (currentDish && inputRefs[1]?.current) {
       inputRefs[1].current.focus();
     }
-  }, [currentDish]);
+  }, [currentDish, inputRefs]);
 
   useEffect(() => {
     const handleMacros = () => {
@@ -203,8 +204,7 @@ const RecordForm: React.FC<RecordFormProps> = ({onSuccess, onCancel, recordData}
  
   
 
-// get current dish from existing dishes
-
+ 
   const handleDishNameChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value.charAt(0).toUpperCase() + e.target.value.slice(1);
      setRecordInfo((prevRecord) => ({
@@ -216,8 +216,12 @@ const RecordForm: React.FC<RecordFormProps> = ({onSuccess, onCancel, recordData}
       setCurrentDish(undefined)
     }
 
-    const filterSuggestions = dishNames?.filter(dish => dish.startsWith(value));
- 
+
+    const filterSuggestions = [
+      ...dishNames?.filter(dish => dish.toLowerCase().startsWith(value.toLowerCase())) || [],
+      ...dishNames?.filter(dish => dish.toLowerCase().includes(value.toLowerCase()) && !dish.toLowerCase().startsWith(value.toLowerCase())) || []
+    ];
+     
     setFilteredSuggestions(filterSuggestions ?? []);
  
     getDish(value) 
