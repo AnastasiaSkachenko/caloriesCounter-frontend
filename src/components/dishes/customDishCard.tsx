@@ -70,18 +70,20 @@ const CustomDishCard: React.FC<CustomDishProps> = ({ dish, setEditDish }) => {
               
             />
           </div>
-          <div className="d-flex  flex-column flex-grow-1 justify-content-between dish-body">
+          <div className="d-flex  flex-column flex-grow-1 justify-content-between">
             <h3 className="card-name "  >{dish.name} ({dish.portions + (dish.portions > 1 ? " portions" : " portion")})</h3>
             <div className="d-flex align-items-center p-1 dish-body">
               <div className=" d-flex align-items-around flex-column">   
-                <div >
-                  <p className="fw-bold my-1">Macros for total:</p>
-                  Calories: {dish.calories}, Protein: {dish.protein}, Carbs: {dish.carbohydrate}, Fats: {dish.fat}  
-                </div>
+
                 <div >
                   <p className="fw-bold my-1">Macros for  1 portion ({dish.portion} g): </p>
-                  Calories: {Math.round(dish.calories_100*dish.portion /100)}, Protein: {Math.round(dish.protein*dish.portion/100)}, Carbs: {Math.round(dish.carbohydrate_100*dish.portion/100)}, Fats: {Math.round(dish.fat_100*dish.portion/100)}
+                  Calories: {Math.round(dish.calories_100*dish.portion /100)}, Protein: {Math.round(dish.protein_100*dish.portion/100)}, Carbs: {Math.round(dish.carbohydrate_100*dish.portion/100)}, Fats: {Math.round(dish.fat_100*dish.portion/100)}
                 </div>
+                <div>
+                  <p className="fw-bold my-1">Nutrition value for  100g: </p>
+                  Calories: {dish.calories_100}, Protein: {dish.protein_100}, Carbs: {dish.carbohydrate_100}, Fats: {dish.fat_100}
+                </div>
+
               </div>
             </div>
               
@@ -93,7 +95,7 @@ const CustomDishCard: React.FC<CustomDishProps> = ({ dish, setEditDish }) => {
             </div>
           </div>
         </div>
-        <div className="back bg-light  p-3">
+        <div className="back bg-light p-3 d-flex flex-column bg-light border rounded justify-content-between">
           <div className="d-flex justify-content-end">
             {auth.user ? (
               <button  type="button"  onClick={handleFavoriteToggle} disabled={mutation.isPending} className="bg-transparent p-0 m-0 transparent-btn"><i className={`fa-${ auth.favoriteDishes?.includes(dish.id) ? "solid":'regular'} fa-star fa-xl`} style={{color: '#ffc800'}}></i></button>
@@ -105,8 +107,8 @@ const CustomDishCard: React.FC<CustomDishProps> = ({ dish, setEditDish }) => {
             
           </div>
 
-          <div>
-            <div className="d-flex align-items-center " style={{height: '10em'}}>
+          <div className="d-flex  flex-column flex-grow-1 justify-content-between">
+            <div className="d-flex align-items-center " style={{maxHeight: '5em'}}>
               <div>
                  <p className=" my-0"> <b>Ingredients: </b>
                   {dish.ingredients &&
@@ -120,7 +122,15 @@ const CustomDishCard: React.FC<CustomDishProps> = ({ dish, setEditDish }) => {
                 </p>
               </div>
             </div>
-            <div className="d-flex align-items-center" style={{ height: '17em', width: '100%', overflow: 'hidden' }}>
+
+            <div >
+              <p className="fw-bold my-1">Macros for total:</p>
+              Calories: {dish.calories}, Protein: {dish.protein}, Carbs: {dish.carbohydrate}, Fats: {dish.fat}  
+            </div>
+
+
+
+            <div className="d-flex align-items-center" style={{ maxHeight: '17em', width: '100%', overflow: 'hidden' }}>
               <div style={{ overflowY: 'auto', height: '100%' }}>
                 <p   style={{ overflowWrap: 'break-word', wordWrap: 'break-word', whiteSpace: 'normal' }}>
                   <b>Instructions:</b> {dish.description}

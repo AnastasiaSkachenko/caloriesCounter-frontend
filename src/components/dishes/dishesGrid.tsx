@@ -17,8 +17,7 @@ interface DishGridQuery {
 }
 
 const DishGrid: React.FC<DishGridQuery> = ({query, setEditDish, filter}) => {
-  console.log(filter, 'filter in grid')
-
+ 
   const {
     status, error, data, fetchNextPage
   } = useInfiniteQuery({

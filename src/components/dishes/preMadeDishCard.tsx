@@ -73,11 +73,11 @@ const PreMadeDishCard: React.FC<PreMadeDishProps> = ({dish, setEditDish}) => {
         <div className=" d-flex align-items-center p-1">
           <div className=" d-flex align-items-around flex-column">   
             <div>
-              <p className="fw-bold my-1">Macros for one portion ({dish.portion} g):</p>
+              <p className="fw-bold my-1">Nutrition value for one portion ({dish.portion} g):</p>
               Calories: {Math.round(dish.calories_100*dish.portion/100)}, Protein: {Math.round(dish.protein_100*dish.portion/100)}, Carbs: {Math.round(dish.carbohydrate_100*dish.portion/100)}, Fats: {Math.round(dish.fat_100*dish.portion/100)}
             </div>
             <div>
-              <p className="fw-bold my-1">Macros for  100g: </p>
+              <p className="fw-bold my-1">Nutrition value for  100g: </p>
               Calories: {dish.calories_100}, Protein: {dish.protein_100}, Carbs: {dish.carbohydrate_100}, Fats: {dish.fat_100}
             </div>
           </div>

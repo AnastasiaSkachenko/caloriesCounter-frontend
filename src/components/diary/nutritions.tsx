@@ -39,11 +39,14 @@ const NutritionProgress: React.FC<NutritionProgressProps> = ({ user, filteredRec
     return () => window.removeEventListener("resize", updateLayout);
   }, []);
 
-  const totalCalories = filteredRecords?.reduce((acc, record) => acc + record.calories, 0) || 0;
-  const totalProtein = filteredRecords?.reduce((acc, record) => acc + record.protein, 0) || 0;
-  const totalCarbs = filteredRecords?.reduce((acc, record) => acc + record.carbohydrate, 0) || 0;
-  const totalFats = filteredRecords?.reduce((acc, record) => acc + record.fat, 0) || 0;
+  console.log(filteredRecords)
 
+  const totalCalories = Math.round(filteredRecords?.reduce((acc, record) => acc + record.calories, 0) || 0);
+  const totalProtein = Math.round(filteredRecords?.reduce((acc, record) => acc + (record.protein ? Number(record.protein) : 0), 0) || 0);
+  const totalCarbs = Math.round(filteredRecords?.reduce((acc, record) => acc + (record.carbohydrate ? Number(record.carbohydrate) : 0), 0));
+  const totalFats = Math.round(filteredRecords?.reduce((acc, record) => acc + (record.fat ? Number(record.fat) : 0), 0));
+  
+   
   const goalCalories = user.calories_d || 1;
   const goalProtein = user.protein_d || 1;
   const goalCarbs = user.carbohydrate_d || 1;

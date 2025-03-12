@@ -56,6 +56,8 @@ const CaloriesCounter: React.FC = () => {
   ? records?.filter((record) => record.date.slice(0,10) === date) // Exact match
   : records
 
+  
+
   if (!auth.user || ! auth.access) {
     return <div className="d-flex ps-4 pt-2 vh-100 bg-secondary"><h3><i className="fa fa-spinner"></i>Loading...</h3></div>; 
   }

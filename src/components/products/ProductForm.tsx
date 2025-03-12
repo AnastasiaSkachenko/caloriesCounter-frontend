@@ -174,17 +174,17 @@ const ProductForm: React.FC<ProductFormProps> = ({ onSubmitSuccess, onCancel, pr
           onKeyDown={(e) => handleKeyDown(e, inputRefs[2])}/>
       </label>
       <label  className='d-flex justify-content-between align-items-center mt-2'> Protein for 100 g: 
-        <input className='border border-light rounded p-2 mx-2' ref={inputRefs[2]} type="number" step="1"  name="protein" value={formState.protein} required onFocus={(e) => e.target.select()}
+        <input className='border border-light rounded p-2 mx-2' ref={inputRefs[2]} type="number" step="0.1"  name="protein" value={formState.protein} required onFocus={(e) => e.target.select()}
           onChange={(e) => handleInputChange(e)}
           onKeyDown={(e) => handleKeyDown(e, inputRefs[3])}/>
       </label>
       <label className='d-flex justify-content-between align-items-center mt-2'  >Carbohydrate for 100 g: 
-        <input className='border border-light rounded p-2 mx-2' ref={inputRefs[3]} type="number" step="1"   name="carbohydrate" value={formState.carbohydrate} required onFocus={(e) => e.target.select()}
+        <input className='border border-light rounded p-2 mx-2' ref={inputRefs[3]} type="number" step="0.1"   name="carbohydrate" value={formState.carbohydrate} required onFocus={(e) => e.target.select()}
           onChange={(e) => handleInputChange(e)}
           onKeyDown={(e) => handleKeyDown(e, inputRefs[4])}/>
       </label>
       <label className='d-flex justify-content-between align-items-center mt-2'> Fat for 100 g:
-        <input className='border border-light rounded p-2 mx-2' ref={inputRefs[4]} type="number" step="1"  name="fat" value={formState.fat} required onFocus={(e) => e.target.select()}
+        <input className='border border-light rounded p-2 mx-2' ref={inputRefs[4]} type="number" step="0.1"  name="fat" value={formState.fat} required onFocus={(e) => e.target.select()}
           onChange={(e) => handleInputChange(e)}
           onKeyDown={(e) => handleKeyDown(e, addProductButtonRef, true)}/>
       </label>

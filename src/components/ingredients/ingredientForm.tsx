@@ -126,9 +126,9 @@ const IngredientForm: React.FC<IngredientFormProps> = ({onSuccess, onCancel, ing
             ...prevIngredient,
             weight: value,
             calories: Math.round(value * currentProduct.calories / 100),
-            protein: Math.round(value * currentProduct.protein / 100),
-            carbohydrate: Math.round(value * currentProduct.carbohydrate / 100),
-            fat: Math.round(value * currentProduct.fat / 100),
+            protein: parseFloat((value * currentProduct.protein / 100).toFixed(1)),
+            carbohydrate: parseFloat((value * currentProduct.carbohydrate / 100).toFixed(1)),
+            fat: parseFloat((value * currentProduct.fat / 100).toFixed(1)),
           };
         } else {
           return {
@@ -168,6 +168,7 @@ const IngredientForm: React.FC<IngredientFormProps> = ({onSuccess, onCancel, ing
       setFilteredSuggestions([...suggestions, `Add "${value}" to my products`]);
       getProduct(value);
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [currentProduct, suggestions]
   );
 

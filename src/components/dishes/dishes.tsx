@@ -65,7 +65,6 @@ const Dishes: React.FC = () => {
   
       // If there is any other filter selected, remove "all" from the list
       if (newFilters.length > 0) {
-        console.log(newFilters, 'new');
         return newFilters.filter((filter) => filter !== 'all');
       } else {
         // If no other filter is selected, keep "all" in the list
@@ -75,8 +74,7 @@ const Dishes: React.FC = () => {
   };
       
 
-  console.log(filter, 'filter')
-
+ 
 
 
    return (

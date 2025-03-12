@@ -197,7 +197,7 @@ html, body {
 .record-text {
   display: -webkit-box;
   -webkit-box-orient: vertical;
-  -webkit-line-clamp: 1;
+  line-clamp: 1;
   overflow: hidden;
   text-overflow: ellipsis;
   max-width: 29em;
@@ -206,7 +206,6 @@ html, body {
 .filter {
   scale: 1.1;
   color: var(--bs-secondary);
-  border-color:var(--bs-secondary);
   outline: 1px solid var(--bs-secondary) ;
 
 }
@@ -214,15 +213,19 @@ html, body {
 
 
 .filter:hover {
-  scale: 1.1;
+  scale: 1.2;
   color: white !important;
+  opacity: .7;
   border-color: white;
   outline: 1px solid white ;
 }
 
 .btn-check:checked + .btn {
   color: white !important;
-
+}
+.btn-check:checked + .btn:hover {
+  color: white !important;
+  opacity: 1;
 }
 
 

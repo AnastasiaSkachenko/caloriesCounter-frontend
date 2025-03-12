@@ -107,14 +107,13 @@ const CustomDishForm: React.FC<DishFormProps> = ({onSuccess, onCancel, dishToEdi
 
   useEffect(() => {
     const recalculateForm = (ingredients: Ingredient[]) => {
-        const weight = ingredients.reduce((acc, ingredient) => acc + ingredient.weight, 0)
-        const calories = ingredients.reduce((acc, ingredient) => acc + ingredient.calories, 0)
-        const protein = ingredients.reduce((acc, ingredient) => acc + ingredient.protein, 0)
-        const carbohydrate = ingredients.reduce((acc, ingredient) => acc + ingredient.carbohydrate, 0)
-        const fat = ingredients.reduce((acc, ingredient) => acc + ingredient.fat, 0)
-
-    setForm((prevDish) => ({...prevDish, weight, weight_of_ready_product: weight, calories, protein, carbohydrate, fat}))};
-
+      const weight = ingredients.reduce((acc, ingredient) => acc + ingredient.weight, 0)
+      const calories = ingredients.reduce((acc, ingredient) => acc + ingredient.calories, 0)
+      const protein = ingredients.reduce((acc, ingredient) => acc + (ingredient.protein ? Number(ingredient.protein) : 0), 0);
+      const carbohydrate = ingredients.reduce((acc, ingredient) => acc + (ingredient.carbohydrate ? Number(ingredient.carbohydrate) : 0), 0);
+      const fat = ingredients.reduce((acc, ingredient) => acc + (ingredient.fat ? Number(ingredient.fat) : 0), 0);
+                         
+    setForm((prevDish) => ({...prevDish, weight, weight_of_ready_product: weight, calories, protein:parseFloat(protein.toFixed(1)), carbohydrate:parseFloat(carbohydrate.toFixed(1)), fat:parseFloat(fat.toFixed(1))}))};
     recalculateForm(ingredients)
   }, [ingredients])
    
@@ -163,12 +162,15 @@ const CustomDishForm: React.FC<DishFormProps> = ({onSuccess, onCancel, dishToEdi
       form.portions = 1
     }
     const weight = form.weight_of_ready_product ?? form.weight
-    form.portion = form.portions ?  Math.round(weight / form.portions) : 1
-    form.calories_100 = Math.round(form.calories / weight * 100)
-    form.protein_100 = Math.round(form.protein / weight * 100)
-    form.carbohydrate_100 = Math.round(form.carbohydrate / weight * 100)
-    form.fat_100 = Math.round(form.fat / weight * 100)
-  }
+    form.portion = form.portions ? Math.round(weight / form.portions) : 1;
+    form.calories_100 = Math.round(form.calories / weight * 100);
+    const protein = ingredients.reduce((acc, ingredient) => acc + (ingredient.protein ? Number(ingredient.protein) : 0), 0);
+    const carbohydrate = ingredients.reduce((acc, ingredient) => acc + (ingredient.carbohydrate ? Number(ingredient.carbohydrate) : 0), 0);
+    const fat = ingredients.reduce((acc, ingredient) => acc + (ingredient.fat ? Number(ingredient.fat) : 0), 0);
+
+    form.protein_100 = parseFloat((protein / weight * 100).toFixed(1));
+    form.carbohydrate_100 = parseFloat((carbohydrate / weight * 100).toFixed(1));
+    form.fat_100 = parseFloat((fat / weight * 100).toFixed(1));  }
 
   const handleSubmit = async () => { 
     recalculateMacros()
@@ -206,7 +208,7 @@ const CustomDishForm: React.FC<DishFormProps> = ({onSuccess, onCancel, dishToEdi
           ingredientsToDelete.map((ingredient) => {
             return popIngredient({id:ingredient.id}); // Assuming you have a deleteIngredient function
           })
-    );  
+        );  
       }
     } else {
       const dishID = await setDish({dish: formData})
@@ -313,8 +315,8 @@ const CustomDishForm: React.FC<DishFormProps> = ({onSuccess, onCancel, dishToEdi
       )}
 
       <div className='d-flex justify-content-center'>
-        <button className='btn btn-dark p-2' ref={addDishButtonRef}  onClick={handleSubmit} data-bs-dismiss='modal' data-bs-target='#modalDishOwn' disabled={!validation.valid}>Submit</button>
-        <button className='btn btn-danger btn-sm p-2' data-bs-dismiss='modal' data-bs-target='#modalDishOwn' type='button' onClick={handleCancel}>Cancel</button>
+        <button className='btn btn-dark p-2' ref={addDishButtonRef}  onClick={handleSubmit} data-bs-dismiss='modal' data-bs-target={dishToEdit ? '#modalEditDish' :'#modalDishOwn'} disabled={!validation.valid}>Submit</button>
+        <button className='btn btn-danger btn-sm p-2' data-bs-dismiss='modal' data-bs-target={dishToEdit ? '#modalEditDish' : '#modalDishOwn'} type='button' onClick={handleCancel}>Cancel</button>
       </div>
       {successMessage && <p>{successMessage}</p>}
     </div>

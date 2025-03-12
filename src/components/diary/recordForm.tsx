@@ -127,11 +127,11 @@ const RecordForm: React.FC<RecordFormProps> = ({onSuccess, onCancel, recordData}
           if (weight) {
             return {
               ...prevRecord,
-              calories: Math.round((weight * currentDish.calories_100) / 100),
-              protein: Math.round((weight * currentDish.protein_100) / 100),
-              carbohydrate: Math.round((weight * currentDish.carbohydrate_100) / 100),
-              fat: Math.round((weight * currentDish.fat_100) / 100),
-            };  
+              calories: Math.round((weight * currentDish.calories_100 / 100)),
+              protein: parseFloat((weight * currentDish.protein_100 / 100).toFixed(1)),
+              carbohydrate: parseFloat((weight * currentDish.carbohydrate_100 / 100).toFixed(1)),
+              fat: parseFloat((weight * currentDish.fat_100 / 100).toFixed(1)),
+                          };  
           } else {
             return {
               ...prevRecord,
@@ -148,9 +148,9 @@ const RecordForm: React.FC<RecordFormProps> = ({onSuccess, onCancel, recordData}
             return {
               ...prevRecord,
               calories: Math.round((portions * currentDish.calories_100 * currentDish.portion) / 100),
-              protein: Math.round((portions * currentDish.protein_100 * currentDish.portion) / 100),
-              carbohydrate: Math.round((portions * currentDish.carbohydrate_100 * currentDish.portion) / 100),
-              fat: Math.round((portions * currentDish.fat_100 * currentDish.portion) / 100),
+              protein: parseFloat(((portions * currentDish.protein_100 * currentDish.portion) / 100).toFixed(1)),
+              carbohydrate: parseFloat(((portions * currentDish.carbohydrate_100 * currentDish.portion) / 100).toFixed(1)),
+              fat: parseFloat(((portions * currentDish.fat_100 * currentDish.portion) / 100).toFixed(1)),
             };  
           } else {
             return {
