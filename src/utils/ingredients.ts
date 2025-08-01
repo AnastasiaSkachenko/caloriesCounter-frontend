@@ -1,4 +1,4 @@
-import {  Ingredient, IngredientInput, PopInput, Product } from "../components/interfaces";
+import {  Ingredient, IngredientInput, Product } from "../components/interfaces";
 import { axiosPublic } from "./axios";
 import  Cookies  from 'universal-cookie'
 
@@ -42,8 +42,8 @@ export const editIngredient = async ({ingredient}: IngredientInput): Promise<voi
   }
 }
   
-export const deleteIngredient = async ({id}: PopInput): Promise<string | void> => {
-  const response = await axiosPublic.delete(`/ingredient/${id}/`, {
+export const deleteIngredient = async ({id}: {id: string}): Promise<string | void> => {
+  const response = await axiosPublic.delete(`/ingredient/${id}`, {
     headers: {
       "X-CSRFToken": cookies.get("csrftoken"),
       "Content-Type": "application/json",

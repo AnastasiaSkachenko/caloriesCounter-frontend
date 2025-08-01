@@ -2,6 +2,7 @@ import { useInView } from "react-intersection-observer";
 import { Product } from "../interfaces";
 import { useProducts } from "../../hooks/caloriesCounter";
 import { useEffect } from "react";
+import { baseImageUrl } from "../../utils/production";
 
 interface ProductGrid {
   searchQuery: string;
@@ -40,7 +41,7 @@ const ProductsGrid: React.FC<ProductGrid> = ({ searchQuery, setEditProduct, dele
                 <div className="card-img-container position-relative" >
                   <img
                     className="card-img-top position-absolute card-image"
-                    src={typeof product.image === "string" ? product.image : "media/products/food.jpg"}
+                    src={ baseImageUrl +( typeof product.image === "string" ?  product.image : "/media/products/food.jpg")}
                     alt={product.name}
                     loading="lazy"
                     aria-label={`Image of ${product.name}`}

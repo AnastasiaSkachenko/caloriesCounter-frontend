@@ -1,4 +1,4 @@
-import {  Dish, DishEditInput, DishInput, PopInput } from "../components/interfaces";
+import {  Dish, DishEditInput, DishInput } from "../components/interfaces";
 import Cookies from "universal-cookie"; 
 import { axiosPrivate, axiosPublic } from "./axios";
 
@@ -69,7 +69,7 @@ export const fetchDish = async (id:number)  => {
 };
 
   
-export const saveDish = async ({dish}: DishInput): Promise<number> => {
+export const saveDish = async ({dish}: DishInput): Promise<string> => {
   const response = await axiosPublic.post(`dishes/`, dish);
 
   const data = await response.data
@@ -84,7 +84,7 @@ export const editDish = async ({dish, id}: DishEditInput): Promise<void> => {
 
 }
   
-export const deleteDish = async ({id}: PopInput): Promise<string | void> => {
+export const deleteDish = async ({id}: {id: string}): Promise<string | void> => {
   const response = await axiosPublic.delete(`dishes/?id=${id}`, {
     headers: {
       "Content-Type": "application/json",
@@ -98,7 +98,7 @@ export const deleteDish = async ({id}: PopInput): Promise<string | void> => {
   }
 }
 
-export const toggleFavorite = async (dishId: number) => {  
+export const toggleFavorite = async (dishId: string) => {  
   const response = await axiosPrivate.patch(`dish/${dishId}/favorite/`)
   return response.data.favorite;
 };

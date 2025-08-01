@@ -24,7 +24,7 @@ export const productSchema = (editingName?: string) =>
 		.transform((value) => (value === "" || isNaN(value) ? 0 : value))
 		.min(0, 'Protein must be zero or greater')
 		.required('Protein is required'),
-	  carbohydrate: Yup.number()
+	  carbs: Yup.number()
 		.transform((value) => (value === "" || isNaN(value) ? 0 : value))
 		.min(0, 'Carbohydrates must be zero or greater')
 		.required('Carbohydrates are required'),
@@ -32,6 +32,19 @@ export const productSchema = (editingName?: string) =>
 		.transform((value) => (value === "" || isNaN(value) ? 0 : value))
 		.min(0, 'Fat must be zero or greater')
 		.required('Fat is required'),
+	    fiber: Yup.number()
+		.transform((value) => (value === "" || isNaN(value) ? 0 : value))
+		.min(0, 'Fiber must be zero or greater')
+		.required('Fiber is required'),
+		sugars: Yup.number()
+		.transform((value) => (value === "" || isNaN(value) ? 0 : value))
+		.min(0, 'Sugars must be zero or greater')
+		.required('Sugars is required'),
+		caffeine: Yup.number()
+		.transform((value) => (value === "" || isNaN(value) ? 0 : value))
+		.min(0, 'Caffeine must be zero or greater')
+		.required('Caffeine is required'),
+
 	});
   
 

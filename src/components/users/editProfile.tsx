@@ -16,7 +16,7 @@ const EditProfile: React.FC<EditProfile> = ({onExit}) => {
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState<User>(auth.user??{
     id: 0, name: '', age: 18, weight: 0, height: 0, calories_d: 0, protein_d: 0,
-    carbohydrate_d: 0, fat_d: 0, activity_level: 1, email: '', exp: 0, gender: 'female', goal: 'lose'
+    carbohydrate_d: 0, fat_d: 0, activity_level: 1, email: '', exp: 0, gender: 'female', goal: 'lose', balance: 0
   });
   const [recalculateMacros, setRecalculateMacros] = useState(true)
   const { modify } = useModify()

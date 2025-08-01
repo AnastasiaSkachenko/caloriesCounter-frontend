@@ -5,14 +5,17 @@ import IngredientForm from '../ingredients/ingredientForm';
 import useAuth from '../../hooks/useAuth';
 import { customDishSchema } from '../../utils/validation schemes';
 import { useHandleKeyDown } from '../../utils/utils';
+import { v4 as uuidv4 } from 'uuid';
+
 
 
 const CustomDishForm: React.FC<DishFormProps> = ({onSuccess, onCancel, dishToEdit, ingredientsData}) => {
   const { auth } = useAuth()
   const [form, setForm] = useState<Dish>( dishToEdit || {
-    id: 0, name: '',  calories: 0, calories_100: 0, protein: 0, carbohydrate: 0,
-    fat: 0, protein_100: 0,carbohydrate_100: 0, fat_100: 0, weight: 0,  drink: false, 
-    portion: 100, portions: 1, type: 'custom', image: '', description: '', user: 0, weight_of_ready_product: 0, favorite: false
+      id: uuidv4(), name: '',  calories: 0, calories_100: 0, protein: 0, carbs: 0,
+      fat: 0, protein_100: 0,carbs_100: 0, fat_100: 0, weight: 0,  drink: false, 
+      portion: 100, portions: 1, type: 'custom', image: '', description: '', user: 0,
+      weight_of_ready_product: 0, favorite: false, fiber: 0, fiber_100: 0, sugars: 0, sugars_100: 0, caffeine: 0, caffeine_100: 0
   });
   const [ingredients, setIngredients] = useState<Ingredient[]>(ingredientsData ?? []); 
   const [validation, setValidation] = useState<{message: string | undefined, valid: boolean}>({message: undefined, valid: false})
@@ -25,9 +28,10 @@ const CustomDishForm: React.FC<DishFormProps> = ({onSuccess, onCancel, dishToEdi
 
   const resetForm = () => {
     setForm({
-      id: 0, name: '',  calories: 0, calories_100: 0, protein: 0, carbohydrate: 0,
-      fat: 0, protein_100: 0,carbohydrate_100: 0, fat_100: 0, weight: 0,  drink: false, 
-      portion: 100, portions: 1, type: 'custom', image: '', description: '', user: 0, weight_of_ready_product: 0, favorite: false
+      id: uuidv4(), name: '',  calories: 0, calories_100: 0, protein: 0, carbs: 0,
+      fat: 0, protein_100: 0,carbs_100: 0, fat_100: 0, weight: 0,  drink: false, 
+      portion: 100, portions: 1, type: 'custom', image: '', description: '', user: 0,
+      weight_of_ready_product: 0, favorite: false, fiber: 0, fiber_100: 0, sugars: 0, sugars_100: 0, caffeine: 0, caffeine_100: 0
     })
   }
 
@@ -110,10 +114,10 @@ const CustomDishForm: React.FC<DishFormProps> = ({onSuccess, onCancel, dishToEdi
       const weight = ingredients.reduce((acc, ingredient) => acc + ingredient.weight, 0)
       const calories = ingredients.reduce((acc, ingredient) => acc + ingredient.calories, 0)
       const protein = ingredients.reduce((acc, ingredient) => acc + (ingredient.protein ? Number(ingredient.protein) : 0), 0);
-      const carbohydrate = ingredients.reduce((acc, ingredient) => acc + (ingredient.carbohydrate ? Number(ingredient.carbohydrate) : 0), 0);
+      const carbs = ingredients.reduce((acc, ingredient) => acc + (ingredient.carbs ? Number(ingredient.carbs) : 0), 0);
       const fat = ingredients.reduce((acc, ingredient) => acc + (ingredient.fat ? Number(ingredient.fat) : 0), 0);
                          
-    setForm((prevDish) => ({...prevDish, weight, weight_of_ready_product: weight, calories, protein:parseFloat(protein.toFixed(1)), carbohydrate:parseFloat(carbohydrate.toFixed(1)), fat:parseFloat(fat.toFixed(1))}))};
+    setForm((prevDish) => ({...prevDish, weight, weight_of_ready_product: weight, calories, protein:parseFloat(protein.toFixed(1)), carbs:parseFloat(carbs.toFixed(1)), fat:parseFloat(fat.toFixed(1))}))};
     recalculateForm(ingredients)
   }, [ingredients])
    
@@ -165,14 +169,15 @@ const CustomDishForm: React.FC<DishFormProps> = ({onSuccess, onCancel, dishToEdi
     form.portion = form.portions ? Math.round(weight / form.portions) : 1;
     form.calories_100 = Math.round(form.calories / weight * 100);
     const protein = ingredients.reduce((acc, ingredient) => acc + (ingredient.protein ? Number(ingredient.protein) : 0), 0);
-    const carbohydrate = ingredients.reduce((acc, ingredient) => acc + (ingredient.carbohydrate ? Number(ingredient.carbohydrate) : 0), 0);
+    const carbs = ingredients.reduce((acc, ingredient) => acc + (ingredient.carbs ? Number(ingredient.carbs) : 0), 0);
     const fat = ingredients.reduce((acc, ingredient) => acc + (ingredient.fat ? Number(ingredient.fat) : 0), 0);
 
     form.protein_100 = parseFloat((protein / weight * 100).toFixed(1));
-    form.carbohydrate_100 = parseFloat((carbohydrate / weight * 100).toFixed(1));
+    form.carbs_100 = parseFloat((carbs / weight * 100).toFixed(1));
     form.fat_100 = parseFloat((fat / weight * 100).toFixed(1));  }
 
   const handleSubmit = async () => { 
+    console.log('handle submit triggered')
     recalculateMacros()
     const formData = new FormData()
 
@@ -185,7 +190,7 @@ const CustomDishForm: React.FC<DishFormProps> = ({onSuccess, onCancel, dishToEdi
         formData.append(key, capitalize(value as string));
       } if (key === "user" ) {
         formData.append(key, (auth.user?.id ?? 0).toString());
-      } else if (key != "product" && key != "image"){
+      } else if (key != "product" && key != "image" && value){
         formData.append(key, value.toString());
       }
     });
@@ -283,7 +288,7 @@ const CustomDishForm: React.FC<DishFormProps> = ({onSuccess, onCancel, dishToEdi
           </div>
 
 
-          <p>Weight: {product.weight}g, Calories: {product.calories}, Protein: {product.protein}, Carbs: {product.carbohydrate}, Fat: {product.fat}</p>
+          <p>Weight: {product.weight}g, Calories: {product.calories}, Protein: {product.protein}, Carbs: {product.carbs}, Fat: {product.fat}, Fiber: {product.fiber}, Sugars: {product.sugars}, Caffeine: {product.caffeine}</p>
           {ingredientEdit && editIndex == index  && (
             <IngredientForm onSuccess={(TCProduct) => editIngredient(TCProduct, index)} onCancel={() => setIngredientEdit(null)} ingredientData={product}   />
           )}
@@ -306,7 +311,7 @@ const CustomDishForm: React.FC<DishFormProps> = ({onSuccess, onCancel, dishToEdi
 
       <hr className='text-white border-2'/>   
       <p>Dish weight: {form.weight} g</p>
-      <p>Calories: {form.calories}, Protein: {form.protein}, Carbs: {form.carbohydrate}, Fat: {form.fat}</p>
+      <p>Calories: {form.calories}, Protein: {form.protein}, Carbs: {form.carbs}, Fat: {form.fat}, Fiber: {form.fiber}, Sugars: {form.sugars}, Caffeine: {form.caffeine} </p>
   
       {!validation.valid && (
         <div className="alert alert-dark text-black mt-2 p-1 text-center" role="alert">

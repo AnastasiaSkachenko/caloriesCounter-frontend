@@ -8,7 +8,9 @@ export const axiosPublic = axios.create({
 	baseURL: baseUrl,
 	withCredentials: true,
 	headers: {
-		"X-CSRFToken": cookies.get('csrftoken')
+		"X-CSRFToken": cookies.get('csrftoken'),
+		'X-App-Source': 'web'
+
 	},
 });
   
@@ -18,6 +20,8 @@ export const axiosPrivate = axios.create({
 	withCredentials: true,
 	
 	headers: {
-		"X-CSRFToken": cookies.get('csrftoken')
+		"X-CSRFToken": cookies.get('csrftoken'),
+		'X-App-Source': 'web'
+
 	},
 });

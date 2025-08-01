@@ -1,4 +1,4 @@
-import { PopInput, Product, ProductEditInput, ProductInput } from "../components/interfaces";
+import { PopInput, Product, ProductInput } from "../components/interfaces";
 import Cookies from "universal-cookie"; 
 import { axiosPublic } from "./axios";
 
@@ -64,7 +64,7 @@ export const saveProduct = async ({ product }: ProductInput): Promise<Product | 
   }
 };
 
-export const editProduct = async ({ product, id }: ProductEditInput): Promise<void | string> => {
+export const editProduct = async ({ product, id }: {product: FormData, id: string}): Promise<void | string> => {
   try {
     await axiosPublic.put(`/products/?id=${id}`, product);
   } catch (error: unknown) {

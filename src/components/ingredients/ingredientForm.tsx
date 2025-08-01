@@ -5,6 +5,8 @@ import {  fetchProducts, getProductNames } from '../../utils/product'
 import ProductForm from '../products/ProductForm';
 import { useHandleKeyDown } from '../../utils/utils';
 import { IngredientSchema } from '../../utils/validation schemes';
+import { v4 as uuidv4 } from 'uuid';
+
  
 interface IngredientFormProps {
   onSuccess: (ingredient:Ingredient) => void
@@ -14,16 +16,19 @@ interface IngredientFormProps {
 
 const IngredientForm: React.FC<IngredientFormProps> = ({onSuccess, onCancel, ingredientData }) => { 
 
-  const [ingredient, setIngredient] = useState<Ingredient>(ingredientData??{
-    id: 0,
+  const [ingredient, setIngredient] = useState<Ingredient>(ingredientData ?? {
+    id: uuidv4(),
     name: '',
     weight: 0,
     calories: 0,
     protein: 0,
-    carbohydrate: 0,
+    carbs: 0,
     fat: 0,
-    dish: 0,
-    product: 0
+    dish: '',
+    product: '',
+    fiber: 0,
+    sugars: 0,
+    caffeine: 0
   });
 
   const {
@@ -127,8 +132,11 @@ const IngredientForm: React.FC<IngredientFormProps> = ({onSuccess, onCancel, ing
             weight: value,
             calories: Math.round(value * currentProduct.calories / 100),
             protein: parseFloat((value * currentProduct.protein / 100).toFixed(1)),
-            carbohydrate: parseFloat((value * currentProduct.carbohydrate / 100).toFixed(1)),
+            carbohydrate: parseFloat((value * currentProduct.carbs / 100).toFixed(1)),
             fat: parseFloat((value * currentProduct.fat / 100).toFixed(1)),
+            fiber: parseFloat((value * currentProduct.fiber / 100).toFixed(1)),
+            sugars: parseFloat((value * currentProduct.sugars / 100).toFixed(1)),
+            caffeine: parseFloat((value * currentProduct.caffeine / 100).toFixed(1)),
           };
         } else {
           return {
@@ -203,15 +211,19 @@ const IngredientForm: React.FC<IngredientFormProps> = ({onSuccess, onCancel, ing
 
   const handleOnCancel = () => {
     setIngredient({
-      id: 0,
+      id: uuidv4(),
       name: '',
       weight: 0,
       calories: 0,
       protein: 0,
-      carbohydrate: 0,
+      carbs: 0,
       fat: 0,
-      product: 0,
-      dish: 0
+      product: '',
+      dish: ''
+      ,
+      fiber: 0,
+      sugars: 0,
+      caffeine: 0
     })
     onCancel()
   }
@@ -246,7 +258,7 @@ const IngredientForm: React.FC<IngredientFormProps> = ({onSuccess, onCancel, ing
             <input className='border border-light rounded p-1 mx-2' type="number" value={ingredient.weight } ref={inputRefs[1]} onKeyDown={(e) => handleKeyDown(e, addIngredientButtonRef, true)}  onChange={(e) => handleIngredientChange('weight', e.target.value)}  onFocus={(e) => e.target.select()} disabled={!currentProduct} />
           </label>
 
-          <p className='pt-3 pb-1'>Calories: {ingredient.calories}, Protein: {ingredient.protein}, Carbs: {ingredient.carbohydrate}, Fat: {ingredient.fat}</p>
+          <p className='pt-3 pb-1'>Calories: {ingredient.calories}, Protein: {ingredient.protein}, Carbs: {ingredient.carbs}, Fat: {ingredient.fat}, Fiber: {ingredient.fiber}, Sugars: {ingredient.sugars}, Caffeine: {ingredient.caffeine}</p>
 
         </div>
       </div>

@@ -62,7 +62,7 @@ export const useLogin = () => {
 export const useUser = () => {
   const [loading, setLoading] = useState<boolean>(true); // State to manage loading
   const [error, setError] = useState<string | null>(null); // State for any errors
-  const axiosPrivate = useAxiosPrivate()
+  const {axiosPrivate} = useAxiosPrivate()
   const { setAuth }  = useAuth()
 
 

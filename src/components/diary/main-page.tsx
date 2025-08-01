@@ -67,7 +67,7 @@ const CaloriesCounter: React.FC = () => {
   if (status === 'error') return <h1>{JSON.stringify(error)}</h1>;
 
   return (
-    <div className="p-3 bg-dark d-flex flex-column text-white" style={{ minHeight: "100vh" }}>
+    <div className="p-3 bg-mainBG d-flex flex-column text-white" style={{ minHeight: "100vh" }}>
       <div>
         <button className="btn btn-primary" onClick={() => navigate('/dishes')}>Dishes</button>
         <button className="btn btn-primary" onClick={() => navigate('/products')}>Products</button>

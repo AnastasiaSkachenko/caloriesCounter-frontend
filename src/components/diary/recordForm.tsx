@@ -4,6 +4,9 @@ import {  DiaryRecord, Dish } from '../interfaces';
 import { fetchDishes, getDishNames } from '../../utils/dish';
 import { usePutDiaryRecord, useSetDiaryRecord } from '../../hooks/caloriesCounter';
 import { useHandleKeyDown } from '../../utils/utils';
+import { v4 as uuidv4 } from 'uuid';
+import useAuth from '../../hooks/useAuth';
+
 
 interface RecordFormProps {
   onSuccess?: () => void
@@ -20,11 +23,14 @@ const RecordForm: React.FC<RecordFormProps> = ({onSuccess, onCancel, recordData}
       queryFn: () => getDishNames(), 
   });
 
+  const { auth } = useAuth()
+
   const [filteredSuggestions, setFilteredSuggestions] = useState<string[]>([''])
   const [validation, setValidation] = useState<{message: string | undefined, valid: boolean}>({message: undefined, valid: false})
   const [inputMode, setInputMode] = useState<"weight" | "portions">(recordData? (recordData.weight  ? 'weight': 'portions'):"weight");
   const [record, setRecordInfo] = useState<DiaryRecord>(recordData??{
-    id: 0, name: '', image: '',  calories: 0, protein: 0, carbohydrate: 0, fat: 0, dish: 0, date: '', weight: 100, portions: 1
+    id: uuidv4(), name: '', image: '',  calories: 0, protein: 0, carbs: 0, 
+    fat: 0, dish: '', date: '', weight: 100, portions: 1, fiber: 0, sugars: 0, caffeine: 0, user: auth.user?.id ?? 2
   });
   const [currentDish, setCurrentDish] = useState<Dish | null>()
   const addRecordButtonRef = useRef<HTMLButtonElement>(null);
@@ -129,7 +135,7 @@ const RecordForm: React.FC<RecordFormProps> = ({onSuccess, onCancel, recordData}
               ...prevRecord,
               calories: Math.round((weight * currentDish.calories_100 / 100)),
               protein: parseFloat((weight * currentDish.protein_100 / 100).toFixed(1)),
-              carbohydrate: parseFloat((weight * currentDish.carbohydrate_100 / 100).toFixed(1)),
+              carbs: parseFloat((weight * currentDish.carbs_100 / 100).toFixed(1)),
               fat: parseFloat((weight * currentDish.fat_100 / 100).toFixed(1)),
                           };  
           } else {
@@ -149,7 +155,7 @@ const RecordForm: React.FC<RecordFormProps> = ({onSuccess, onCancel, recordData}
               ...prevRecord,
               calories: Math.round((portions * currentDish.calories_100 * currentDish.portion) / 100),
               protein: parseFloat(((portions * currentDish.protein_100 * currentDish.portion) / 100).toFixed(1)),
-              carbohydrate: parseFloat(((portions * currentDish.carbohydrate_100 * currentDish.portion) / 100).toFixed(1)),
+              carbs: parseFloat(((portions * currentDish.carbs_100 * currentDish.portion) / 100).toFixed(1)),
               fat: parseFloat(((portions * currentDish.fat_100 * currentDish.portion) / 100).toFixed(1)),
             };  
           } else {
@@ -157,7 +163,7 @@ const RecordForm: React.FC<RecordFormProps> = ({onSuccess, onCancel, recordData}
               ...prevRecord,
               calories: 0,
               protein: 0,
-              carbohydrate: 0,
+              carbs: 0,
               fat: 0,
             };  
           }
@@ -241,7 +247,7 @@ const RecordForm: React.FC<RecordFormProps> = ({onSuccess, onCancel, recordData}
     }
 
     setRecordInfo({
-      id: 0, name: '', image: '', weight: 100, calories: 0, protein: 0, carbohydrate: 0, fat: 0, dish: 0, date: '', portions: 1})
+      id: uuidv4(), name: '', image: '', weight: 100, calories: 0, protein: 0, carbs: 0, fat: 0, dish: '', date: '', portions: 1, fiber: 0, sugars: 0, caffeine: 0, user: auth.user?.id ?? 2})
     setCurrentDish(null)
   
     if (onSuccess) onSuccess()
@@ -252,7 +258,7 @@ const RecordForm: React.FC<RecordFormProps> = ({onSuccess, onCancel, recordData}
 
   const handleOnCancel = () => {
     setRecordInfo({
-      id: 0, name: '', image: '', weight: 100, calories: 0, protein: 0, carbohydrate: 0, fat: 0, dish: 0, date: '', portions: 1})
+      id: uuidv4(), name: '', image: '', weight: 100, calories: 0, protein: 0, carbs: 0, fat: 0, dish: '', date: '', portions: 1, fiber: 0, sugars: 0, caffeine: 0, user: auth.user?.id ?? 2})
     if (onCancel) onCancel()
   }
 
@@ -299,7 +305,7 @@ const RecordForm: React.FC<RecordFormProps> = ({onSuccess, onCancel, recordData}
           </div>            
         <br/>
 
-        <p >Calories: {record.calories}, Protein: {record.protein}, Carbs: {record.carbohydrate}, Fat: {record.fat}</p>
+        <p >Calories: {record.calories}, Protein: {record.protein}, Carbs: {record.carbs}, Fat: {record.fat}, Fiber: {record.fiber}, Sugars: {record.sugars}, Caffeine: {record.caffeine} </p>
 
         </div>
       </div>  

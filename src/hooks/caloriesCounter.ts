@@ -1,5 +1,5 @@
 import { useQueryClient, useMutation } from "@tanstack/react-query"
-import {  DiaryRecordInput, DishEditInput, DishInput, Ingredient, IngredientInput, PopInput, Product, ProductEditInput, ProductInput } from "../components/interfaces"
+import {  DiaryRecordInput, DishEditInput, DishInput, Ingredient, IngredientInput, PopInput, Product, ProductInput } from "../components/interfaces"
 import { deleteProduct, editProduct, fetchProducts, saveProduct } from "../utils/product"
 import { deleteIngredient, editIngredient, saveIngredient } from "../utils/ingredients"
 import { deleteDish, editDish, saveDish, toggleFavorite } from "../utils/dish"
@@ -74,7 +74,7 @@ export const useSetProduct = () => {
 
 export const usePutProduct = () => {
     const queryClient = useQueryClient()
-    const {mutateAsync: putProduct} = useMutation<void | string, Error, ProductEditInput>({
+    const {mutateAsync: putProduct} = useMutation<void | string, Error, {product: FormData, id: string}>({
         mutationFn: editProduct,
         onSuccess: () => { 
             queryClient.invalidateQueries({queryKey: ['products']})
@@ -128,7 +128,7 @@ export const usePutIngredient = () => {
 
 export const usePopIngredient = () => {
     const queryClient = useQueryClient()
-    const {mutateAsync: popIngredient} = useMutation<string | void, Error, PopInput>({
+    const {mutateAsync: popIngredient} = useMutation<string | void, Error, {id: string}>({
         mutationFn: deleteIngredient,
         onSuccess: () => { 
             queryClient.invalidateQueries({queryKey: ['dishes']})
@@ -143,7 +143,7 @@ export const usePopIngredient = () => {
 
 export const useSetDish = () => {
     const queryClient = useQueryClient()
-    const {mutateAsync: setDish} = useMutation<number, Error, DishInput>({
+    const {mutateAsync: setDish} = useMutation<string, Error, DishInput>({
         mutationFn: saveDish,
         onSuccess: () => { 
             queryClient.invalidateQueries({queryKey: ['dishes']})
@@ -167,7 +167,7 @@ export const usePutDish = () => {
 
 export const usePopDish = () => {
     const queryClient = useQueryClient()
-    const {mutateAsync: popDish} = useMutation<string | void, Error, PopInput>({
+    const {mutateAsync: popDish} = useMutation<string | void, Error, { id: string}>({
         mutationFn: deleteDish,
         onSuccess: () => { 
             queryClient.invalidateQueries({queryKey: ['dishes']})
@@ -220,7 +220,7 @@ export const usePopDiaryRecord = () => {
 
 
 
-export const useToggleFavorite = (dishId: number, initialFavorite: boolean) => {
+export const useToggleFavorite = (dishId: string, initialFavorite: boolean) => {
   const queryClient = useQueryClient();
   const { refreshUser } = useAuth();
 

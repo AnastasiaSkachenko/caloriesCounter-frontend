@@ -3,8 +3,8 @@ import { User } from "../components/interfaces";
 import { axiosPrivate } from "../utils/axios";
 
 interface AuthContextType {
-    auth: { user?: User; access?: string, favoriteDishes?: number[] };
-    setAuth: Dispatch<SetStateAction<{ user?: User; access?: string, favoriteDishes?: number[]}>>;
+    auth: { user?: User; access?: string, favoriteDishes?: string[] };
+    setAuth: Dispatch<SetStateAction<{ user?: User; access?: string, favoriteDishes?: string[]}>>;
     refreshUser: () => void;
     toggleFavorite: (dishId: number) => void
 }
@@ -16,7 +16,7 @@ interface AuthProviderProps {
 }
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
-    const [auth, setAuth] = useState<{ user?: User; access?: string, favoriteDishes?: number[] }>({});
+    const [auth, setAuth] = useState<{ user?: User; access?: string, favoriteDishes?: string[] }>({});
     const [retry, setRetry] = useState(false)
     
     const toggleFavorite = async (dishId: number) => {
@@ -24,7 +24,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         return response.data.favorite;
     };
       
-    console.log(auth)
 
 
     useEffect(() => {
@@ -43,11 +42,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           }
       };
 
-      if (!auth.access) {
+      if (!auth.access && !auth.user) {
         refresh()
       }
 
-    }, [auth.access])
+    }, [auth.access, auth.user])
 
     const refreshUser = async () => {  // Function to refresh user details
         try {

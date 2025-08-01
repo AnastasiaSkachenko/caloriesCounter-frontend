@@ -6,7 +6,7 @@ import { useRegister } from '../../utils/userUtils';
 const RegisterPage = () => {
   const [formData, setFormData] = useState<User>({
     id: 0, name: '', age: 18, weight: 0, height: 0, calories_d: 0, protein_d: 0,
-    carbohydrate_d: 0, fat_d: 0, activity_level: 1, email: '', exp: 0, gender: 'female', goal: 'lose'
+    carbs_d: 0, fat_d: 0, activity_level: 1, email: '', exp: 0, gender: 'female', goal: 'lose', sugars_d: 0, fiber_d: 0, caffeine_d: 0, balance: 0
   });
   const [confirmPassword, setConfirmPassword] = useState('');
   const [password, setPassword] = useState('');

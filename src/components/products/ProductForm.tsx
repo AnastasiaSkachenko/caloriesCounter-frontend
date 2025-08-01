@@ -4,6 +4,7 @@ import {  usePutProduct, useSetProduct } from '../../hooks/caloriesCounter';
 import useAuth from '../../hooks/useAuth';
 import { useHandleKeyDown, useModalFocus } from '../../utils/utils';
 import { productSchema } from '../../utils/validation schemes';
+import { v4 as uuidv4 } from 'uuid';
 
 
 
@@ -14,13 +15,13 @@ interface ProductFormProps {
   product?: Product,
   productName?: string,
  }
-
+///////////////////////// now use carbs instead of carbohydrate
 const ProductForm: React.FC<ProductFormProps> = ({ onSubmitSuccess, onCancel, product, productName, onError}) => {
   const { auth } = useAuth()
 
 
   const [formState, setFormState] = useState<Product>(product ??{
-    id: 0, name: productName ?? '', calories: 0, protein: 0, carbohydrate: 0,fat: 0, user:   0
+    id: uuidv4() , name: productName ?? '', calories: 0, protein: 0, carbs: 0,fat: 0, user: 0, sugars: 0, fiber: 0, caffeine: 0
   });
   const [validation, setValidation] = useState<{message: string | undefined, valid: boolean}>({message: undefined, valid: false})
   const addProductButtonRef = useRef<HTMLButtonElement>(null);
@@ -113,25 +114,28 @@ const ProductForm: React.FC<ProductFormProps> = ({ onSubmitSuccess, onCancel, pr
   };
   
   const appendFormData = (formData: FormData) => {
-    const { name, image, calories, protein, carbohydrate, fat } = formState;
+    const { name, image, calories, protein, carbs, fat } = formState;
     if (image && typeof image !== 'string') formData.append('image', image);
     formData.append('name', name.charAt(0).toUpperCase() + name.slice(1));
     formData.append('calories', calories.toString());
     formData.append('protein', protein.toString());
-    formData.append('carbohydrate', carbohydrate.toString());
+    formData.append('carbs', carbs.toString());
     formData.append('fat', fat.toString());
     formData.append('user', (auth.user?.id ?? 0).toString());
   };
   
   const resetForm = () => {
     setFormState({
-      id: 0,
+      id: uuidv4(),
       name: productName ?? '',
       calories: 0,
       protein: 0,
-      carbohydrate: 0,
+      carbs: 0,
       fat: 0,
       user: auth.user?.id ?? 0,
+      fiber: 0,
+      sugars: 0,
+      caffeine: 0
     });
   };
 
@@ -179,7 +183,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ onSubmitSuccess, onCancel, pr
           onKeyDown={(e) => handleKeyDown(e, inputRefs[3])}/>
       </label>
       <label className='d-flex justify-content-between align-items-center mt-2'  >Carbohydrate for 100 g: 
-        <input className='border border-light rounded p-2 mx-2' ref={inputRefs[3]} type="number" step="0.1"   name="carbohydrate" value={formState.carbohydrate} required onFocus={(e) => e.target.select()}
+        <input className='border border-light rounded p-2 mx-2' ref={inputRefs[3]} type="number" step="0.1"   name="carbohydrate" value={formState.carbs} required onFocus={(e) => e.target.select()}
           onChange={(e) => handleInputChange(e)}
           onKeyDown={(e) => handleKeyDown(e, inputRefs[4])}/>
       </label>

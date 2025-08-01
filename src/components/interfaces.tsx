@@ -6,10 +6,22 @@
   fat: number
 }
 
-export interface Product extends Base {
+export interface BaseNew {
+  id: string,
   name: string,
+  calories: number,
+  protein: number,
+  carbs: number,
+  fat: number,
+  caffeine: number,
+  fiber: number,
+  sugars: number
+}
+
+export interface Product extends BaseNew  {
   image?: File | string,
-  user: number
+  user: number,
+
 }
 
 export interface ProductInput {
@@ -27,24 +39,36 @@ export interface PopInput {
  
 
 
-export interface Ingredient extends Base {
+export interface Ingredient {
+  id: string,
   name: string,
-  dish: number,
-  product: number,
+  calories: number,
+  protein: number,
+  carbs: number,
+  fat: number,
+  caffeine: number,
+  fiber: number,
+  sugars: number
+
+  dish: string,
+  product: string,
   weight: number
 }
 
 export interface IngredientInput {
   ingredient: Ingredient
 }
-
-export interface Dish extends Base {
-  name: string,
+//not finished
+export interface Dish extends BaseNew  {
   image: File | string,
   calories_100: number,
   protein_100: number,
-  carbohydrate_100: number,
+  carbs_100: number,
   fat_100: number,
+  caffeine_100: number,
+  fiber_100: number,
+  sugars_100: number
+
   drink: boolean,
   weight: number,
   product?: number,
@@ -63,7 +87,7 @@ export interface DishInput {
 }
 export interface DishEditInput {
   dish: FormData,
-  id: number
+  id: string
 }
 
 export interface DishFormProps { 
@@ -76,13 +100,22 @@ export interface DishFormProps {
 }
 
 
-export interface DiaryRecord extends Base {
+export interface DiaryRecord  {
+  id: string,
   name: string,
+  calories: number,
+  protein: number,
+  carbs: number,
+  fat: number,
+  caffeine: number,
+  fiber: number,
+  sugars: number,
   image: string,
   weight?: number,
-  dish: number,
+  dish: string,
   date: string,
-  portions?: number
+  portions?: number,
+  user: number
 };
 
 export interface DiaryRecordInput {
@@ -99,13 +132,17 @@ export interface User {
   height: number;
   calories_d: number;
   protein_d: number;
-  carbohydrate_d: number;
+  carbs_d: number;
   fat_d: number;
+  sugars_d: number,
+  fiber_d: number,
+  caffeine_d: number,
   image?: File | string,
   activity_level: number, 
   exp?: number;  
   gender: 'male' | 'female';
-  goal: 'maintain' | 'gain' | 'lose' | 'active_lose' | 'active_gain'
+  goal: 'maintain' | 'gain' | 'lose' | 'active_lose' | 'active_gain',
+  balance: number
 }
 
 export interface ModifyUser {
