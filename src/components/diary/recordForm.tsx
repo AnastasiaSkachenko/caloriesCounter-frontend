@@ -6,6 +6,7 @@ import { usePutDiaryRecord, useSetDiaryRecord } from '../../hooks/caloriesCounte
 import { useHandleKeyDown } from '../../utils/utils';
 import { v4 as uuidv4 } from 'uuid';
 import useAuth from '../../hooks/useAuth';
+import Button from '../../customComponents/Button';
 
 
 interface RecordFormProps {
@@ -270,7 +271,7 @@ const RecordForm: React.FC<RecordFormProps> = ({onSuccess, onCancel, recordData}
   return (
     <div className='modal-body'> 
       <div>
-        <label className='form-label full-length-label my-2'>
+        <label className='form-label full-length-label mb-2'>
           Dish or Product Name:
           <input className='form-control full-length-input form-control-sm my-2' list='suggestions' type="text" value={record.name}  ref={inputRefs[0]} onChange={(e) => handleDishNameChange(e)} />
           <datalist id='suggestions'>
@@ -281,12 +282,12 @@ const RecordForm: React.FC<RecordFormProps> = ({onSuccess, onCancel, recordData}
         </label>   
         <div>
           <div>
-            <label>
+            <label className='full-length'>
               {inputMode === "weight" ? "Weight (g):" : (currentDish ? `Portions (in one portion ${currentDish?.portion}g):`: 'Choose dish first to see weight of portion:')}
-              <div className='d-flex align-items-center'>
+              <div className='d-flex align-items-center justify-content-between '>
                 <input
                   type="number"
-                  className='border border-light rounded p-1 '
+                  className='input border border-light rounded p-1 w-75'
                   value={inputMode === "weight" ? record.weight : record.portions }
                   ref={inputRefs[1]}
                   onChange={(e) =>
@@ -296,9 +297,13 @@ const RecordForm: React.FC<RecordFormProps> = ({onSuccess, onCancel, recordData}
                   onFocus={(e) => e.target.select()}
                   disabled={!currentDish}
                   />
-                  <button className='btn btn-dark flex-shrink-0' type="button" onClick={toggleInputMode}>
-                      {inputMode === "weight" ? "Portions" : "Weight"}
-                  </button>
+                  <Button
+                    text={inputMode === "weight" ? "Portions" : "Weight"}
+                    onClick={toggleInputMode}
+                    type="button"
+                    size='sm'
+                    variant="secondary"
+                  />
               </div>
 
             </label>
@@ -316,9 +321,25 @@ const RecordForm: React.FC<RecordFormProps> = ({onSuccess, onCancel, recordData}
         </div>
       )}
 
-      <div className='d-flex justify-content-center'>
-        <button type='button'  className='btn btn-dark' ref={addRecordButtonRef} onClick={() => handleSubmit()} data-bs-dismiss='modal' data-bs-target={recordData ? '#modalEdit' : '#modal'} disabled={!validation.valid}> {recordData ? 'Edit Record' : 'Add Record'}</button>
-        <button type='button' className='btn btn-danger' onClick={handleOnCancel} data-bs-dismiss='modal' data-bs-target={recordData ? '#modalEdit' : '#modal'}  >Cancel</button>
+      <div className='d-flex justify-content-center gap-2'>
+        <Button
+          variant='submit'
+          text={recordData ? 'Edit Record' : 'Add Record'}
+          onClick={() => handleSubmit()}
+          ref={addRecordButtonRef}
+          data-bs-dismiss='modal' 
+          data-bs-target={recordData ? '#modalEdit' : '#modal'} 
+          disabled={!validation.valid}
+          type='button'
+        />
+        <Button
+          text='Cancel'
+          data-bs-dismiss='modal' 
+          data-bs-target={recordData ? '#modalEdit' : '#modal'}
+          onClick={handleOnCancel}
+          type='button'
+          variant='delete'
+        />
         </div>
     </div>
   );

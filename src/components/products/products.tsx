@@ -1,12 +1,12 @@
 import {  useEffect, useState } from "react";
 import { usePopProduct } from "../../hooks/caloriesCounter";
-import { useNavigate } from "react-router-dom";
 import { Product } from "../interfaces";
 import ProductForm from "./ProductForm";
 import Modal from "../Modal";
 import ProductsGrid from "./productsGrid";
 import useAuth from "../../hooks/useAuth";
 import { Popover } from "bootstrap";
+import Header from "../header";
 
 
 
@@ -15,7 +15,6 @@ const Products: React.FC = () => {
  	const [editProduct, setEditProduct] = useState<Product | null>(null);
 	const [error, setError] = useState<string | null>(null)
 
-	const navigate = useNavigate()
 	const { auth } = useAuth()
 	const { popProduct } = usePopProduct();
 
@@ -55,9 +54,7 @@ const Products: React.FC = () => {
  
 	return (
 		<div className="bg-dark text-white p-3 pb-5 min-vh-100">
-			<button className="btn btn-primary" onClick={() => navigate('/')}>Diary</button>
-      <button className="btn btn-primary" onClick={() => navigate('/dishes')}>Dishes</button>
-			<button onClick={() => navigate('/profile')} className="btn btn-primary">Profile <i className="bi bi-person"></i></button>
+			<Header active="products" />
 
 			<h3 className="ms-3">Products</h3>
 

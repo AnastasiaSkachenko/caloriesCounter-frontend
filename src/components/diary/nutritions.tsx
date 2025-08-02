@@ -45,12 +45,18 @@ const NutritionProgress: React.FC<NutritionProgressProps> = ({ user, filteredRec
   const totalProtein = Math.round(filteredRecords?.reduce((acc, record) => acc + (record.protein ? Number(record.protein) : 0), 0) || 0);
   const totalCarbs = Math.round(filteredRecords?.reduce((acc, record) => acc + (record.carbs ? Number(record.carbs) : 0), 0));
   const totalFats = Math.round(filteredRecords?.reduce((acc, record) => acc + (record.fat ? Number(record.fat) : 0), 0));
+  const totalFiber = Math.round(filteredRecords?.reduce((acc, record) => acc + (record.fiber ? Number(record.fiber) : 0), 0));
+  const totalSugars = Math.round(filteredRecords?.reduce((acc, record) => acc + (record.sugars ? Number(record.sugars) : 0), 0));
+  const totalCaffeine = Math.round(filteredRecords?.reduce((acc, record) => acc + (record.caffeine ? Number(record.caffeine) : 0), 0));
   
    
   const goalCalories = user.calories_d || 1;
   const goalProtein = user.protein_d || 1;
   const goalCarbs = user.carbs_d || 1;
   const goalFats = user.fat_d || 1;
+  const goalFiber = user.fiber_d || 1;
+  const goalSugars = user.sugars_d || 1;
+  const goalCaffeine = user.caffeine_d || 1;
 
   const calculateColor = (percentage: number) => {
     if (percentage > 120 || percentage < 80) return "#FF4500"; // More than 20% over goal → Red
@@ -63,10 +69,13 @@ const NutritionProgress: React.FC<NutritionProgressProps> = ({ user, filteredRec
     { name: "Protein", value: (totalProtein / goalProtein) * 100, color: calculateColor((totalProtein / goalProtein) * 100), total: totalProtein, goal: goalProtein },
     { name: "Carbs", value: (totalCarbs / goalCarbs) * 100, color: calculateColor((totalCarbs / goalCarbs) * 100), total: totalCarbs, goal: goalCarbs },
     { name: "Fats", value: (totalFats / goalFats) * 100, color: calculateColor((totalFats / goalFats) * 100), total: totalFats, goal: goalFats },
+    { name: "Fiber", value: (totalFiber / goalFiber) * 100, color: calculateColor((totalFiber / goalFiber) * 100), total: totalFiber, goal: goalFiber },
+    { name: "Sugars", value: (totalSugars / goalSugars) * 100, color: calculateColor((totalSugars / goalSugars) * 100), total: totalSugars, goal: goalSugars },
+    { name: "Caffeine", value: (totalCaffeine / goalCaffeine) * 100, color: calculateColor((totalCaffeine / goalCaffeine) * 100), total: totalCaffeine, goal: goalCaffeine },
   ];
 
   return (
-    <div className="d-flex flex-wrap justify-content-center gap-4 w-100">
+    <div className="d-flex flex-wrap justify-content-center gap-4 w-100 ">
       {data.map((item, index) => (
         <div
           key={index}

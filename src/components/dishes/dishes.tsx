@@ -1,6 +1,5 @@
 import {  useEffect, useState } from "react"; 
 import { Dish } from "../interfaces";
-import { useNavigate } from "react-router-dom";
 import '../../style.css';
 import '../../index.css' 
 import 'bootstrap-icons/font/bootstrap-icons.css';
@@ -11,14 +10,12 @@ import DishGrid from "./dishesGrid";
 import NotLoggedIn from "../notLoggedIn";
 import useAuth from "../../hooks/useAuth";
 import { Popover } from "bootstrap";
+import Header from "../header";
 
 const Dishes: React.FC = () => {
   const [query, setQuery] = useState<string>('')
   const [filter, setFilter] = useState<string[]>(["all"])
   const [editDish, setEditDish] = useState<Dish | undefined>(undefined)
-  const navigate = useNavigate()
-
- 
 
   const categories = [
     {id: 'favorites', name: 'Favorites'},
@@ -79,10 +76,7 @@ const Dishes: React.FC = () => {
 
    return (
 		<div className="bg-dark test-dark p-2 min-vh-100 " > 
-      <button className="btn btn-primary" onClick={() => navigate('/')}>Diary <i className="bi bi-journal"></i> </button>
-      <button className="btn btn-primary" onClick={() => navigate('/products')}>Products <i className="bi bi-basket"></i> </button>
-      <button onClick={() => navigate('/profile')} className="btn btn-primary">Profile <i className="bi bi-person"></i>
-      </button>
+      <Header active="dishes" />
       <h2 className="text-light ps-2">Dishes</h2>
       {auth.user ? (
         <>

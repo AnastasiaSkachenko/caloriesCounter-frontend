@@ -10,6 +10,8 @@ import useAuth from "../../hooks/useAuth";
 import NutritionProgress from "./nutritions";
 import RecordComponent from "./recordElement";
 import useAxiosPrivate from "../../hooks/useAxiosPrivate";
+import Button from "../../customComponents/Button";
+import Header from "../header";
 
 
 
@@ -67,12 +69,8 @@ const CaloriesCounter: React.FC = () => {
   if (status === 'error') return <h1>{JSON.stringify(error)}</h1>;
 
   return (
-    <div className="p-3 bg-mainBG d-flex flex-column text-white" style={{ minHeight: "100vh" }}>
-      <div>
-        <button className="btn btn-primary" onClick={() => navigate('/dishes')}>Dishes</button>
-        <button className="btn btn-primary" onClick={() => navigate('/products')}>Products</button>
-        <button onClick={() => navigate('/profile')} className="btn btn-primary">Profile <i className="bi bi-person"></i></button>
-      </div>
+    <div className="p-3 mainBG d-flex flex-column text-white" style={{ minHeight: "100vh" }}>
+      <Header active="diary"/>
   
       <h3 className="text-white">Food Diary</h3>
   
@@ -90,31 +88,36 @@ const CaloriesCounter: React.FC = () => {
         )}
       </Modal>
   
-      <div className="d-flex justify-content-between align-items-center px-2">
-        <button className="btn btn-primary btn-lg-lg flex-shrink-0" data-bs-toggle='modal' data-bs-target='#modal'>Add Record</button>
+      <div className="d-flex justify-content-between align-items-center ">
+        <Button
+          text="Add Record"
+          variant="submit"
+          onClick={() => {}}
+          data-bs-toggle='modal' 
+          data-bs-target='#modal'
+          size="lg"
+        />
         <label className="text-white form-label d-block">
           Date:
           <input className='border border-light rounded p-1 mx-2' type="date" value={date} onChange={(e) => setDate(e.target.value)} />
         </label>
       </div>
-  
-      <div className="container-fluid">
-        <div className="row" >
-          {filteredRecords?.length === 0 && records?.length !== 0 && <p>No records match your search.</p>}
-          {filteredRecords?.slice(0).reverse().map((record) => (
-              <div key={record.id} className=" col-12 col-xl-6">
-                <RecordComponent record={record} editRecord={(record) => setEditRecord(record)}/>
-              </div>
-          ))}
-        </div>
 
+      <div className="d-flex flex-row min-h-75 mt-3">
+        <div className="w-50">
+            {filteredRecords?.length === 0 && records?.length !== 0 && <p>No records match your search.</p>}
+            {filteredRecords?.slice(0).reverse().map((record) => (
+                <RecordComponent key={record.id} record={record} editRecord={(record) => setEditRecord(record)}/>
+            ))}
+        </div>
+    
+        <div className="w-50 text-white border rounded mx-2 p-3 bg-dark"  >
+          <h5 >Summary for {date}:</h5>
+          <hr />
+          {auth.user && filteredRecords && <NutritionProgress user={auth.user} filteredRecords={filteredRecords} />}
+        </div>
       </div>
   
-      <div className="text-white border rounded m-2 p-3 bg-dark"  >
-        <h5 >Summary for {date}:</h5>
-        <hr />
-        {auth.user && filteredRecords && <NutritionProgress user={auth.user} filteredRecords={filteredRecords} />}
-      </div>
     </div>
   );
   }

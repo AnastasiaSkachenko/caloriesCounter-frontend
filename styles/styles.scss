@@ -1,11 +1,83 @@
+// Primary Colors
+$primary-light: #7A85B8;
 $primary: #535C91;
+$primary-dark: #3E4973;
+
+// Secondary Colors
+$secondary-light: #B6B2D9;
 $secondary: #9290C3;
+$secondary-dark: #6E6A97;
+
+// Success Colors
+$success-light: #4A4A8F;
 $success: #1B1A55;
+$success-dark: #14123D;
+
+// Danger Colors
+$danger-light: #A44B6B;
 $danger: #872341;
+$danger-dark: #611D2A;
+
+// Warning Colors
+$warning-light: #D4B35B;
 $warning: #c39919;
+$warning-dark: #9E7F12;
+
+// Info Colors
+$info-light: #4AB8D1;
 $info: #17a2b8;
+$info-dark: #117A8F;
+
+// Dark Colors
+$dark-light: #3A4A6E;
 $dark: #070F2B;
+$dark-dark: #020B1A;
 
-  
+// Background
+$main-bg: #1A1A2E;
 
+// Base colors map
+$base-colors: (
+  "primary": $primary,
+  "secondary": $secondary,
+  "success": $success,
+  "danger": $danger,
+  "warning": $warning,
+  "info": $info,
+  "dark": $dark
+);
+
+// Variants for each color
+$color-variants: (
+  "light": (
+    "primary": $primary-light,
+    "secondary": $secondary-light,
+    "success": $success-light,
+    "danger": $danger-light,
+    "warning": $warning-light,
+    "info": $info-light,
+    "dark": $dark-light
+  ),
+  "dark": (
+    "primary": $primary-dark,
+    "secondary": $secondary-dark,
+    "success": $success-dark,
+    "danger": $danger-dark,
+    "warning": $warning-dark,
+    "info": $info-dark,
+    "dark": $dark-dark
+  )
+);
+
+// Start with base theme colors
+$theme-colors: $base-colors;
+
+// Add light and dark variants dynamically
+@each $variant, $colors in $color-variants {
+  @each $name, $color in $colors {
+    $theme-colors: map-merge($theme-colors, (#{$name}-#{$variant}: $color));
+  }
+}
+
+// Import Bootstrap with extended colors
 @import "../node_modules/bootstrap/scss/bootstrap";

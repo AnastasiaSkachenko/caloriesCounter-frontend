@@ -8,6 +8,7 @@ import EditMacros from "./editMarcos";
 import Modal from "../Modal";
 import { axiosPublic } from "../../utils/axios";
 import { baseImageUrl } from "../../utils/production";
+import Header from "../header";
 
 const Profile = () => {
   const {auth} = useAuth()
@@ -37,9 +38,7 @@ const Profile = () => {
       <button onClick={() => test()}>Test</button>
       {user && (
         <div>
-          <button className="btn btn-primary" onClick={() => navigate('/')}>Diary <i className="bi bi-journal"></i> </button>
-          <button className="btn btn-primary" onClick={() => navigate('/products')}>Products <i className="bi bi-basket"></i> </button>
-          <button onClick={() => navigate('/dishes')} className="btn btn-primary">Dishes <i className="fa fa-bowl-food"></i></button>
+          <Header active="profile" />
 
           <Modal id="editMacros" title="Edit Macros">
             <EditMacros />

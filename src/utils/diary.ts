@@ -1,4 +1,4 @@
-import {  DiaryRecordInput, PopInput } from "../components/interfaces";
+import {  DiaryRecordInput } from "../components/interfaces";
 import Cookies from "universal-cookie"; 
 import { axiosPrivate } from "./axios";
 
@@ -14,7 +14,7 @@ export const editDiaryRecord = async ({diaryRecord}: DiaryRecordInput): Promise<
 
 }
   
-export const deleteDiaryRecord = async ({id}: PopInput): Promise<string | void> => {
+export const deleteDiaryRecord = async ({id}: {id:string}): Promise<string | void> => {
   const response = await axiosPrivate.delete(`diary-record/?id=${id}`, {
     headers: {
       "Content-Type": "application/json",

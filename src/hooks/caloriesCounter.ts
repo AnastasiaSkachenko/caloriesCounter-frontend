@@ -207,7 +207,7 @@ export const usePutDiaryRecord = () => {
 
 export const usePopDiaryRecord = () => {
     const queryClient = useQueryClient()
-    const {mutateAsync: popDiaryRecord} = useMutation<string | void, Error, PopInput>({
+    const {mutateAsync: popDiaryRecord} = useMutation<string | void, Error, {id:string}>({
         mutationFn: deleteDiaryRecord,
         onSuccess: () => { 
             queryClient.invalidateQueries({queryKey: ['diaryRecords']}) 
