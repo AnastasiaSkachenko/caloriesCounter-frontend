@@ -7,7 +7,7 @@ import ProductsGrid from "./productsGrid";
 import useAuth from "../../hooks/useAuth";
 import { Popover } from "bootstrap";
 import Header from "../header";
-
+import Button from "../../customComponents/Button";
 
 
 const Products: React.FC = () => {
@@ -40,7 +40,7 @@ const Products: React.FC = () => {
 	}, [error])
 	
 
- 	const handleDeleteProduct = async (id: number) => {
+ 	const handleDeleteProduct = async (id: string) => {
 
 		const responseError = await  popProduct({ id });
 		if (responseError) {
@@ -56,13 +56,20 @@ const Products: React.FC = () => {
 		<div className="bg-dark text-white p-3 pb-5 min-vh-100">
 			<Header active="products" />
 
-			<h3 className="ms-3">Products</h3>
+			<h3 className="ps-2">Products</h3>
 
 			{auth.user ? (
-				<button onClick={() => setEditProduct(null)} className="btn btn-primary" data-bs-toggle='modal' data-bs-target='#modal' >Add product</button>
+				<Button
+					onClick={() => setEditProduct(null)} 
+					data-bs-toggle='modal' 
+					data-bs-target='#modal'
+					text="Add product"
+					variant="submit"
+					className="ms-2"
+				/>
 			): (
 				<span className="d-inline-block" tabIndex={0} data-bs-toggle= "popover" data-bs-trigger="hover focus" title="Login required" data-bs-placement="bottom" data-bs-content="You need to log in to create a product." data-bs-custom-class="custom-popover">
-					<button  className="btn btn-primary" disabled >Add product</button>
+					<Button disabled >Add product</Button>
 				</span>
 			)}
 
@@ -82,7 +89,7 @@ const Products: React.FC = () => {
 					</div>
 			)}
  			<div className="d-flex justify-content-center">
-	  		<input className="form-control  my-3" style={{'maxWidth': '40em'}} type="text" placeholder="Search products..." 
+	  		<input className="form-control py-2 my-3" style={{'maxWidth': '40em'}} type="text" placeholder="Search products..." 
 						value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)}/>
 			</div>
 

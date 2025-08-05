@@ -1,5 +1,5 @@
 import { useQueryClient, useMutation } from "@tanstack/react-query"
-import {  DiaryRecordInput, DishEditInput, DishInput, Ingredient, IngredientInput, PopInput, Product, ProductInput } from "../components/interfaces"
+import {  DiaryRecordInput, DishEditInput, DishInput, Ingredient, IngredientInput, Product, ProductInput } from "../components/interfaces"
 import { deleteProduct, editProduct, fetchProducts, saveProduct } from "../utils/product"
 import { deleteIngredient, editIngredient, saveIngredient } from "../utils/ingredients"
 import { deleteDish, editDish, saveDish, toggleFavorite } from "../utils/dish"
@@ -86,7 +86,7 @@ export const usePutProduct = () => {
 
 export const usePopProduct = () => {
     const queryClient = useQueryClient()
-    const {mutateAsync: popProduct} = useMutation<string | void, Error, PopInput>({
+    const {mutateAsync: popProduct} = useMutation<string | void, Error, {id: string}>({
         mutationFn: deleteProduct,
         onSuccess: () => { 
             queryClient.invalidateQueries({queryKey: ['products']})

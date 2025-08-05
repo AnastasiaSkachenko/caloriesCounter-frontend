@@ -22,6 +22,19 @@
   --bs-dark: #070F2B;      /* Custom dark color */
 }
 
+
+.lightBG {
+  background-color: seashell;
+}
+
+.media-fit {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+
 html, body {
   height: 100%; /* Ensure the body fills the full viewport height */
   margin: 0; /* Remove any default margin */
@@ -59,7 +72,6 @@ html, body {
   left: 0;
   width: 100%;
   height: 100%;
-  opacity: 0;
   transition: opacity 0.3s ease-in-out;
 }
 
@@ -167,20 +179,23 @@ html, body {
 }
 
 .card-img-container {
-  height: 8em;
+  height: 14em;
   overflow: hidden;
 }
 
 
 
-
+/*
 .card-img-container:hover .card-img-top {
-  opacity: 0; /* Hide the image */
+  opacity: 0; 
 }
+*/
 
+/*
 .card-img-container:hover .nutrition-info {
-  opacity: 1; /* Show the nutrition info */
+  opacity: 1; 
 }
+*/
 
 .card-name, .ingredients {
   display: -webkit-box;

@@ -4886,8 +4886,7 @@ textarea.form-control-lg {
 }
 
 .card-img,
-.card-img-top,
-.card-img-bottom {
+.card-img-top {
   width: 100%;
 }
 
@@ -4897,8 +4896,7 @@ textarea.form-control-lg {
   border-top-right-radius: var(--bs-card-inner-border-radius);
 }
 
-.card-img,
-.card-img-bottom {
+.card-img {
   border-bottom-right-radius: var(--bs-card-inner-border-radius);
   border-bottom-left-radius: var(--bs-card-inner-border-radius);
 }

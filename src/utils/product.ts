@@ -1,4 +1,4 @@
-import { PopInput, Product, ProductInput } from "../components/interfaces";
+import { Product, ProductInput } from "../components/interfaces";
 import Cookies from "universal-cookie"; 
 import { axiosPublic } from "./axios";
 
@@ -12,7 +12,17 @@ export const logError = (error: unknown, functionName: string) => {
 
 // Products
 
-export const fetchProducts = async ({ pageParam = 1, queryKey}: { pageParam?: number, queryKey: string[], }) => {
+export const fetchProducts = async ({ pageParam = 1, queryKey}: { pageParam?: number, queryKey: string[], }): Promise<{
+    products: Product[];
+    hasMore: boolean;
+    currentPage: number;
+    error?: undefined;
+} | {
+    error: string;
+    hasMore: boolean;
+    products?: undefined;
+    currentPage?: undefined;
+}> => {
   try {
     const [, query] = queryKey; // Extract query from queryKey
 
@@ -73,7 +83,7 @@ export const editProduct = async ({ product, id }: {product: FormData, id: strin
   }
 };
 
-export const deleteProduct = async ({ id }: PopInput): Promise<string | void> => {
+export const deleteProduct = async ({ id }: {id: string}): Promise<string | void> => {
   try {
     const response = await axiosPublic.delete(`/products/?id=${id}`, {
       headers: {

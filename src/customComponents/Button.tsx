@@ -1,4 +1,4 @@
-import React, { RefObject } from "react";
+import React, { forwardRef } from "react";
 import 'bootstrap-icons/font/bootstrap-icons.css';
 import '../../styles/styles.scss';
 import '../../src/index.css'
@@ -8,14 +8,14 @@ import { useNavigate } from "react-router-dom";
 
 const variants = {
   submit: "bg-primary-dark flex-shrink-0 flex-grow-0 border-2 border-primary",
-  cancel: "bg-secondary-light ",
+  cancel: "bg-secondary-light border-none border-secondary-light hover:border-none !important",
   delete: "bg-danger  border-danger-dark border-2",
   edit: "bg-warning  border-warning-dark border-2",
   primary: "bg-black border-2 border-primary",
   transparent: "",
   secondary: "bg-black border-2 border-secondary",
   light: "bg-primary-light bg-opacity-10",
-  link: "bg-transparent"
+  link: "bg-transparent border-dark"
 }
 
 
@@ -53,10 +53,9 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   rounded?: string,
   grow?: boolean,
   link?: string,
-  ref?: RefObject<HTMLButtonElement>
 }
 
-const Button:React.FC<ButtonProps> = ({
+const Button = forwardRef<HTMLButtonElement, ButtonProps> (({
   onClick, 
   className, 
   classNameText, 
@@ -70,14 +69,14 @@ const Button:React.FC<ButtonProps> = ({
   rounded = '3', 
   grow,
   link,
-  ref,
   ...rest
-}) => {
+}, ref) => {
 
   const navigate = useNavigate()
 
   return (
     <button 
+      ref={ref}
       className={`d-flex flex-row gap-2 items-center  ${variants[variant]} ${sizes[size]} rounded-${rounded}  w-auto ${pending && 'opacity-70'} ${className}`}
       onClick={() =>  link ? navigate(link)  : onClick && onClick()}
       disabled={disabled || pending}
@@ -87,7 +86,6 @@ const Button:React.FC<ButtonProps> = ({
         width: 'auto',
       }}
       {...rest}
-      ref={ref}
     >
       {text && (
         <span className={`${classNameText} ${variantsText[variant]} text-${size} text-center`}>
@@ -101,6 +99,6 @@ const Button:React.FC<ButtonProps> = ({
         )}
     </button>
   );
-};
+});
 
 export default Button ;

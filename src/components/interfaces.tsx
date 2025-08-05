@@ -19,7 +19,7 @@ export interface BaseNew {
 }
 
 export interface Product extends BaseNew  {
-  image?: File | string,
+  media?: (File | string)[],
   user: number,
 
 }
@@ -151,3 +151,6 @@ export interface ModifyUser {
   carbohydrate_d: number;
   fat_d: number;
 }
+
+export type MacroNitrient = 'calories' | 'protein' | 'carbs' | 'fat' | 'sugars' | 'fiber' | 'caffeine' 
+

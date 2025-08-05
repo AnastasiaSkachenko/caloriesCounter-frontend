@@ -2,17 +2,19 @@ import { useInView } from "react-intersection-observer";
 import { Product } from "../interfaces";
 import { useProducts } from "../../hooks/caloriesCounter";
 import { useEffect } from "react";
-import { baseImageUrl } from "../../utils/production";
+import Card from "./Card";
 
 interface ProductGrid {
   searchQuery: string;
   setEditProduct: (product: Product) => void;
-  deleteProduct: (id: number) => void;
+  deleteProduct: (id: string) => void;
   currentUser: number;
 }
 
+
 const ProductsGrid: React.FC<ProductGrid> = ({ searchQuery, setEditProduct, deleteProduct, currentUser }) => {
   const { ref, inView } = useInView();
+  
 
   // Call the custom hook to fetch products
   const { status, products, fetchNextPage, isFetchingNextPage, hasNextPage, message } = useProducts({
@@ -36,49 +38,7 @@ const ProductsGrid: React.FC<ProductGrid> = ({ searchQuery, setEditProduct, dele
       {products && products.length > 0 ? (
         <div className="row gy-4">
           {products.map((product) => (
-            <div className=" col-6 col-md-4  col-lg-3 col-xl-2 " key={product.id}>
-              <div className="card" >
-                <div className="card-img-container position-relative" >
-                  <img
-                    className="card-img-top position-absolute card-image"
-                    src={ baseImageUrl +( typeof product.image === "string" ?  product.image : "/media/products/food.jpg")}
-                    alt={product.name}
-                    loading="lazy"
-                    aria-label={`Image of ${product.name}`}
-                  />
-                  <div className="nutrition-info position-absolute bg-dark text-light d-flex flex-column justify-content-center align-items-center">
-                    <div className="d-flex justify-content-between w-100 p-1 px-2">
-                      <span>Calories:</span>
-                      <span>{product.calories}</span>
-                    </div>
-                    <div className="d-flex justify-content-between w-100 p-1 px-2">
-                      <span>Protein:</span>
-                      <span>{product.protein}g</span>
-                    </div>
-                    <div className="d-flex justify-content-between w-100 p-1 px-2">
-                      <span>Carbs:</span>
-                      <span>{product.carbohydrate}g</span>
-                    </div>
-                    <div className="d-flex justify-content-between w-100 p-1 px-2">
-                      <span>Fats:</span>
-                      <span>{product.fat}g</span>
-                    </div>
-                  </div>
-                </div>
-                <div className="card-body py-2 bg-light">
-                  <p className="card-name mb-0">{product.name}</p>
-                  <p className="text-secondary mb-0">{product.user === currentUser ? "Own product" : "Other creator"}</p>
-                  <div className="d-flex justify-content-center">
-                    <button onClick={() => setEditProduct(product)} className="btn btn-primary me-2" data-bs-toggle="modal" data-bs-target="#modalEdit">
-                      Edit
-                    </button>
-                    <button onClick={() => deleteProduct(product.id)} className="btn btn-danger">
-                      Delete
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <Card key={product.name} product={product} setEditProduct={setEditProduct} deleteProduct={deleteProduct} currentUser={currentUser}/>
           ))}
         </div>
       ) : (

@@ -310,7 +310,7 @@ const RecordForm: React.FC<RecordFormProps> = ({onSuccess, onCancel, recordData}
           </div>            
         <br/>
 
-        <p >Calories: {record.calories}, Protein: {record.protein}, Carbs: {record.carbs}, Fat: {record.fat}, Fiber: {record.fiber}, Sugars: {record.sugars}, Caffeine: {record.caffeine} </p>
+        <p>Calories: {record.calories}, Protein: {record.protein}, Carbs: {record.carbs}, Fat: {record.fat}, Fiber: {record.fiber}, Sugars: {record.sugars}, Caffeine: {record.caffeine} </p>
 
         </div>
       </div>  
@@ -338,7 +338,7 @@ const RecordForm: React.FC<RecordFormProps> = ({onSuccess, onCancel, recordData}
           data-bs-target={recordData ? '#modalEdit' : '#modal'}
           onClick={handleOnCancel}
           type='button'
-          variant='delete'
+          variant='cancel'
         />
         </div>
     </div>
