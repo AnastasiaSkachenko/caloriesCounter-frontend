@@ -29,12 +29,11 @@ export const saveIngredient = async ({ingredient}: IngredientInput): Promise<Ing
 }
    
 export const editIngredient = async ({ingredient}: IngredientInput): Promise<void> => {
-  const response = await axiosPublic.put(`/ingredient/${ingredient.id}/}`, {
+  const response = await axiosPublic.put(`/ingredient/${ingredient.id}`, ingredient, {
     headers: {
       "X-CSRFToken": cookies.get("csrftoken"),
       "Content-Type": "application/json",
-    },
-    body: JSON.stringify(ingredient),
+    }
   })
  
   if (response.data.error) {

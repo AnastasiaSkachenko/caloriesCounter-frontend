@@ -7,6 +7,7 @@ import LoginPage from "./components/users/login";
 import Profile from "./components/users/Profile";
 import { AuthProvider } from "./context/AuthProvider";
 import ResetPassword from "./components/users/changePassword";
+import DishPage from "./components/dishes/DishPage";
 
 
 function App() {
@@ -15,6 +16,7 @@ function App() {
       <Router>
         <Routes> 
           <Route path="/dishes" element={<Dishes/>}/>
+          <Route path="/dish/:id" element={<DishPage />} />
           <Route path="/products" element={<CaloriesCounterProducts/>}/>
           <Route path="/" element={<CaloriesCounter/>}/>
           <Route path="/register" element={<RegisterPage/>}/>

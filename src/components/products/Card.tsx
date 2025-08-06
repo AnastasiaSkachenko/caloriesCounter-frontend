@@ -25,7 +25,7 @@ const Card = ({product, setEditProduct, deleteProduct, currentUser}: ProductCard
   const [viewNutrition, setViewNutrition] = useState(false)
   return (
     <div className=" col-4 col-md-4  col-lg-2 col-xl-3 " key={product.id}>
-      <div className="card pt-3" >
+      <div className="card pt-1" >
         <div className="card-img-container  d-flex justify-content-center" >
           {viewNutrition ? (
             <div className="nutrition-info bg-primary-dark text-light d-flex flex-column justify-content-center align-items-center text-white">
@@ -39,8 +39,9 @@ const Card = ({product, setEditProduct, deleteProduct, currentUser}: ProductCard
           ): (
             <MediaScroller
               media={product.media}
-              productName={product.name}
+              name={product.name}
               className=" h-full"
+              bg="white"
               width={320}
               height={225}
             />

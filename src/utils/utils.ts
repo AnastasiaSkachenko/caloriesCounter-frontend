@@ -66,7 +66,6 @@ export const convertObjectToFormData = async <T extends HasMedia>(
   }
 
   const formData = new FormData();
-  console.log('Object in convert function', object);
 
   // Handle media (File[] or string[])
   if (Array.isArray(object.media)) {
@@ -93,9 +92,17 @@ export const convertObjectToFormData = async <T extends HasMedia>(
     const value = object[key];
     if (value === null || value === undefined) continue;
 
-    formData.append(`${objectMedia}_${key}`, String(value));
-  }
+    if (key == "name") {
+      formData.append(`${objectMedia}_${key}`, capitalizeString(String(value)));
 
+    } else if (key == "media_to_delete") {
+      formData.append("media_to_delete", JSON.stringify(value));
+      console.log("media to delete appended:", JSON.stringify(value) )
+
+    }else {
+      formData.append(`${objectMedia}_${key}`, String(value));
+    }
+  }
   return formData;
 };
 

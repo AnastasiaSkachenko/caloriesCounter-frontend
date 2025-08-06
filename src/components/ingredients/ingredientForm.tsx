@@ -6,6 +6,7 @@ import ProductForm from '../products/ProductForm';
 import { useHandleKeyDown } from '../../utils/utils';
 import { IngredientSchema } from '../../utils/validation schemes';
 import { v4 as uuidv4 } from 'uuid';
+import Button from '../../customComponents/Button';
 
  
 interface IngredientFormProps {
@@ -15,7 +16,6 @@ interface IngredientFormProps {
 }
 
 const IngredientForm: React.FC<IngredientFormProps> = ({onSuccess, onCancel, ingredientData }) => { 
-
   const [ingredient, setIngredient] = useState<Ingredient>(ingredientData ?? {
     id: uuidv4(),
     name: '',
@@ -64,9 +64,8 @@ const IngredientForm: React.FC<IngredientFormProps> = ({onSuccess, onCancel, ing
     const productNameExists = productNames?.find(product => product === productName);
     if (productNameExists || ingredientData) {
 
-
       const response = await fetchProducts({ pageParam: 1, queryKey: ['products', productName] });
-      const products: Product[] = response.products;
+      const products: Product[] = response.products || [];
       const product = products?.find(product => product.name === productName);
       if (product) {
         setIngredient((prevIngredient) => ({ ...prevIngredient, name: product.name, product: product.id }));
@@ -90,14 +89,11 @@ const IngredientForm: React.FC<IngredientFormProps> = ({onSuccess, onCancel, ing
   useEffect(() => {
     const fetchProduct = async () => {
       if (ingredientData?.name) {
-        console.log('calledddd', ingredientData.name)
         await getProduct(ingredientData.name);
-        console.log('loaded')
       }
     };
 
     fetchProduct(); 
-    console.log(currentProduct, 'current product')
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ingredientData?.name, currentProduct]);
@@ -184,11 +180,6 @@ const IngredientForm: React.FC<IngredientFormProps> = ({onSuccess, onCancel, ing
  
 
   const handleSubmit = async () => {  
-
-
-
-
-   
     onSuccess(ingredient)
   }
  
@@ -238,7 +229,7 @@ const IngredientForm: React.FC<IngredientFormProps> = ({onSuccess, onCancel, ing
       <div>
         <label className='d-flex justify-content-between align-items-center my-2'>
           Product Name:
-          <input list='suggestions' type="text" value={ingredient.name || ''} ref={inputRefs[0]}  className='border border-light rounded p-1 mx-2'onFocus={() => handleProductInputFocus()}  onChange={(e) => handleProductNameChange(e)} onKeyDown={(e) => handleKeyDown(e, inputRefs[1])}  />
+          <input list='suggestions' type="text" value={ingredient.name || ''} ref={inputRefs[0]}  className='input w-50' onFocus={() => handleProductInputFocus()}  onChange={(e) => handleProductNameChange(e)} onKeyDown={(e) => handleKeyDown(e, inputRefs[1])}  />
           <datalist id='suggestions'>
           {filteredSuggestions.map((product, index) => (
             <option key={index} value={product}/>
@@ -255,7 +246,7 @@ const IngredientForm: React.FC<IngredientFormProps> = ({onSuccess, onCancel, ing
         <div>
           <label className='d-flex justify-content-between align-items-center mt-2'>
             Weight (g):
-            <input className='border border-light rounded p-1 mx-2' type="number" value={ingredient.weight } ref={inputRefs[1]} onKeyDown={(e) => handleKeyDown(e, addIngredientButtonRef, true)}  onChange={(e) => handleIngredientChange('weight', e.target.value)}  onFocus={(e) => e.target.select()} disabled={!currentProduct} />
+            <input className='input' type="number" value={ingredient.weight } ref={inputRefs[1]} onKeyDown={(e) => handleKeyDown(e, addIngredientButtonRef, true)}  onChange={(e) => handleIngredientChange('weight', e.target.value)}  onFocus={(e) => e.target.select()} disabled={!currentProduct} />
           </label>
 
           <p className='pt-3 pb-1'>Calories: {ingredient.calories}, Protein: {ingredient.protein}, Carbs: {ingredient.carbs}, Fat: {ingredient.fat}, Fiber: {ingredient.fiber}, Sugars: {ingredient.sugars}, Caffeine: {ingredient.caffeine}</p>
@@ -270,8 +261,8 @@ const IngredientForm: React.FC<IngredientFormProps> = ({onSuccess, onCancel, ing
       )}
 
       <div className='d-flex justify-content-center'>
-        <button type='button' className='btn btn-primary' ref={addIngredientButtonRef} onClick={() => handleSubmit()} disabled={!validation.valid} > {ingredientData ? 'Edit ingredient' : 'Add ingredient to dish'}</button>
-        <button type='button' className='btn btn-danger' onClick={handleOnCancel}>Cancel</button>
+        <Button type='button'  text={ingredientData ? 'Edit ingredient' : 'Add ingredient to dish'} ref={addIngredientButtonRef} onClick={() => handleSubmit()} disabled={!validation.valid} />
+        <Button type='button' variant="cancel" text="Cancel" onClick={handleOnCancel}/>
       </div>
           
     </div>

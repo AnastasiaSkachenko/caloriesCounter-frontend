@@ -55,7 +55,7 @@ export const IsNameUnique = async (name: string, editingName?: string) => {
 
 
 
-export const fetchDish = async (id:number)  => { 
+export const fetchDish = async (id:string)  => { 
   const response = await axiosPublic.get(`/get-dish-by-id/${id}`, {
       headers: {
         "Content-Type": "application/json",
@@ -80,7 +80,10 @@ export const saveDish = async ({dish}: DishInput): Promise<string> => {
 }
   
 export const editDish = async ({dish, id}: DishEditInput): Promise<void> => {
-  await axiosPublic.put(`dishes/?id=${id}`,dish);
+  console.log(dish, 'in edit dish')
+  await axiosPublic.put(`dishes/?id=${id}`, dish, {
+    headers: { "Content-Type": "multipart/form-data" }
+  });
 
 }
   

@@ -15,7 +15,8 @@ const variants = {
   transparent: "",
   secondary: "bg-black border-2 border-secondary",
   light: "bg-primary-light bg-opacity-10",
-  link: "bg-transparent border-dark"
+  link: "bg-transparent border-0 hover:border-0 focus:outline-none",
+  activeLink: "bg-transparent border-0 hover:border-0 focus:outline-none"
 }
 
 
@@ -28,7 +29,8 @@ const variantsText = {
   transparent: "",
   secondary: "bg-black text-secondary-light",
   light: "text-white",
-  link: "text-white text-decoration-underline"
+  link: "text-white text-decoration-underline",
+  activeLink: "text-secondary-light fw-bold  text-decoration-none"
 }
 
 const sizes = {
@@ -53,6 +55,8 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   rounded?: string,
   grow?: boolean,
   link?: string,
+  textAlign?: "center" | "start",
+  textColor?: string
 }
 
 const Button = forwardRef<HTMLButtonElement, ButtonProps> (({
@@ -69,6 +73,8 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps> (({
   rounded = '3', 
   grow,
   link,
+  textAlign = "center",
+  textColor,
   ...rest
 }, ref) => {
 
@@ -88,7 +94,11 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps> (({
       {...rest}
     >
       {text && (
-        <span className={`${classNameText} ${variantsText[variant]} text-${size} text-center`}>
+        <span 
+          className={`${variantsText[variant]
+            ?.replace(/text-(white|center)/g, "")}  text-${size} text-${textAlign} text-${textColor} !important ${classNameText}`}
+          style={{color: textColor, textAlign: textAlign}}
+        >
           {pending ? "Loading..." : text}
         </span>
       )}

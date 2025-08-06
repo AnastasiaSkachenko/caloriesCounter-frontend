@@ -3,7 +3,7 @@ import { MacroNitrient, Product } from '../interfaces';
 import {  usePutProduct, useSetProduct } from '../../hooks/caloriesCounter';
 import useAuth from '../../hooks/useAuth';
 import { convertObjectToFormData, useHandleKeyDown, useModalFocus } from '../../utils/utils';
-import { productSchema } from '../../utils/validation schemes';
+import { useProductSchema } from '../../utils/validation schemes';
 import { v4 as uuidv4 } from 'uuid';
 import Button from '../../customComponents/Button';
 
@@ -49,6 +49,8 @@ useEffect(() => {
   const { setProduct } = useSetProduct()
   const { putProduct } = usePutProduct()
   const { handleKeyDown } = useHandleKeyDown()
+  const validationSchema = useProductSchema(product && product.name)
+
 
   
  
@@ -81,11 +83,10 @@ useEffect(() => {
 
 
   useEffect(() => {
-    const validationSchema = productSchema(product && product.name  )
     validationSchema.validate(formState)
       .then(() => setValidation({ valid: true, message: undefined }))
       .catch((err) => setValidation({ valid: false, message: err.message }));
-  }, [formState, product]);
+  }, [formState, product, validationSchema]);
     
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>, name?: string) => {
     const { name: fieldName, value } = e.target;

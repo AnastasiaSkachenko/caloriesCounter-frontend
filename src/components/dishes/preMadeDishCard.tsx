@@ -3,7 +3,9 @@ import { usePopDish, useToggleFavorite } from "../../hooks/caloriesCounter";
 import useAuth from "../../hooks/useAuth";
 import { Dish } from "../interfaces";
 import { Popover } from "bootstrap";
-import { baseImageUrl } from "../../utils/production";
+import MediaScroller from "../products/MediaScroller";
+import Button from "../../customComponents/Button";
+import { useNavigate } from "react-router-dom";
  
 interface PreMadeDishProps {
   dish: Dish;
@@ -14,6 +16,7 @@ interface PreMadeDishProps {
 
 const PreMadeDishCard: React.FC<PreMadeDishProps> = ({dish, setEditDish}) => {
   const { popDish } = usePopDish()
+  const navigate = useNavigate()
   const { auth } = useAuth()
 
   useEffect(() => {
@@ -45,8 +48,9 @@ const PreMadeDishCard: React.FC<PreMadeDishProps> = ({dish, setEditDish}) => {
   
   
   return (
-    <div className="d-flex flex-column bg-light border rounded p-3 dish-card" >
-      <div className="d-flex justify-content-between">
+    <div className="d-flex flex-column bg-light border rounded p-3" >
+      <MediaScroller name={dish.name} media={dish.media} bg="dark" width={400} height={250} />
+      <div className="d-flex justify-content-between mt-4 ">
         <p className="text-secondary my-1"> {dish.user == auth.user?.id ? 'Own dish': 'Other creator'}</p>
 
         {auth.user ? (
@@ -59,35 +63,19 @@ const PreMadeDishCard: React.FC<PreMadeDishProps> = ({dish, setEditDish}) => {
         
       </div>
 
-      <div className="d-flex justify-content-center mb-2 dish-img-container" >
-        <img className="border rounded dish-img"
-          src={ baseImageUrl +( typeof dish.image === "string" ?  dish.image : "/media/dishes/food.jpg")}
-          alt={dish.name} 
-        />
-      </div>
-      <div className="d-flex flex-column flex-grow-1 justify-content-between   dish-body">
-        <h3 className="card-name" >{dish.name} </h3>
-        <div className=" d-flex align-items-center p-1">
-          <div className=" d-flex align-items-around flex-column">   
-            <div>
-              <p className="fw-bold my-1">Nutrition value for one portion ({dish.portion} g):</p>
-              Calories: {Math.round(dish.calories_100*dish.portion/100)}, Protein: {Math.round(dish.protein_100*dish.portion/100)}, Carbs: {Math.round(dish.carbs_100*dish.portion/100)}, Fats: {Math.round(dish.fat_100*dish.portion/100)} , Fiber: {Math.round(dish.fiber_100*dish.portion/100)}, Sugars: {Math.round(dish.sugars_100*dish.portion/100)}, Caffeine: {Math.round(dish.caffeine*dish.portion/100)}
-            </div>
-            <div>
-              <p className="fw-bold my-1">Nutrition value for  100g: </p>
-              Calories: {dish.calories_100}, Protein: {dish.protein_100}, Carbs: {dish.carbs_100}, Fats: {dish.fat_100}, Fiber: {dish.fiber_100}, Sugars: {dish.sugars_100}, Caffeine: {dish.caffeine_100}
-            </div>
-          </div>
+      <div className="d-flex flex-column flex-grow-1 justify-content-between gap-3">
+        <h3 className="card-name text-white">{dish.name}</h3>
+        <div>
+          <p className="fw-bold text-white my-1">Nutrition value for  100g: </p>
+          <p className="text-white">Calories: {dish.calories_100}, Protein: {dish.protein_100}, Carbs: {dish.carbs_100}, Fats: {dish.fat_100}, Fiber: {dish.fiber_100}, Sugars: {dish.sugars_100}, Caffeine: {dish.caffeine_100}</p>
         </div>
+        <Button text="See more about dish" variant="link" className="ms-auto" onClick={() => navigate(`/dish/${dish.id}`)} />
 
 
-        <div className="d-flex justify-content-center">
-          <button className="btn btn-warning" onClick={() => setEditDish(dish)} data-bs-toggle="modal" data-bs-target="#modalEditDish" disabled={auth.user?.id != dish.user}>
-            Edit dish
-          </button>
-          <button className="btn btn-danger" onClick={() => handleDeleteDish(dish.id ?? '')} disabled={auth.user?.id != dish.user}>Delete Dish</button>
+        <div className="d-flex justify-content-center gap-2">
+          <Button text="Edit dish" variant="edit" onClick={() => setEditDish(dish)} data-bs-toggle="modal" data-bs-target="#modalEditDish" disabled={auth.user?.id != dish.user}/>
+          <Button text="Delete dish" variant="delete" onClick={() => handleDeleteDish(dish.id ?? '')} disabled={auth.user?.id != dish.user}/>
         </div>
-
       </div>
 
     </div>

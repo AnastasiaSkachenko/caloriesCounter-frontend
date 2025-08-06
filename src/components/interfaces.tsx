@@ -49,10 +49,10 @@ export interface Ingredient {
   caffeine: number,
   fiber: number,
   sugars: number
-
   dish: string,
   product: string,
-  weight: number
+  weight: number,
+  edited?: boolean
 }
 
 export interface IngredientInput {
@@ -60,15 +60,14 @@ export interface IngredientInput {
 }
 //not finished
 export interface Dish extends BaseNew  {
-  image: File | string,
+  media?: (File | string)[],
   calories_100: number,
   protein_100: number,
   carbs_100: number,
   fat_100: number,
   caffeine_100: number,
   fiber_100: number,
-  sugars_100: number
-
+  sugars_100: number,
   drink: boolean,
   weight: number,
   product?: number,
@@ -79,7 +78,8 @@ export interface Dish extends BaseNew  {
   description: string,
   user: number,
   weight_of_ready_product?: number,
-  favorite: boolean
+  favorite: boolean,
+  media_to_delete?: string[]
 }
 
 export interface DishInput {
@@ -87,7 +87,7 @@ export interface DishInput {
 }
 export interface DishEditInput {
   dish: FormData,
-  id: string
+  id: string,
 }
 
 export interface DishFormProps { 
@@ -137,7 +137,7 @@ export interface User {
   sugars_d: number,
   fiber_d: number,
   caffeine_d: number,
-  image?: File | string,
+  media?: (File | string)[],
   activity_level: number, 
   exp?: number;  
   gender: 'male' | 'female';
@@ -153,4 +153,5 @@ export interface ModifyUser {
 }
 
 export type MacroNitrient = 'calories' | 'protein' | 'carbs' | 'fat' | 'sugars' | 'fiber' | 'caffeine' 
+export type MacroNutrientDish100 =  'calories_100' | 'protein_100' | 'carbs_100' | 'fat_100' | 'sugars_100' | 'fiber_100' | 'caffeine_100' 
 

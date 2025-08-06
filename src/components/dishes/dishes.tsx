@@ -11,6 +11,7 @@ import NotLoggedIn from "../notLoggedIn";
 import useAuth from "../../hooks/useAuth";
 import { Popover } from "bootstrap";
 import Header from "../header";
+import Button from "../../customComponents/Button";
 
 const Dishes: React.FC = () => {
   const [query, setQuery] = useState<string>('')
@@ -71,22 +72,20 @@ const Dishes: React.FC = () => {
   };
       
 
- 
-
 
    return (
 		<div className="bg-dark test-dark p-2 min-vh-100 " > 
       <Header active="dishes" />
-      <h2 className="text-light ps-2">Dishes</h2>
+      <h2 className="text-white ps-2">Dishes</h2>
       {auth.user ? (
-        <>
-          <button className="btn btn-primary"  data-bs-toggle='modal' data-bs-target='#modalDishBought'>Add Pre-made Dish</button>
-          <button className="btn btn-primary"  data-bs-toggle='modal' data-bs-target='#modalDishOwn'>Add Custom Dish</button>
-        </>
+        <div className="d-flex flex-row gap-2">
+          <Button variant="submit" text="Add Pre-made Dish" data-bs-toggle='modal' data-bs-target='#modalDishBought'/>
+          <Button variant="submit" text="Add Custom Dish" data-bs-toggle='modal' data-bs-target='#modalDishOwn'/>
+        </div>
         ): (
           <span className="d-inline-block" tabIndex={0} data-bs-toggle= "popover" data-bs-trigger="hover focus" title="Login required" data-bs-placement="bottom" data-bs-content="You need to log in to create a dish." data-bs-custom-class="custom-popover">
-            <button className="btn btn-primary"  disabled>Add Pre-made Dish</button>
-            <button className="btn btn-primary" disabled>Add Custom Dish</button>
+            <Button text="Add Pre-made Dish" disabled/>
+            <Button text="Add Custom Dish" disabled/>
           </span>
         )}
 
@@ -101,7 +100,7 @@ const Dishes: React.FC = () => {
       </Modal>
 
       <Modal id="notLoggedIn" title="You are not logged in">
-        <NotLoggedIn message="ou need to be logged in to save this dish." />
+        <NotLoggedIn message="You need to be logged in to save this dish." />
       </Modal>
 
 
@@ -217,7 +216,7 @@ const Dishes: React.FC = () => {
           {categories.map( category => (
             <div key={category.id}>
               <input type="checkbox" className="btn-check" id={category.id} value={category.id} checked={filter.includes(category.id)} onChange={handleCheckboxChange}/>
-              <label className="btn filter" htmlFor={category.id}>{category.name}</label>    
+              <label className="btn filter text-secondary" htmlFor={category.id}>{category.name}</label>    
             </div>
           ) )}
         </div>

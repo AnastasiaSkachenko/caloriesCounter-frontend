@@ -3,40 +3,37 @@ import Button from "../customComponents/Button"
 function Header({active}: {active:string}) {
   return (
     <div className="d-flex flex-row gap-2 border-bottom border-secondary-light p-2 mb-3">
-      {active != "diary" && (
         <Button 
-          variant="link"
+          variant={active == "diary" ? "activeLink" : "link"}
           text="Diary"
           link="/"
           icon="bi bi-journal"
+          className={active == "diary" ? "text-secondary" : ""}
         />
-      )}
 
-      {active != "products" && (
         <Button
-          variant="link"
+          variant={active == "products" ? "activeLink" : "link"}
           text="Products"
           link="/products"
           icon="bi bi-basket"
+          className={active == "products" ? "text-secondary" : ""}
+
         />
-      )}
-      {active != "dishes" && (
         <Button
-          variant="link"
+          variant={active == "dishes" ? "activeLink" : "link"}
           text="Dishes"
           link="/dishes"
           icon="fa fa-bowl-food"
+          className={active == "dishes" ? "text-secondary" : ""}
         />
-      )}
 
-      {active != "profile" && (
         <Button
-          variant="link"
+          variant={active == "profile" ? "activeLink" : "link"}
           text="Profile"
           link="/profile"
           icon="bi bi-person"
+          className={active == "profile" ? "text-secondary" : ""}
         />
-      )}
     </div>
   )
 }

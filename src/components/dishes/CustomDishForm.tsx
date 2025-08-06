@@ -1,20 +1,20 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Dish, DishFormProps, Ingredient } from '../interfaces';
-import { usePopIngredient, usePutDish, useSetDish, useSetIngredient } from '../../hooks/caloriesCounter';
+import { usePopIngredient, usePutDish, usePutIngredient, useSetDish, useSetIngredient } from '../../hooks/caloriesCounter';
 import IngredientForm from '../ingredients/ingredientForm';
-import useAuth from '../../hooks/useAuth';
-import { customDishSchema } from '../../utils/validation schemes';
-import { useHandleKeyDown } from '../../utils/utils';
+import { useCustomDishSchema } from '../../utils/validation schemes';
+import { convertObjectToFormData, useHandleKeyDown } from '../../utils/utils';
 import { v4 as uuidv4 } from 'uuid';
+import MediaPicker from '../mediaPicker';
+import Button from '../../customComponents/Button';
 
 
 
 const CustomDishForm: React.FC<DishFormProps> = ({onSuccess, onCancel, dishToEdit, ingredientsData}) => {
-  const { auth } = useAuth()
   const [form, setForm] = useState<Dish>( dishToEdit || {
       id: uuidv4(), name: '',  calories: 0, calories_100: 0, protein: 0, carbs: 0,
       fat: 0, protein_100: 0,carbs_100: 0, fat_100: 0, weight: 0,  drink: false, 
-      portion: 100, portions: 1, type: 'custom', image: '', description: '', user: 0,
+      portion: 100, portions: 1, type: 'custom', description: '', user: 0, media_to_delete: [],
       weight_of_ready_product: 0, favorite: false, fiber: 0, fiber_100: 0, sugars: 0, sugars_100: 0, caffeine: 0, caffeine_100: 0
   });
   const [ingredients, setIngredients] = useState<Ingredient[]>(ingredientsData ?? []); 
@@ -30,17 +30,19 @@ const CustomDishForm: React.FC<DishFormProps> = ({onSuccess, onCancel, dishToEdi
     setForm({
       id: uuidv4(), name: '',  calories: 0, calories_100: 0, protein: 0, carbs: 0,
       fat: 0, protein_100: 0,carbs_100: 0, fat_100: 0, weight: 0,  drink: false, 
-      portion: 100, portions: 1, type: 'custom', image: '', description: '', user: 0,
+      portion: 100, portions: 1, type: 'custom', media_to_delete: [], description: '', user: 0,
       weight_of_ready_product: 0, favorite: false, fiber: 0, fiber_100: 0, sugars: 0, sugars_100: 0, caffeine: 0, caffeine_100: 0
     })
   }
 
-
   const { setDish } = useSetDish()
   const { setIngredient } = useSetIngredient()
   const { putDish } = usePutDish()
+  const { putIngredient } = usePutIngredient()
   const { popIngredient } = usePopIngredient()
   const { handleKeyDown } = useHandleKeyDown()
+  const validationScheme = useCustomDishSchema(dishToEdit && dishToEdit.name)
+
 
   useEffect(() => {
     if (dishToEdit) {
@@ -60,11 +62,10 @@ const CustomDishForm: React.FC<DishFormProps> = ({onSuccess, onCancel, dishToEdi
     }
   
     // Proceed with IngredientSchema validation if currentProduct is defined
-    const validationScheme = customDishSchema(dishToEdit && dishToEdit.name)
     validationScheme.validate(form)
       .then(() => setValidation({ valid: true, message: undefined }))
       .catch((err) => setValidation({ valid: false, message: err.message }));
-  }, [form, ingredients, dishToEdit]);    
+  }, [form, ingredients, dishToEdit, validationScheme]);    
 
   const [inputRefs] = useState([
     useRef<HTMLInputElement>(null),
@@ -102,12 +103,6 @@ const CustomDishForm: React.FC<DishFormProps> = ({onSuccess, onCancel, dishToEdi
     }
   };
 
-  const handleImageChange = (e:React.ChangeEvent<HTMLInputElement>) => {
-    const target = e.target as HTMLInputElement & {
-      files: FileList
-    }
-    setForm((prevFormSate) => ({...prevFormSate, image: target.files[0]}))
-  }
 
   useEffect(() => {
     const recalculateForm = (ingredients: Ingredient[]) => {
@@ -122,7 +117,7 @@ const CustomDishForm: React.FC<DishFormProps> = ({onSuccess, onCancel, dishToEdi
   }, [ingredients])
    
   const addIngredient = (ingredient: Ingredient) => {
-    console.log(ingredient)
+    console.log("add ingredient",ingredient)
     if (dishToEdit) {
       ingredient.dish = dishToEdit.id
     }
@@ -132,6 +127,8 @@ const CustomDishForm: React.FC<DishFormProps> = ({onSuccess, onCancel, dishToEdi
    
   const editIngredient = (updatedIngredient: Ingredient, index: number) => {
     setIngredientEdit(null);
+    updatedIngredient.edited = true
+
   
     setIngredients((prevIngredients) => {
       const updatedIngredients = [...prevIngredients];
@@ -177,43 +174,49 @@ const CustomDishForm: React.FC<DishFormProps> = ({onSuccess, onCancel, dishToEdi
     form.fat_100 = parseFloat((fat / weight * 100).toFixed(1));  }
 
   const handleSubmit = async () => { 
-    console.log('handle submit triggered')
     recalculateMacros()
-    const formData = new FormData()
-
-    if (form.image instanceof File) formData.append('image', form.image)
-
-    const capitalize = (str: string) => str.charAt(0).toUpperCase() + str.slice(1);
-
-    Object.entries(form).forEach(([key, value]) => {
-      if (key === "name") {
-        formData.append(key, capitalize(value as string));
-      } if (key === "user" ) {
-        formData.append(key, (auth.user?.id ?? 0).toString());
-      } else if (key != "product" && key != "image" && value){
-        formData.append(key, value.toString());
-      }
-    });
+    const formData = await convertObjectToFormData(form, "dish")
+    console.log("dish form before sending", form)
 
     if (dishToEdit) {
-      putDish({dish:formData, id: form.id})
-      const newIngredients = ingredients.filter(ingredient => !ingredientsData?.includes(ingredient))
+      // Update dish
+      await putDish({ dish: formData, id: form.id });
+
+      // New ingredients (added by the user)
+      const newIngredients = ingredients.filter(
+        (ingredient) => !ingredientsData?.some((ing) => ing.id === ingredient.id)
+      );
+
       await Promise.all(
         newIngredients.map((ingredient) => {
           ingredient.dish = form.id;
-          return setIngredient({ ingredient }); // Ensure each update is awaited
+          return setIngredient({ ingredient }); 
         })
       );
 
-      const ingredientsToDelete = ingredientsData?.filter(ingredient => !ingredients.includes(ingredient));
+      // Edited ingredients (existing ones but with changes)
+      const editedIngredients = ingredients.filter((ingredient) => {
+        const original = ingredientsData?.find((ing) => ing.id === ingredient.id);
+        return (
+          original && ingredient.edited
+        );
+      });
 
-      // Delete ingredients that are no longer present
+      await Promise.all(
+        editedIngredients.map((ingredient) => {
+          return putIngredient({ ingredient }); 
+        })
+      );
+
+      // Deleted ingredients
+      const ingredientsToDelete = ingredientsData?.filter(
+        (ingredient) => !ingredients.some((ing) => ing.id === ingredient.id)
+      );
+
       if (ingredientsToDelete) {
         await Promise.all(
-          ingredientsToDelete.map((ingredient) => {
-            return popIngredient({id:ingredient.id}); // Assuming you have a deleteIngredient function
-          })
-        );  
+          ingredientsToDelete.map((ingredient) => popIngredient({ id: ingredient.id }))
+        );
       }
     } else {
       const dishID = await setDish({dish: formData})
@@ -253,9 +256,7 @@ const CustomDishForm: React.FC<DishFormProps> = ({onSuccess, onCancel, dishToEdi
         <input className='form-control full-length-input form-control-sm my-2' type="text" ref={inputRefs[0]}  onKeyDown={(e) => handleKeyDown(e, description)}  value={form.name ?? ''} onChange={(e) => handleDishChange(e,'name')} />
       </label>
 
-      <label className='form-label full-length-label my-2'> 
-        <input className='form-control form-control-file bg-secondary text-white' type='file' name='image' accept='image/png, image/jpg, image/jpeg' onChange={(e) => handleImageChange(e)} />
-      </label>
+      <MediaPicker media={form.media} mediaChange={(media) => setForm({...form, media})} setMediaToDelete={(media_to_delete) => setForm({...form, media_to_delete})} />
 
       <label className="form-check form-switch">
         <input className="form-check-input" type="checkbox" role="switch" checked={form.drink}
@@ -281,12 +282,11 @@ const CustomDishForm: React.FC<DishFormProps> = ({onSuccess, onCancel, dishToEdi
           <hr/>
           <div className='d-flex justify-content-between align-items-center '>
             <span className='fw-bold'>{product.name} <span className='text-danger fw-light'>{!product.product && 'This product was deleted by creator, you can no longer modify this ingredient.'}</span></span>
-            <div className='d-flex justify-content-center'>
-              <button className='btn btn-primary' onClick={() => handleEditIngredient(index)} disabled={!product.product}>Edit</button>
-              <button className='btn btn-danger' onClick={() => handleDeleteIngredient(index)}>Delete</button>
+            <div className='d-flex justify-content-center gap-2'>
+              <Button text='Edit' variant='edit' onClick={() => handleEditIngredient(index)} disabled={!product.product}/>
+              <Button text="Delete" variant='delete' onClick={() => handleDeleteIngredient(index)}/>
             </div>
           </div>
-
 
           <p>Weight: {product.weight}g, Calories: {product.calories}, Protein: {product.protein}, Carbs: {product.carbs}, Fat: {product.fat}, Fiber: {product.fiber}, Sugars: {product.sugars}, Caffeine: {product.caffeine}</p>
           {ingredientEdit && editIndex == index  && (
@@ -299,13 +299,13 @@ const CustomDishForm: React.FC<DishFormProps> = ({onSuccess, onCancel, dishToEdi
       <div>
         <label className='d-flex justify-content-between align-items-center mt-2'>
           Portions:
-          <input className='border border-light rounded p-2 mx-2' type="number" value={ form.portions} ref={inputRefs[1]} onChange={(e) => handleDishChange(e, 'portions')} onKeyDown={(e) => handleKeyDown(e, inputRefs[2])} onFocus={(e) => e.target.select()}/>
+          <input className='input' type="number" value={ form.portions} ref={inputRefs[1]} onChange={(e) => handleDishChange(e, 'portions')} onKeyDown={(e) => handleKeyDown(e, inputRefs[2])} onFocus={(e) => e.target.select()}/>
         </label>
       </div>  
       <div>
         <label className='d-flex justify-content-between align-items-center mt-2'>
           Weight after cooking:
-          <input className='border border-light rounded p-2 mx-2' type="number" value={form.weight_of_ready_product || 0} ref={inputRefs[2]} onChange={(e) => handleDishChange(e, 'weight_of_ready_product')} onKeyDown={(e) => handleKeyDown(e, addDishButtonRef, true )} onFocus={(e) => e.target.select()}/>
+          <input className='input' type="number" value={form.weight_of_ready_product || 0} ref={inputRefs[2]} onChange={(e) => handleDishChange(e, 'weight_of_ready_product')} onKeyDown={(e) => handleKeyDown(e, addDishButtonRef, true )} onFocus={(e) => e.target.select()}/>
         </label>
       </div>  
 
@@ -319,9 +319,9 @@ const CustomDishForm: React.FC<DishFormProps> = ({onSuccess, onCancel, dishToEdi
         </div>
       )}
 
-      <div className='d-flex justify-content-center'>
-        <button className='btn btn-dark p-2' ref={addDishButtonRef}  onClick={handleSubmit} data-bs-dismiss='modal' data-bs-target={dishToEdit ? '#modalEditDish' :'#modalDishOwn'} disabled={!validation.valid}>Submit</button>
-        <button className='btn btn-danger btn-sm p-2' data-bs-dismiss='modal' data-bs-target={dishToEdit ? '#modalEditDish' : '#modalDishOwn'} type='button' onClick={handleCancel}>Cancel</button>
+      <div className='d-flex justify-content-center gap-2'>
+        <Button text='Submit' variant='submit' ref={addDishButtonRef}  onClick={handleSubmit} data-bs-dismiss='modal' data-bs-target={dishToEdit ? '#modalEditDish' :'#modalDishOwn'} disabled={!validation.valid}/>
+        <Button text="Cancel" variant='cancel' data-bs-dismiss='modal' data-bs-target={dishToEdit ? '#modalEditDish' : '#modalDishOwn'} type='button' onClick={handleCancel}/>
       </div>
       {successMessage && <p>{successMessage}</p>}
     </div>

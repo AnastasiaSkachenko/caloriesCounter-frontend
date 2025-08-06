@@ -1,26 +1,36 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Dish, DishFormProps } from '../interfaces';
+import { Dish, DishFormProps, MacroNutrientDish100 } from '../interfaces';
 import { usePutDish, useSetDish} from '../../hooks/caloriesCounter';
 import '../../index.css'
 import '../../style.css' ;
-import useAuth from '../../hooks/useAuth';
-import { preMadeDishSchema } from '../../utils/validation schemes';
-import { useHandleKeyDown } from '../../utils/utils';
+import { usePreMadeDishSchema } from '../../utils/validation schemes';
+import { convertObjectToFormData, useHandleKeyDown } from '../../utils/utils';
 import { v4 as uuidv4 } from 'uuid';
+import Button from '../../customComponents/Button';
+import MediaPicker from '../mediaPicker';
 
+const nutritions: { title: string; value: MacroNutrientDish100 }[] = [
+  {title: "Calories", value: "calories_100"},
+  {title: "Protein", value: "protein_100"},
+  {title: "Carbs", value: "carbs_100"},
+  {title: "Fat", value: "fat_100"},
+  {title: "Fiber", value: "fiber_100"},
+  {title: "Sugars", value: "sugars_100"},
+  {title: "Caffeine", value: "caffeine_100"}
+]
 
 const PreMadeDishForm: React.FC<DishFormProps> = ({ onSuccess, onCancel, dishToEdit }) => {
-  const { auth } = useAuth()
   const [form, setForm] = useState<Dish>(dishToEdit ?? {
     id: uuidv4(), name: '', calories: 0, calories_100: 0, protein: 0, carbs: 0,
     fat: 0, protein_100: 0, carbs_100: 0, fat_100: 0, weight: 0, drink: false,
-    portion: 100, portions: 1, type: 'pre_made', image: '', description: '', user: 0, favorite: false,
-    fiber: 0, fiber_100: 0, sugars: 0, sugars_100: 0, caffeine: 0, caffeine_100: 0
+    portion: 100, portions: 1, type: 'pre_made',  description: '', user: 0, favorite: false,
+    fiber: 0, fiber_100: 0, sugars: 0, sugars_100: 0, caffeine: 0, caffeine_100: 0, media_to_delete: []
   });
-
   const [validation, setValidation] = useState<{ message: string | undefined, valid: boolean }>({ message: undefined, valid: false });
   const addDishButtonRef = useRef<HTMLButtonElement>(null);
   const {handleKeyDown} = useHandleKeyDown()
+  const validationSchema = usePreMadeDishSchema(dishToEdit && dishToEdit.name)
+
 
   useEffect(() => {
     if (dishToEdit ) {
@@ -41,8 +51,8 @@ const PreMadeDishForm: React.FC<DishFormProps> = ({ onSuccess, onCancel, dishToE
     setForm({
       id: uuidv4(), name: '', calories: 0, calories_100: 0, protein: 0, carbs: 0,
       fat: 0, protein_100: 0, carbs_100: 0, fat_100: 0, weight: 0, drink: false,
-      portion: 100, portions: 1, type: 'pre_made', image: '', description: '', user: 0, favorite: false,
-      fiber: 0, fiber_100: 0, sugars: 0, sugars_100: 0, caffeine: 0, caffeine_100: 0
+      portion: 100, portions: 1, type: 'pre_made',  description: '', user: 0, favorite: false,
+      fiber: 0, fiber_100: 0, sugars: 0, sugars_100: 0, caffeine: 0, caffeine_100: 0, media_to_delete: []
     })
   }
 
@@ -63,23 +73,18 @@ const PreMadeDishForm: React.FC<DishFormProps> = ({ onSuccess, onCancel, dishToE
     };
   }, [dishToEdit, inputRefs]);
 
+
   const { putDish } = usePutDish();
   const { setDish } = useSetDish();
 
- 
-
   useEffect(() => {
-    const validationSchema = preMadeDishSchema(dishToEdit && dishToEdit.name)
     validationSchema.validate(form)
       .then(() => setValidation({ valid: true, message: undefined }))
       .catch((err) => setValidation({ valid: false, message: err.message }));
-  }, [form, dishToEdit]);
+  }, [form, dishToEdit, validationSchema]);
     
-  
-  
  
-  
-  const handleDishChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>, field: 'name' | 'image' | 'drink' | 'calories_100' | 'protein_100' | 'carbs_100' | 'fat_100' | 'portion' | 'type' | 'fiber_100' | 'sugars_100' | 'caffeine_100') => {
+  const handleDishChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>, field: 'name' |  'drink' | 'calories_100' | 'protein_100' | 'carbs_100' | 'fat_100' | 'portion' | 'type' | 'fiber_100' | 'sugars_100' | 'caffeine_100' | 'media') => {
     const newValue = e.target.value;
     console.log(newValue);
     if (field === 'name') {
@@ -91,16 +96,6 @@ const PreMadeDishForm: React.FC<DishFormProps> = ({ onSuccess, onCancel, dishToE
     }
   };
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const target = e.target as HTMLInputElement & {
-      files: FileList
-    }
-    setForm((prevFormSate) => ({ ...prevFormSate, image: target.files[0] }));
-    const nextRef = form.name === '' ? inputRefs[0].current : inputRefs[1].current;
-    if (nextRef) {
-      nextRef.focus();
-    }
-  };
 
   const handleSubmit = async () => {
     console.log(form, 'form')
@@ -109,26 +104,11 @@ const PreMadeDishForm: React.FC<DishFormProps> = ({ onSuccess, onCancel, dishToE
       return
     }
 
-    const formData = new FormData();
+    const formData = await convertObjectToFormData(form, "dish")
 
-    if (form.image && typeof form.image !== 'string') formData.append('image', form.image);
-    formData.append('type', form.type);
-
-    const capitalize = (str: string) => str.charAt(0).toUpperCase() + str.slice(1);
-
-    Object.entries(form).forEach(([key, value]) => {
-      if (key === "name") {
-        formData.append(key, capitalize(value as string));
-      }if (key === "user" ) {
-        formData.append(key, (auth.user?.id ?? 0).toString());
-      } else if (key !== "product" && key !== "image" && key !=='product_old') {
-        console.log(key, value)
-        formData.append(key, value.toString());
-      }
-    });
 
     if (dishToEdit) {
-      putDish({ dish: formData, id: form.id });
+      putDish({ dish: formData, id: form.id});
     } else {
       await setDish({ dish: formData });
     }
@@ -156,9 +136,8 @@ const PreMadeDishForm: React.FC<DishFormProps> = ({ onSuccess, onCancel, dishToE
         Dish Name:
         <input className='form-control full-length-input form-control-sm my-2' type="text" ref={inputRefs[0]} onKeyDown={(e) => handleKeyDown(e, inputRefs[1])} value={form.name} onChange={(e) => handleDishChange(e, 'name')} />
       </label>
-      <label className='form-label full-length-label my-2'>
-        <input className='form-control form-control-file bg-secondary text-white' type='file' name='image' accept='image/png, image/jpg, image/jpeg' onChange={(e) => handleImageChange(e)} />
-      </label>
+
+      <MediaPicker media={form.media} mediaChange={(media) => setForm((prevDish) => ({ ...prevDish, media }))} setMediaToDelete={(media_to_delete) => setForm(prev => ({...prev, media_to_delete}))}/>
 
       <label className="form-check form-switch">
         <input className="form-check-input" type="checkbox" role="switch" checked={form.drink}
@@ -166,44 +145,16 @@ const PreMadeDishForm: React.FC<DishFormProps> = ({ onSuccess, onCancel, dishToE
         {form.drink ? " Drink" : " Dish"}
       </label>
 
-      <label className='d-flex justify-content-between align-items-center mt-2'>
-        Calories for 100g:
-        <input className='border border-light rounded p-1 mx-2' type="number" value={form.calories_100} ref={inputRefs[1]} onChange={(e) => handleDishChange(e, 'calories_100')} onKeyDown={(e) => handleKeyDown(e, inputRefs[2])}   onFocus={(e) => e.target.select()} />
-      </label>
-
-      <label className='d-flex justify-content-between align-items-center mt-2'>
-        Protein for 100g:
-        <input className='border border-light rounded p-1 mx-2' type="number" value={form.protein_100} ref={inputRefs[2]} onChange={(e) => handleDishChange(e, 'protein_100')} onKeyDown={(e) => handleKeyDown(e, inputRefs[3])}   onFocus={(e) => e.target.select()} />
-      </label>
-
-      <label className='d-flex justify-content-between align-items-center mt-2'>
-        Carbs for 100g:
-        <input className='border border-light rounded p-1 mx-2' type="number" value={form.carbs_100} ref={inputRefs[3]} onChange={(e) => handleDishChange(e, 'carbs_100')} onKeyDown={(e) => handleKeyDown(e, inputRefs[4])}   onFocus={(e) => e.target.select()} />
-      </label>
-
-      <label className='d-flex justify-content-between align-items-center mt-2'>
-        Fat for 100g:
-        <input className='border border-light rounded p-1 mx-2' type="number" value={form.fat_100 } ref={inputRefs[4]} onChange={(e) => handleDishChange(e, 'fat_100')} onKeyDown={(e) => handleKeyDown(e, inputRefs[5])}   onFocus={(e) => e.target.select()}/>
-      </label>
-
-      <label className='d-flex justify-content-between align-items-center mt-2'>
-        Fiber for 100g:
-        <input className='border border-light rounded p-1 mx-2' type="number" value={form.fiber_100 } ref={inputRefs[5]} onChange={(e) => handleDishChange(e, 'fiber_100')} onKeyDown={(e) => handleKeyDown(e, inputRefs[6])}   onFocus={(e) => e.target.select()}/>
-      </label>
-
-      <label className='d-flex justify-content-between align-items-center mt-2'>
-        Sugars for 100g:
-        <input className='border border-light rounded p-1 mx-2' type="number" value={form.sugars_100 } ref={inputRefs[6]} onChange={(e) => handleDishChange(e, 'sugars_100')} onKeyDown={(e) => handleKeyDown(e, inputRefs[7])}   onFocus={(e) => e.target.select()}/>
-      </label>
-
-      <label className='d-flex justify-content-between align-items-center mt-2'>
-        Caffeine for 100g:
-        <input className='border border-light rounded p-1 mx-2' type="number" value={form.caffeine_100 } ref={inputRefs[7]} onChange={(e) => handleDishChange(e, 'caffeine_100')} onKeyDown={(e) => handleKeyDown(e, inputRefs[8])}   onFocus={(e) => e.target.select()}/>
-      </label>
+      {nutritions.map((nutrient, index) => (
+        <label key={index} className='d-flex justify-content-between align-items-center mt-2'>
+          {nutrient.title} for 100g:
+          <input className='input border border-light rounded p-1 w-25' type="number" value={form[nutrient.value]} ref={inputRefs[index + 1]} onChange={(e) => handleDishChange(e, nutrient.value)} onKeyDown={(e) => handleKeyDown(e, inputRefs[index + 2])}   onFocus={(e) => e.target.select()} />
+        </label>
+      ))}
 
       <label className='d-flex justify-content-between align-items-center mt-2'>
         Weight of 1 portion (g):
-        <input className='border border-light rounded p-1 mx-2' value={form.portion} onChange={(e) => handleDishChange(e, 'portion')} ref={inputRefs[8]} onKeyDown={(e) => handleKeyDown(e, addDishButtonRef, true)} />
+        <input className='input' value={form.portion} onChange={(e) => handleDishChange(e, 'portion')} ref={inputRefs[8]} onKeyDown={(e) => handleKeyDown(e, addDishButtonRef, true)} />
       </label>
 
       {!validation.valid && (
@@ -212,9 +163,9 @@ const PreMadeDishForm: React.FC<DishFormProps> = ({ onSuccess, onCancel, dishToE
         </div>
       )}
 
-      <div className='d-flex justify-content-center align-items-center'>
-        <button className='btn btn-dark' ref={addDishButtonRef} onClick={handleSubmit} data-bs-dismiss='modal' data-bs-target={dishToEdit ? '#modalEditDish' : '#modalDishBought'} disabled={!validation.valid}>Submit Dish</button>
-        <button className='btn btn-danger btn-sm p-2' data-bs-dismiss='modal' data-bs-target={dishToEdit ? '#modalEditDish' : '#modalDishBought'} type='button' onClick={handleCancel}>Cancel</button>
+      <div className='d-flex justify-content-center align-items-center gap-2 mt-2'>
+        <Button text='Submit Dish' variant='submit' ref={addDishButtonRef} onClick={handleSubmit} data-bs-dismiss='modal' data-bs-target={dishToEdit ? '#modalEditDish' : '#modalDishBought'} disabled={!validation.valid}/>
+        <Button text='Cancel' variant='cancel' data-bs-dismiss='modal' data-bs-target={dishToEdit ? '#modalEditDish' : '#modalDishBought'} type='button' onClick={handleCancel}/>
       </div>
     </div>
   );
