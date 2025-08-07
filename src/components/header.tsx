@@ -12,6 +12,15 @@ function Header({active}: {active:string}) {
         />
 
         <Button
+          variant={active == "activity" ? "activeLink" : "link"}
+          text="Activities"
+          link="/activity"
+          icon="bi bi-person-run"
+          className={active == "activity" ? "text-secondary" : ""}
+        />
+
+
+        <Button
           variant={active == "products" ? "activeLink" : "link"}
           text="Products"
           link="/products"
@@ -26,6 +35,7 @@ function Header({active}: {active:string}) {
           icon="fa fa-bowl-food"
           className={active == "dishes" ? "text-secondary" : ""}
         />
+
 
         <Button
           variant={active == "profile" ? "activeLink" : "link"}

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Dish, Product } from "../components/interfaces";
 import { baseImageUrl } from "./production";
+import axios, { AxiosError } from "axios";
 
 export const useModalFocus = ( inputRefs: React.RefObject<HTMLInputElement>[], object?: Product| Dish) => {
   useEffect(() => {
@@ -160,4 +161,25 @@ export const useDebounce = (value: string, delay: number = 400) => {
   return debouncedValue;
 };
 
+export const getCurrentDate = () => {
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = String(today.getMonth() + 1).padStart(2, '0'); // Months are zero-indexed
+  const day = String(today.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
 
+
+
+export const handleError = (error: unknown) => {
+ if (axios.isAxiosError(error)) {
+   const axiosError = error as AxiosError<{ error: string }>;
+   console.log("Axios error:", axiosError);
+   console.log("Axios error:", axiosError.response?.data?.error);
+   return axiosError.message || 'Unexpected error';
+ } else {
+   console.log("Unknown error:", error);
+   return "Unexpected error: " + (error instanceof Error ? error.message : 'Unknown error');
+ }
+};
+  

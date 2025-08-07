@@ -1,3 +1,4 @@
+
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import Dishes from "./components/dishes/dishes";
 import CaloriesCounterProducts from "./components/products/products";
@@ -8,6 +9,7 @@ import Profile from "./components/users/Profile";
 import { AuthProvider } from "./context/AuthProvider";
 import ResetPassword from "./components/users/changePassword";
 import DishPage from "./components/dishes/DishPage";
+import Activity from "./components/activity/activity";
 
 
 function App() {
@@ -18,6 +20,7 @@ function App() {
           <Route path="/dishes" element={<Dishes/>}/>
           <Route path="/dish/:id" element={<DishPage />} />
           <Route path="/products" element={<CaloriesCounterProducts/>}/>
+          <Route path="/activity" element={<Activity/>} />
           <Route path="/" element={<CaloriesCounter/>}/>
           <Route path="/register" element={<RegisterPage/>}/>
           <Route path="/login" element={<LoginPage/>}/>

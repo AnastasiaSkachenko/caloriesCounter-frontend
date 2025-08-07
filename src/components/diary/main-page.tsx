@@ -64,7 +64,6 @@ const CaloriesCounter: React.FC = () => {
     return <div className="d-flex ps-4 pt-2 vh-100 bg-secondary"><h3><i className="fa fa-spinner"></i>Loading...</h3></div>; 
   }
 
-
   if (isLoading) return <div className="d-flex ps-4 pt-2 vh-100 bg-secondary"><h3><i className="fa fa-spinner"></i>Loading...</h3></div>;
   if (status === 'error') return <h1>{JSON.stringify(error)}</h1>;
 

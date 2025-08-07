@@ -161,3 +161,173 @@ export type MacroNitrient = 'calories' | 'protein' | 'carbs' | 'fat' | 'sugars' 
 export type MacroNitrientUser = 'calories_d' | 'protein_d' | 'carbs_d' | 'fat_d' | 'sugars_d' | 'fiber_d' | 'caffeine_d' 
 export type MacroNutrientDish100 =  'calories_100' | 'protein_100' | 'carbs_100' | 'fat_100' | 'sugars_100' | 'fiber_100' | 'caffeine_100' 
 
+
+
+
+
+
+
+type ActivitySpecificFields = {
+  walk_time: { duration_minutes: number };
+  walk_steps: { steps: number };
+  run: { duration_minutes: number; distance_km?: number };
+  interval_run: { duration_minutes: number };
+  workout: { duration_minutes: number; name?: string; description?: string };
+  tabata: { duration_minutes: number; name?: string; description?: string };
+  volleyball: { duration_minutes: number };
+  custom: { duration_minutes: number; met?: number };
+  jumping: { duration_minutes: number };
+  stretching: { duration_minutes: number };
+  home_chores: { duration_minutes: number };
+};
+
+
+type BaseActivityFields = Omit<BaseActivityRecord, 'activity_type'>;
+
+export type ActivityRecordPayload = {
+  [K in keyof ActivitySpecificFields]: BaseActivityFields & {
+    activity_type: K;
+  } & ActivitySpecificFields[K];
+}[keyof ActivitySpecificFields];
+
+
+export type ActivityType =
+  | 'workout'
+  | 'tabata'
+  | 'run'
+  | 'walk_time'
+  | 'walk_steps'
+  | 'interval_run'
+  | 'custom'
+  | 'volleyball'  
+  | 'jumping'
+  | 'stretching' 
+  | 'home_chores' ;
+
+export interface BaseActivityRecord {
+  id: string,
+  activity_type: ActivityType;
+  weight_kg: number;
+  duration_minutes: number;
+  intensity: number; // scale 1–5
+  timestamp: string;
+  calories_burned?: number,
+  done: boolean,
+  user: number,
+  description?: string
+}
+
+
+
+export type Values = Omit<BaseActivityFields, 'user'> & {
+  activity_type: ActivityType;
+  timestamp: string; // Assuming frontend date object
+  steps?: number;
+  distance_km?: number;
+  name?: string;
+  description?: string;
+};
+
+export function buildActivityPayload(values: Values, userWeight: number, userId: number): ActivityRecordPayload {
+  const base = {
+    id: values.id.toString(),
+    activity_type: values.activity_type,
+    weight_kg: userWeight,
+    intensity: values.intensity,
+    calories_burned: 0,
+    user: userId,
+    done: values.done,
+    timestamp: values.timestamp,
+    description: values.description
+  };
+
+  switch (values.activity_type) {
+    case 'walk_time':
+      return {
+        ...base,
+        activity_type: 'walk_time',
+        duration_minutes: values.duration_minutes,
+      };
+
+    case 'walk_steps':
+      return {
+        ...base,
+        activity_type: 'walk_steps',
+        steps: values.steps ?? 0,
+        duration_minutes: 0
+      };
+
+    case 'run':
+      return {
+        ...base,
+        activity_type: 'run',
+        duration_minutes: values.duration_minutes,
+        distance_km: values.distance_km,
+      };
+
+    case 'interval_run':
+      return {
+        ...base,
+        activity_type: 'interval_run',
+        duration_minutes: values.duration_minutes,
+      };
+
+    case 'workout':
+      return {
+        ...base,
+        activity_type: 'workout',
+        duration_minutes: values.duration_minutes,
+        name: values.name,
+        description: values.description,
+      };
+
+    case 'tabata':
+      return {
+        ...base,
+        activity_type: 'tabata',
+        duration_minutes: values.duration_minutes,
+        name: values.name,
+        description: values.description,
+      };
+
+    case 'volleyball':
+      return {
+        ...base,
+        activity_type: 'volleyball',
+        duration_minutes: values.duration_minutes,
+      };
+
+    case 'custom':
+      return {
+        ...base,
+        activity_type: 'custom',
+        duration_minutes: values.duration_minutes,
+      };
+
+    case 'jumping':
+      return {
+        ...base,
+        activity_type: 'jumping',
+        duration_minutes: values.duration_minutes,
+      };
+
+    case 'stretching':
+      return {
+        ...base,
+        activity_type: 'stretching',
+        duration_minutes: values.duration_minutes,
+      };
+
+    case 'home_chores':
+      return {
+        ...base,
+        activity_type: 'home_chores',
+        duration_minutes: values.duration_minutes,
+      };
+
+    default:
+      throw new Error('Unsupported activity type');
+  }
+}
+
+  

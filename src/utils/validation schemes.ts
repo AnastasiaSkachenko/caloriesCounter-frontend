@@ -128,3 +128,50 @@ export const useCustomDishSchema = (editingName?: string) => {
     });
   }, [editingName]); // Schema updates only when editingName changes
 };
+
+
+export const activitySchema = Yup.object({
+  activity_type: Yup.string()
+    .oneOf([
+    'workout',
+    'tabata',
+    'run',
+    'walk_time',
+    'walk_steps',
+    'interval_run',
+    'custom',
+    'volleyball',
+    'jumping',
+    'stretching',
+    'home_chores'
+    ])
+    .required('Please select a valid activity type'), // Custom error message
+  
+  duration_minutes: Yup.number()
+    .transform((value, originalValue) => (originalValue === '' ? undefined : value))
+    .min(1, 'Duration must be at least 1 minute')
+    .when('activity_type', {
+    is: (type: string) => type !== 'walk_steps',
+    then: (schema) => schema.required('Please provide the duration for your activity'),
+    }),  
+  steps: Yup.number()
+    .transform((value, originalValue) => (originalValue === '' ? undefined : value))
+    .min(1, 'Steps must be at least 1')
+    .when('activity_type', {
+    is: 'walk_steps',
+    then: (schema) => schema.required('Please enter the number of steps'),
+    otherwise: (schema) => schema.optional(),
+    }),
+  
+  distance_km: Yup.number()
+    .transform((value, originalValue) => (originalValue === '' ? undefined : value))
+    .min(0.1, 'Distance must be at least 0.1 km aaa')
+    .optional(),
+  
+  intensity: Yup.number()
+    .min(1, 'Intensity must be between 1 and 5')
+    .max(5, 'Intensity must be between 1 and 5')
+    .required('Intencity level is required'),
+
+  timestamp: Yup.string().required('Time is required')
+});
