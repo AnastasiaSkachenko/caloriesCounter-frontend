@@ -38,7 +38,9 @@ const ProductsGrid: React.FC<ProductGrid> = ({ searchQuery, setEditProduct, dele
       {products && products.length > 0 ? (
         <div className="row gy-4">
           {products.map((product) => (
-            <Card key={product.name} product={product} setEditProduct={setEditProduct} deleteProduct={deleteProduct} currentUser={currentUser}/>
+            <div className="col-4 col-md-4 col-lg-2 col-xl-3 " key={product.id}>
+              <Card key={product.name} product={product} setEditProduct={setEditProduct} deleteProduct={deleteProduct} currentUser={currentUser}/>
+            </div>
           ))}
         </div>
       ) : (

@@ -92,15 +92,11 @@ export const useModify = () => {
 
 
   const modify = async (user: FormData, recalculate: boolean) => {
-
     setLoading(true);  // Start loading
     setError(null);  // Clear previous errors
 
-  
-
     try {
-      const response = await axiosPrivate.put(`/modify-user/?recalculate=${recalculate}`, user, {
-      });
+      const response = await axiosPrivate.put(`/modify-user/?recalculate=${recalculate}`, user);
 
       setAuth(prev => ({...prev, user: response.data.user}))
 

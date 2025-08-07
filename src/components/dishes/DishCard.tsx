@@ -7,12 +7,12 @@ import MediaScroller from "../products/MediaScroller";
 import Button from "../../customComponents/Button";
 import { useNavigate } from "react-router-dom";
 
-interface CustomDishProps {
+interface DishProps {
   dish: Dish;
   setEditDish: (dish: Dish) => void;
 }
 
-const CustomDishCard: React.FC<CustomDishProps> = ({ dish, setEditDish }) => {
+const DishCard: React.FC<DishProps> = ({ dish, setEditDish }) => {
   const { popDish } = usePopDish()
   const navigate = useNavigate()
 
@@ -63,7 +63,7 @@ const CustomDishCard: React.FC<CustomDishProps> = ({ dish, setEditDish }) => {
       </div>
 
       <div className="d-flex  flex-column flex-grow-1 justify-content-between gap-3">
-        <h3 className="card-name text-white">{dish.name} ({dish.portions + (dish.portions > 1 ? " portions" : " portion")})</h3>
+        <h3 className="card-name text-white text-truncate">{dish.name} ({dish.portions + (dish.portions > 1 ? " portions" : " portion")})</h3>
         <div>
           <p className="fw-bold my-1 text-white">Nutrition value for  100g: </p>
           <p className="text-white">Calories: {dish.calories_100}, Protein: {dish.protein_100}, Carbs: {dish.carbs_100}, Fats: {dish.fat_100}, Fiber: {dish.fiber_100}, Sugars: {dish.sugars_100}, Caffeine: {dish.caffeine_100}</p>
@@ -80,4 +80,4 @@ const CustomDishCard: React.FC<CustomDishProps> = ({ dish, setEditDish }) => {
   );
 };
 
-export default CustomDishCard;
+export default DishCard;

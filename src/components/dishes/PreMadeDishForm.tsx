@@ -8,6 +8,7 @@ import { convertObjectToFormData, useHandleKeyDown } from '../../utils/utils';
 import { v4 as uuidv4 } from 'uuid';
 import Button from '../../customComponents/Button';
 import MediaPicker from '../mediaPicker';
+import useAuth from '../../hooks/useAuth';
 
 const nutritions: { title: string; value: MacroNutrientDish100 }[] = [
   {title: "Calories", value: "calories_100"},
@@ -20,10 +21,11 @@ const nutritions: { title: string; value: MacroNutrientDish100 }[] = [
 ]
 
 const PreMadeDishForm: React.FC<DishFormProps> = ({ onSuccess, onCancel, dishToEdit }) => {
+  const { auth } = useAuth()
   const [form, setForm] = useState<Dish>(dishToEdit ?? {
     id: uuidv4(), name: '', calories: 0, calories_100: 0, protein: 0, carbs: 0,
     fat: 0, protein_100: 0, carbs_100: 0, fat_100: 0, weight: 0, drink: false,
-    portion: 100, portions: 1, type: 'pre_made',  description: '', user: 0, favorite: false,
+    portion: 100, portions: 1, type: 'pre_made',  description: '', user: auth.user?.id ?? 0, favorite: false,
     fiber: 0, fiber_100: 0, sugars: 0, sugars_100: 0, caffeine: 0, caffeine_100: 0, media_to_delete: []
   });
   const [validation, setValidation] = useState<{ message: string | undefined, valid: boolean }>({ message: undefined, valid: false });
@@ -31,6 +33,16 @@ const PreMadeDishForm: React.FC<DishFormProps> = ({ onSuccess, onCancel, dishToE
   const {handleKeyDown} = useHandleKeyDown()
   const validationSchema = usePreMadeDishSchema(dishToEdit && dishToEdit.name)
 
+
+  useEffect(() => {
+    if (auth?.user && !dishToEdit && auth.user.id > 0) {
+      setForm(prev => ({
+        ...prev,
+        user: auth.user?.id ?? 0
+      }));
+    }
+  }, [auth.user, dishToEdit]);
+  
 
   useEffect(() => {
     if (dishToEdit ) {
@@ -51,7 +63,7 @@ const PreMadeDishForm: React.FC<DishFormProps> = ({ onSuccess, onCancel, dishToE
     setForm({
       id: uuidv4(), name: '', calories: 0, calories_100: 0, protein: 0, carbs: 0,
       fat: 0, protein_100: 0, carbs_100: 0, fat_100: 0, weight: 0, drink: false,
-      portion: 100, portions: 1, type: 'pre_made',  description: '', user: 0, favorite: false,
+      portion: 100, portions: 1, type: 'pre_made',  description: '', user: auth.user?.id ?? 0, favorite: false,
       fiber: 0, fiber_100: 0, sugars: 0, sugars_100: 0, caffeine: 0, caffeine_100: 0, media_to_delete: []
     })
   }

@@ -7,14 +7,16 @@ import { convertObjectToFormData, useHandleKeyDown } from '../../utils/utils';
 import { v4 as uuidv4 } from 'uuid';
 import MediaPicker from '../mediaPicker';
 import Button from '../../customComponents/Button';
+import useAuth from '../../hooks/useAuth';
 
 
 
 const CustomDishForm: React.FC<DishFormProps> = ({onSuccess, onCancel, dishToEdit, ingredientsData}) => {
+  const { auth } = useAuth()
   const [form, setForm] = useState<Dish>( dishToEdit || {
       id: uuidv4(), name: '',  calories: 0, calories_100: 0, protein: 0, carbs: 0,
       fat: 0, protein_100: 0,carbs_100: 0, fat_100: 0, weight: 0,  drink: false, 
-      portion: 100, portions: 1, type: 'custom', description: '', user: 0, media_to_delete: [],
+      portion: 100, portions: 1, type: 'custom', description: '', user: auth.user?.id ?? 0, media_to_delete: [],
       weight_of_ready_product: 0, favorite: false, fiber: 0, fiber_100: 0, sugars: 0, sugars_100: 0, caffeine: 0, caffeine_100: 0
   });
   const [ingredients, setIngredients] = useState<Ingredient[]>(ingredientsData ?? []); 
@@ -26,11 +28,21 @@ const CustomDishForm: React.FC<DishFormProps> = ({onSuccess, onCancel, dishToEdi
   const addDishButtonRef = useRef<HTMLButtonElement>(null);
   const description = useRef<HTMLTextAreaElement>(null)
 
+  useEffect(() => {
+    if (auth.user && !dishToEdit && auth.user.id > 0) {
+      setForm(prev => ({
+        ...prev,
+        user: auth.user?.id ?? 0
+      }));
+    }
+  }, [auth.user, dishToEdit]);
+  
+
   const resetForm = () => {
     setForm({
       id: uuidv4(), name: '',  calories: 0, calories_100: 0, protein: 0, carbs: 0,
       fat: 0, protein_100: 0,carbs_100: 0, fat_100: 0, weight: 0,  drink: false, 
-      portion: 100, portions: 1, type: 'custom', media_to_delete: [], description: '', user: 0,
+      portion: 100, portions: 1, type: 'custom', media_to_delete: [], description: '', user: auth.user?.id ?? 0,
       weight_of_ready_product: 0, favorite: false, fiber: 0, fiber_100: 0, sugars: 0, sugars_100: 0, caffeine: 0, caffeine_100: 0
     })
   }

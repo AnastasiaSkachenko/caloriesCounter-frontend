@@ -54,11 +54,12 @@ export const capitalizeString = (string: string) => {
 
 interface HasMedia {
   media?: (string | File)[]; // now supports both strings and files
+  image?: File | string
 }
 
 export const convertObjectToFormData = async <T extends HasMedia>(
   object: T,
-  objectMedia: 'dish' | 'product'
+  type?: 'dish' | 'product'
 ): Promise<FormData> => {
   if (!object) {
     console.error('NO OBJECT IN CONVERT FUNCTION');
@@ -71,17 +72,38 @@ export const convertObjectToFormData = async <T extends HasMedia>(
   if (Array.isArray(object.media)) {
     for (const [index, mediaItem] of object.media.entries()) {
       if (mediaItem instanceof File) {
-        formData.append(`${objectMedia}_media`, mediaItem);
+        if (type) formData.append(`${type}_media`, mediaItem);
+        else formData.append("media", mediaItem)
       } else if (typeof mediaItem === 'string' && mediaItem.startsWith('file')) {
         const fileName = mediaItem.split('/').pop() || `image_${index}.jpg`;
         const fileType = fileName.split('.').pop() || 'jpeg';
         const response = await fetch(mediaItem);
         const blob = await response.blob();
-        formData.append(
-          `${objectMedia}_media`,
-          new File([blob], fileName, { type: `image/${fileType}` })
-        );
+        if (type) {
+          formData.append(
+            `${type}_media`,
+            new File([blob], fileName, { type: `image/${fileType}` })
+          );
+        } else {
+          formData.append(
+            "media",
+            new File([blob], fileName, { type: `image/${fileType}` })
+          );
+        }
       }
+    }
+  }
+
+  if (object.image) {
+    if (object.image instanceof File) {
+      formData.append(type ? `${type}_media` : "image", object.image);
+    } else if (typeof object.image === 'string' && object.image.startsWith('file')) {
+      const fileName = object.image.split('/').pop() || 'image.jpg';
+      const fileType = fileName.split('.').pop() || 'jpeg';
+      const response = await fetch(object.image);
+      const blob = await response.blob();
+      const file = new File([blob], fileName, { type: `image/${fileType}` });
+      formData.append(type ? `${type}image` : "image", file);
     }
   }
 
@@ -93,14 +115,15 @@ export const convertObjectToFormData = async <T extends HasMedia>(
     if (value === null || value === undefined) continue;
 
     if (key == "name") {
-      formData.append(`${objectMedia}_${key}`, capitalizeString(String(value)));
-
+      if (type) formData.append(`${type}_${key}`, capitalizeString(String(value)));
+      else formData.append(key, capitalizeString(String(value)))
     } else if (key == "media_to_delete") {
       formData.append("media_to_delete", JSON.stringify(value));
       console.log("media to delete appended:", JSON.stringify(value) )
+    } else {
+      if (type) formData.append(`${type}_${key}`, String(value));
+      else formData.append(key, String(value));
 
-    }else {
-      formData.append(`${objectMedia}_${key}`, String(value));
     }
   }
   return formData;

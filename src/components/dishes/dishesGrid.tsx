@@ -6,8 +6,7 @@ import '../../index.css'
 import 'bootstrap-icons/font/bootstrap-icons.css';
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { useInView } from "react-intersection-observer";
-import CustomDishCard from "./customDishCard";
-import PreMadeDishCard from "./preMadeDishCard";
+import DishCard from "./DishCard";
 
 
 interface DishGridQuery {
@@ -60,12 +59,7 @@ const DishGrid: React.FC<DishGridQuery> = ({query, setEditDish, filter}) => {
       ) : (
         dishes.map((dish, index) => (
           <div className="col-md-6 col-sm-12 col-lg-4 d-flex justify-content-center d-sm-block" key={index}>
-            {dish.type === 'custom' ? (
-              <CustomDishCard dish={dish} setEditDish={(dish) => setEditDish(dish)}/>
-            ): (
-              <PreMadeDishCard dish={dish} setEditDish={(dish) => setEditDish(dish)} />
-            )}
-
+            <DishCard dish={dish} setEditDish={(dish) => setEditDish(dish)}/>
           </div>
         ))
       )}

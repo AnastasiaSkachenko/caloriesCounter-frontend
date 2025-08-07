@@ -21,6 +21,7 @@ export interface BaseNew {
 export interface Product extends BaseNew  {
   media?: (File | string)[],
   user: number,
+  media_to_delete?: string[]
 
 }
 
@@ -142,16 +143,21 @@ export interface User {
   exp?: number;  
   gender: 'male' | 'female';
   goal: 'maintain' | 'gain' | 'lose' | 'active_lose' | 'active_gain',
-  balance: number
+  balance: number,
+  image?: string | File
 }
 
 export interface ModifyUser {
   calories_d: number;
   protein_d: number;
-  carbohydrate_d: number;
+  carbs_d: number;
   fat_d: number;
+  sugars_d: number,
+  fiber_d: number,
+  caffeine_d: number,
 }
 
 export type MacroNitrient = 'calories' | 'protein' | 'carbs' | 'fat' | 'sugars' | 'fiber' | 'caffeine' 
+export type MacroNitrientUser = 'calories_d' | 'protein_d' | 'carbs_d' | 'fat_d' | 'sugars_d' | 'fiber_d' | 'caffeine_d' 
 export type MacroNutrientDish100 =  'calories_100' | 'protein_100' | 'carbs_100' | 'fat_100' | 'sugars_100' | 'fiber_100' | 'caffeine_100' 
 

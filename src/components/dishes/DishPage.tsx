@@ -82,7 +82,6 @@ const DishPage = () => {
   };
 
 
-
   const handleDeleteDish = (id:string) => {
     const response = window.confirm('Are you sure you want to delete this dish?');
     if (response) {

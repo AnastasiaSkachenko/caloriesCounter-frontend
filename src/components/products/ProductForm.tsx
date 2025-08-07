@@ -6,14 +6,15 @@ import { convertObjectToFormData, useHandleKeyDown, useModalFocus } from '../../
 import { useProductSchema } from '../../utils/validation schemes';
 import { v4 as uuidv4 } from 'uuid';
 import Button from '../../customComponents/Button';
+import MediaPicker from '../mediaPicker';
 
 const nutritions: { title: string; value: MacroNitrient }[] = [
   {title: "Calories", value: "calories"},
   {title: "Protein", value: "protein"},
   {title: "Carbs", value: "carbs"},
+  {title: "Sugars", value: "sugars"},
   {title: "Fat", value: "fat"},
   {title: "Fiber", value: "fiber"},
-  {title: "Sugars", value: "sugars"},
   {title: "Caffeine", value: "caffeine"}
 ]
 
@@ -30,21 +31,20 @@ const ProductForm: React.FC<ProductFormProps> = ({ onSubmitSuccess, onCancel, pr
   const { auth } = useAuth()
   console.log(auth.user, 'auth')
 
-
   const [formState, setFormState] = useState<Product>(product ??{
     id: uuidv4() , name: productName ?? '', calories: 0, protein: 0, carbs: 0,fat: 0, user: auth.user?.id ?? 0, sugars: 0, fiber: 0, caffeine: 0
   });
   const [validation, setValidation] = useState<{message: string | undefined, valid: boolean}>({message: undefined, valid: false})
   const addProductButtonRef = useRef<HTMLButtonElement>(null);
   
-useEffect(() => {
-  if (auth.user && !product && auth.user.id > 0) {
-    setFormState(prev => ({
-      ...prev,
-      user: auth.user?.id ?? 0
-    }));
-  }
-}, [auth.user, product]);
+  useEffect(() => {
+    if (auth.user && !product && auth.user.id > 0) {
+      setFormState(prev => ({
+        ...prev,
+        user: auth.user?.id ?? 0
+      }));
+    }
+  }, [auth.user, product]);
 
   const { setProduct } = useSetProduct()
   const { putProduct } = usePutProduct()
@@ -55,6 +55,9 @@ useEffect(() => {
   
  
   const [inputRefs] = useState([
+    useRef<HTMLInputElement>(null),
+    useRef<HTMLInputElement>(null),
+    useRef<HTMLInputElement>(null),
     useRef<HTMLInputElement>(null),
     useRef<HTMLInputElement>(null),
     useRef<HTMLInputElement>(null),
@@ -97,18 +100,7 @@ useEffect(() => {
       [fieldName]: name ? value.charAt(0).toUpperCase() + value.slice(1) : value,
     }));
   };
-  
-  const handleMediaChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const target = e.target as HTMLInputElement & { files: FileList };
-
-    if (target.files) {
-      const filesArray = Array.from(target.files); // Convert FileList to array
-      setFormState((prevFormState) => ({
-        ...prevFormState,
-        media: [...(prevFormState.media || []), ...filesArray], // Append new files
-      }));
-    }
-  };
+ 
 
   const createProduct = async () => {
     const formData = await convertObjectToFormData(formState, "product")
@@ -178,18 +170,12 @@ useEffect(() => {
         onChange={(e) => handleInputChange(e, e.target.value)}
         onKeyDown={(e) => handleKeyDown(e, inputRefs[1])}/>
       </label>
-      <label className='form-label full-length-label my-2'>
-        <input 
-          className="form-control form-control-file form-control-sm"  
-          type="file" id="formFileMultiple" 
-          onChange={(e) => handleMediaChange(e)} multiple 
-          />
-      </label>
+      <MediaPicker media={formState.media} mediaChange={(media) => setFormState(prev => ({...prev, media}))} setMediaToDelete={(media) => setFormState(prev => ({...prev, media_to_delete: media}))} /> 
       {nutritions.map((nutrition, index) => (
         <label key={index} className='d-flex justify-content-between align-items-center mt-2' >{nutrition.title} for 100 g:
           <input className='input border border-light rounded p-1 w-25' ref={inputRefs[index + 1]} type="number" step="1" name={nutrition.value} value={formState[nutrition.value]} required onFocus={(e) => e.target.select()}
             onChange={(e) => handleInputChange(e)}
-            onKeyDown={(e) => handleKeyDown(e, inputRefs[index + 2])}/>
+            onKeyDown={(e) => handleKeyDown(e, index == nutritions.length - 1 ? addProductButtonRef : inputRefs[index + 2])}/>
         </label>
       ))}
       

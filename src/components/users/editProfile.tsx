@@ -2,6 +2,8 @@ import useAuth  from "../../hooks/useAuth";
 import { useState } from "react";
 import { User } from "../interfaces";
 import { useModify } from "../../utils/userUtils";
+import { convertObjectToFormData } from "../../utils/utils";
+import Button from "../../customComponents/Button";
 
 interface EditProfile  {
   onExit: () => void
@@ -16,7 +18,7 @@ const EditProfile: React.FC<EditProfile> = ({onExit}) => {
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState<User>(auth.user??{
     id: 0, name: '', age: 18, weight: 0, height: 0, calories_d: 0, protein_d: 0,
-    carbohydrate_d: 0, fat_d: 0, activity_level: 1, email: '', exp: 0, gender: 'female', goal: 'lose', balance: 0
+    carbs_d: 0, fat_d: 0, sugars_d: 0, fiber_d: 0, caffeine_d: 0, activity_level: 1, email: '', exp: 0, gender: 'female', goal: 'lose', balance: 0
   });
   const [recalculateMacros, setRecalculateMacros] = useState(true)
   const { modify } = useModify()
@@ -63,41 +65,21 @@ const EditProfile: React.FC<EditProfile> = ({onExit}) => {
     const userData = formData
 
     
-
     console.log(userData, 'userdata')
+    const formDataToSend = await convertObjectToFormData(formData)
  
-
-    const formDataToSend = new FormData();
-
-    if (userData.image && typeof userData.image !== 'string') {
-      formDataToSend.append('image', userData.image);
-    }
-    // Append other form data fields
-    for (const key in userData) {
-      const value = userData[key as keyof User];
-      if (value !== undefined) {
-        if (key !== 'image') {
-          // Append all fields except image as string
-          formDataToSend.append(key, String(value));
-        }
-      }
-    }
     await modify(formDataToSend, recalculateMacros);
     setLoading(false);
     onExit()
   };
 
-  const handleCancel = (e: React.MouseEvent<HTMLButtonElement> | React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    onExit();
-  };
   
   
   return (
     <form onSubmit={handleSubmit} >
       {error && <p style={{ color: 'red' }}>{error}</p>}
 
-      <h5 className="my-1">General info</h5>
+      <h5 className="my-1 text-white">General info</h5>
       <div className='input-group m-2'>
         <div className='input-group-text'><i className="bi bi-person-fill"></i></div>
         <input className='form-control' placeholder='Name...' type="text" name="name" value={formData.name} onChange={handleChange} required />
@@ -113,7 +95,7 @@ const EditProfile: React.FC<EditProfile> = ({onExit}) => {
       </div>
 
       <div className="mb-3">
-        <label className="form-label">Upload Image</label>
+        <label className="form-label text-white">Upload Image</label>
         <div className="input-group">
           <input
             className="form-control"
@@ -126,11 +108,11 @@ const EditProfile: React.FC<EditProfile> = ({onExit}) => {
       {(auth.user?.calories_d && auth.user?.calories_d > 0 ) ? (
         <div className="form-check form-switch">
           <input className="form-check-input" type="checkbox" onChange={(e) => setRecalculateMacros(e.target.checked)} role="switch" id="flexSwitchCheckDefault" checked={recalculateMacros}/>
-          <label className="form-check-label">Calculate macros</label>
+          <label className="form-check-label text-white">Calculate macros</label>
         </div>
       ): (<></>)}
 
-      <h5 className="m-1">Body info</h5>
+      <h5 className="m-1 text-white">Body info</h5>
 
       <div className='input-group m-2'>
         <div className='input-group-text'><i className="fa-solid fa-weight-hanging"></i></div>
@@ -202,11 +184,9 @@ const EditProfile: React.FC<EditProfile> = ({onExit}) => {
         </select>
       </div>
 
-      <div className='d-flex justify-content-center'>
-        <button className='btn btn-dark' type="submit" disabled={loading}>
-          {loading ? 'Saving info...' : 'Save info'}
-        </button>
-        <button onClick={handleCancel}>Cancel</button>
+      <div className='d-flex justify-content-center gap-2 mt-4'>
+        <Button variant="submit" text={loading ? 'Saving info...' : 'Save info'}  type="submit" disabled={loading}/>
+        <Button variant="cancel" text="Cancel" onClick={onExit}/>
       </div>
     </form>
   )

@@ -1,29 +1,47 @@
-import React, { useState, useEffect, useRef } from 'react'; 
-import { ModifyUser } from '../interfaces';
+import { useState, useEffect, useRef } from 'react'; 
+import { MacroNitrientUser, ModifyUser } from '../interfaces';
 import '../../style.css';
 import '../../index.css'
 import useAuth from '../../hooks/useAuth';
 import { useModify } from '../../utils/userUtils';
 import { useHandleKeyDown } from '../../utils/utils';
+import Button from '../../customComponents/Button';
+
+
+const nutritions: { title: string; value: MacroNitrientUser }[] = [
+  {title: "Calories", value: "calories_d"},
+  {title: "Protein", value: "protein_d"},
+  {title: "Carbs", value: "carbs_d"},
+  {title: "Fat", value: "fat_d"},
+  {title: "Fiber", value: "fiber_d"},
+  {title: "Sugars", value: "sugars_d"},
+  {title: "Caffeine", value: "caffeine_d"}
+]
 
 
 
-const EditMacros= () => {
+const EditMacros = () => {
   const { auth } = useAuth()
 
   const [formState, setFormState] = useState<ModifyUser>({
     protein_d: auth.user?.protein_d || 0,
-    carbohydrate_d: auth.user?.carbohydrate_d || 0,
+    carbs_d: auth.user?.carbs_d || 0,
     fat_d: auth.user?.fat_d || 0,
-    calories_d: auth.user?.calories_d || 0
+    calories_d: auth.user?.calories_d || 0,
+    sugars_d: auth.user?.sugars_d || 0,
+    fiber_d: auth.user?.fiber_d || 0,
+    caffeine_d: auth.user?.caffeine_d || 0
   });
 
-  const { modify} = useModify()
+  const { modify } = useModify()
   const { handleKeyDown } = useHandleKeyDown()
 
   const saveChangesButtonRef = useRef<HTMLButtonElement>(null)
  
   const [inputRefs] = useState([
+    useRef<HTMLInputElement>(null),
+    useRef<HTMLInputElement>(null),
+    useRef<HTMLInputElement>(null),
     useRef<HTMLInputElement>(null),
     useRef<HTMLInputElement>(null),
     useRef<HTMLInputElement>(null),
@@ -53,61 +71,43 @@ const EditMacros= () => {
    
 
 
-  const handleSubmit = async (event: React.FormEvent) => {
-    event.preventDefault();
-    const {  calories_d, protein_d, carbohydrate_d, fat_d } = formState;
+  const handleSubmit = async () => {
+    const formData = new FormData();
 
-    const formData = new FormData()
-
-    formData.append('calories_d', calories_d.toString())
-    formData.append('protein_d', protein_d.toString())
-    formData.append('carbohydrate_d', carbohydrate_d.toString())
-    formData.append('fat_d', fat_d.toString())
- 
+    Object.entries(formState).forEach(([key, value]) => {
+      if (value !== undefined && value !== null) {
+        formData.append(key, value.toString());
+      }
+    });
     await modify(formData, false)
-
- 
-
-    
   }
 
   const handleCancel = () => {
     setFormState({    
       protein_d: auth.user?.protein_d || 0,
-      carbohydrate_d: auth.user?.carbohydrate_d || 0,
+      carbs_d: auth.user?.carbs_d || 0,
       fat_d: auth.user?.fat_d || 0,
-      calories_d: auth.user?.calories_d || 0
+      calories_d: auth.user?.calories_d || 0,
+      sugars_d: auth.user?.sugars_d || 0,
+      fiber_d: auth.user?.fiber_d || 0,
+      caffeine_d: auth.user?.caffeine_d || 0
     })
-    
   }
  
 
   return (
     <div className='modal-body'>
-      <label className='d-flex justify-content-between align-items-center mt-2' >Calories for a day:
-        <input className='border border-light rounded p-2 mx-2' ref={inputRefs[0]} type="number" step="1" name="calories" value={formState.calories_d} required onFocus={(e) => e.target.select()}
-          onChange={(e) => setFormState(prev => ({...prev, calories_d: Number(e.target.value)}))}
-          onKeyDown={(e) => handleKeyDown(e, inputRefs[2])}/>
-      </label>
-      <label  className='d-flex justify-content-between align-items-center mt-2'> Protein for a day: 
-        <input className='border border-light rounded p-2 mx-2' ref={inputRefs[1]} type="number" step="1"  name="protein" value={formState.protein_d} required onFocus={(e) => e.target.select()}
-          onChange={(e) => setFormState(prev => ({...prev, protein_d: Number(e.target.value)}))}
-          onKeyDown={(e) => handleKeyDown(e, inputRefs[3])}/>
-      </label>
-      <label className='d-flex justify-content-between align-items-center mt-2'  >Carbohydrate for a day: 
-        <input className='border border-light rounded p-2 mx-2' ref={inputRefs[2]} type="number" step="1"   name="carbohydrate" value={formState.carbohydrate_d} required onFocus={(e) => e.target.select()}
-          onChange={(e) => setFormState(prev => ({...prev, carbohydrate_d: Number(e.target.value)}))}
-          onKeyDown={(e) => handleKeyDown(e, inputRefs[4])}/>
-      </label>
-      <label className='d-flex justify-content-between align-items-center mt-2'> Fat for a day:
-        <input className='border border-light rounded p-2 mx-2' ref={inputRefs[3]} type="number" step="1"  name="fat" value={formState.fat_d} required onFocus={(e) => e.target.select()}
-          onChange={(e) => setFormState(prev => ({...prev, fat_d: Number(e.target.value)}))}
-          onKeyDown={(e) => handleKeyDown(e, saveChangesButtonRef, true)}/>
-      </label>
+      {nutritions.map((nutrition, index) => (
+        <label key={index} className='d-flex justify-content-between align-items-center mt-2' >{nutrition.title} for a day:
+          <input className='input' ref={inputRefs[index]} type="number" step="1" name={nutrition.value} value={formState[nutrition.value]} required onFocus={(e) => e.target.select()}
+            onChange={(e) => setFormState(prev => ({...prev, [nutrition.value]: Number(e.target.value)}))}
+            onKeyDown={(e) => handleKeyDown(e, index + 1 == nutritions.length ? saveChangesButtonRef : inputRefs[index + 1])}/>
+        </label>
+      ))}
     
-      <div className='d-flex justify-content-center'>
-        <button ref={saveChangesButtonRef} className='btn btn-primary p-2' data-bs-dismiss='modal' data-bs-target={'#editMacros'} type="button" onClick={handleSubmit} >Submit</button>
-        <button className='btn btn-danger btn-sm p-2 ' data-bs-dismiss= 'modal' data-bs-target={'#editMacros'} type='button' onClick={handleCancel}>Cancel</button>
+      <div className='d-flex justify-content-center gap-2'>
+        <Button text="Submit" variant='submit' ref={saveChangesButtonRef}  data-bs-dismiss='modal' data-bs-target={'#editMacros'} type="button" onClick={handleSubmit} />
+        <Button text="Cancel" variant='cancel'  data-bs-dismiss= 'modal' data-bs-target={'#editMacros'} type='button' onClick={handleCancel}/>
       </div>
     
     </div>

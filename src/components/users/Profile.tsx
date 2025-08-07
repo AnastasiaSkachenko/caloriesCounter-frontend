@@ -6,18 +6,29 @@ import { useLogout } from "../../utils/userUtils";
 import useAuth from "../../hooks/useAuth";
 import EditMacros from "./editMarcos";
 import Modal from "../Modal";
-import { axiosPublic } from "../../utils/axios";
-import { baseImageUrl } from "../../utils/production";
 import Header from "../header";
+import MediaScroller from "../products/MediaScroller";
+import { MacroNitrientUser } from "../interfaces";
+import Button from "../../customComponents/Button";
+import EditCaloriesBalance from "./editCaloriesBalance";
+
+const nutritions: { title: string; value: MacroNitrientUser }[] = [
+  {title: "Calories", value: "calories_d"},
+  {title: "Protein", value: "protein_d"},
+  {title: "Carbs", value: "carbs_d"},
+  {title: "Fat", value: "fat_d"},
+  {title: "Fiber", value: "fiber_d"},
+  {title: "Sugars", value: "sugars_d"},
+  {title: "Caffeine", value: "caffeine_d"}
+]
+
 
 const Profile = () => {
   const {auth} = useAuth()
   const user = auth.user
   const navigate = useNavigate()
   const { logout } = useLogout()
-  const test = async () => {
-    await axiosPublic.post('test/')
-  }
+
   const [editProfile, setEditProfile] = useState(false)
 
   useEffect(() => {
@@ -34,8 +45,7 @@ const Profile = () => {
 
 
   return (
-    <div className="bg-secondary p-3" style={{minHeight: '100vh'}}>
-      <button onClick={() => test()}>Test</button>
+    <div className="bg-dark p-3" style={{minHeight: '100vh'}}>
       {user && (
         <div>
           <Header active="profile" />
@@ -44,56 +54,49 @@ const Profile = () => {
             <EditMacros />
           </Modal>
 
+          <Modal id="editCaloriesBalance" title="Edit Calories Balance">
+            <EditCaloriesBalance caloriesBalanceInitial={user.balance} />
+          </Modal>
 
-          <div className="d-flex justify-content-center align-items-center" style={{minHeight: '70vh'}}>
+          <div className="d-flex justify-content-center align-items-center w-50 mx-auto" style={{minHeight: '70vh'}}>
             <div className="border rounded shadow px-2 px-md-5 py-4 " style={{minWidth: '45%', minHeight: '30em'}}>
-              <h2 className="text-center">Profile <button className="btn bg-transparent p-2 m-0" onClick={() => setEditProfile(true)}><i className="fa fa-user-pen"></i></button></h2>
-              <div className="d-flex justify-content-center">  
-                <img style={{ height: '7em', borderRadius: '2em'}}  src={`${baseImageUrl}${typeof user.image === "string" 
-                  ? user.image // If `product.image` is a URL string, use it
-                  : 'media/user/cat-user.jpeg'}`
-                  }/>
-              </div>
+              <h2 className="text-center text-white">Profile <button className="btn bg-transparent p-1 m-0" onClick={() => setEditProfile(true)}><i className="fa fa-user-pen text-white"></i></button></h2>
               {editProfile ? (
                 <EditProfile onExit={() => setEditProfile(false)}/>
               ): (
-                <div className="align-items-center pt-3">
-                  <h5 className="d-flex justify-content-center" >Calories balance: {user.balance}</h5>
-                  <p style={{maxWidth: '35em'}}>Think of your calories like a bank account—if you save some, you'll have more to use later. 
+                <div className="align-items-center justify-content-center mt-5">
+                  <MediaScroller media={[user.image ?? 'media/cat-user.jpeg']} name="user" width={600} height={200} bg="transparent" className="rounded-full" /> 
+                  <h5 className="text-center text-white">Calories balance: {user.balance} <button className="btn bg-transparent p-1 m-0" data-bs-toggle='modal' data-bs-target='#editCaloriesBalance'><i className="fa fa-pen text-white"></i></button></h5>
+                  <p className="text-white text-center" >Think of your calories like a bank account—if you save some, you'll have more to use later. 
                     The same principle applies here: if you overeat one day, simply reduce your intake over the following 
                     days to balance it out and stay on track with your goal.  
                   </p>
-                  <h5 className=" text-center">General info:</h5>
+                  <h5 className="text-white text-center">General info:</h5>
                   <div className="row">
                     <div className="col-6">
-                      <p className="text-center">Height: {user.height}</p>
-                      <p className="text-center">Gender: {user.gender}</p>
+                      <p className="text-center text-white">Height: {user.height}</p>
+                      <p className="text-center text-white">Gender: {user.gender}</p>
                     </div>
                     <div className="col-6">
-                      <p className="text-center">Weight: {user.weight}</p>
-                      <p className="text-center">Goal: {user.goal}</p>
+                      <p className="text-center text-white">Weight: {user.weight}</p>
+                      <p className="text-center text-white">Goal: {user.goal}</p>
                     </div>
-                    <p className="text-center">Activity level: {user?.activity_level}</p>
+                    <p className="text-center text-white">Activity level: {user?.activity_level}</p>
                   </div>
 
-                  <h5 className="text-center">
-                    Macros Info  for a day:
-                    <button className="btn bg-transparent p-2 m-0" data-bs-toggle='modal' data-bs-target='#editMacros'>
-                      <i className="fa fa-pen"></i>
-                    </button>:
-                  </h5>
-                  <div className="row">
-                    <div className="col-6">
-                      <p className="text-center">Energy: {user.calories_d} ccal</p>
-                      <p className="text-center">Carbs: {user.carbs_d} g</p>
-                    </div>
-                    <div className="col-6">
-                      <p className="text-center">Protein: {user.protein_d} g</p>
-                      <p className="text-center">Fats: {user.fat_d} g</p>
-                    </div>
+                  <div className="text-center d-flex flex-row justify-content-center align-items-center gap-1">
+                    <h4 className="text-white">Macros Info  for a day</h4>
+                    <button className="btn bg-transparent p-1 pe-0 m-0" data-bs-toggle='modal' data-bs-target='#editMacros'>
+                      <i className="fa fa-pen text-white"></i>
+                    </button><span className="text-white">:</span>
+                  </div>
+                  <div className="d-flex flex-wrap">
+                    {nutritions.map((nutrition, index) => (
+                      <p key={index} className={`${index + 1 == nutritions.length ? "w-100" : "w-50"} text-center text-white mb-1`}>{nutrition.title}: {user[nutrition.value]}</p>
+                    ))}
                   </div>
                   <div className="d-flex justify-content-center">
-                    <button className="btn btn-dark" onClick={() => logout()}>Log out</button>
+                    <Button text="Log out" className="px-5 mt-3" variant="delete" onClick={() => logout()}/>
                   </div>
                 </div>
               )}

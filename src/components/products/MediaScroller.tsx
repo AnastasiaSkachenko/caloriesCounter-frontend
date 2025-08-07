@@ -15,9 +15,11 @@ const MediaScroller: React.FC<MediaScrollerProps> = ({ media, name, className, w
     media = ["/media/products/food.jpg"];
   }
 
+  const dashedName = name.replace(/\s+/g, "-")
+
   return (
     <div
-      id={`carousel-${name.replace(" ", "-")}`}
+      id={`carousel-${dashedName}`}
       className={`carousel slide ${className} pt-3`}
       data-bs-ride="carousel"
       style={{ width, height }}
@@ -28,7 +30,7 @@ const MediaScroller: React.FC<MediaScrollerProps> = ({ media, name, className, w
             className="carousel-control-prev"
             style={{height:35}}
             type="button"
-            data-bs-target={`#carousel-${name.replace(" ", "-")}`}
+            data-bs-target={`#carousel-${dashedName}`}
             data-bs-slide="prev"
           >
             <span className="carousel-control-prev-icon bg-primary-light rounded-3 py-2" aria-hidden="true"></span>
@@ -38,7 +40,7 @@ const MediaScroller: React.FC<MediaScrollerProps> = ({ media, name, className, w
             className="carousel-control-next"
             style={{height:35}}
             type="button"
-            data-bs-target={`#carousel-${name.replace(" ", "-")}`}
+            data-bs-target={`#carousel-${dashedName}`}
             data-bs-slide="next"
           >
             <span className="carousel-control-next-icon bg-primary-light rounded-3 py-2" aria-hidden="true"></span>
