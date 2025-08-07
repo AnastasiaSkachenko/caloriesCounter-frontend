@@ -31,24 +31,26 @@ const RecordComponent: React.FC<RecordComponentProps> = ({ record, editRecord })
   };
 
   useEffect(() => {
+    if (record.done) return; // ✅ Already done — skip
+
     const now = new Date();
     const target = new Date(record.timestamp);
     const diff = target.getTime() - now.getTime();
 
     if (diff <= 0) {
-      toggleDone(true); // Already past timestamp
+      toggleDone(true); // ✅ Auto-mark as done if past timestamp and not done yet
       return;
     }
-    if (target.getDate() == now.getDate()) {
+
+    if (target.getDate() === now.getDate()) {
       const timer = setTimeout(() => {
-        toggleDone(true);
+        toggleDone(true); // ✅ Auto-mark when time is reached
       }, diff);
+
       return () => clearTimeout(timer);
     }
-
-  }, [record.timestamp]);
-
- 
+  }, [record.timestamp, record.done]);
+  
   return (
     <div className="bg-primary border-2 border-primary-dark rounded-4 p-3 my-4 gap-4  w-75 mx-auto">
       <div className="d-flex flex-row w-full py-1 gap-3 align-items-center justify-content-between">
