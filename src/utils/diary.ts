@@ -1,10 +1,16 @@
-import {  DiaryRecordInput } from "../components/interfaces";
+import {  DiaryRecordInput, Goal } from "../components/interfaces";
 import Cookies from "universal-cookie"; 
 import { axiosPrivate } from "./axios";
 
 const cookies = new Cookies();
 
 
+export const fetchDailyGoal = async (date: string)  => { 
+  const response = await axiosPrivate.get(`dailyGoals/?date=${date}`);     
+  const data = await response.data
+  const dailyGoal: Goal = data.goals
+  return dailyGoal ?? {}
+};
 
 
 

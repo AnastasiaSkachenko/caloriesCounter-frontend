@@ -62,10 +62,6 @@ const EditProfile: React.FC<EditProfile> = ({onExit}) => {
     setLoading(true);
     setError(null);
 
-    const userData = formData
-
-    
-    console.log(userData, 'userdata')
     const formDataToSend = await convertObjectToFormData(formData)
  
     await modify(formDataToSend, recalculateMacros);
@@ -107,10 +103,34 @@ const EditProfile: React.FC<EditProfile> = ({onExit}) => {
       </div>
       {(auth.user?.calories_d && auth.user?.calories_d > 0 ) ? (
         <div className="form-check form-switch">
-          <input className="form-check-input" type="checkbox" onChange={(e) => setRecalculateMacros(e.target.checked)} role="switch" id="flexSwitchCheckDefault" checked={recalculateMacros}/>
+          <input 
+            className="form-check-input" 
+            type="checkbox" 
+            onChange={(e) => setRecalculateMacros(e.target.checked)} 
+            role="switch" 
+            id="flexSwitchCheckDefault" 
+            checked={recalculateMacros}
+            style={{ transform: "scale(1.5)", marginRight: "20px", cursor: "pointer" }} 
+            />
           <label className="form-check-label text-white">Calculate macros</label>
         </div>
       ): (<></>)}
+
+        <div className="form-check form-switch mt-3">
+          <input
+            className="form-check-input"
+            type="checkbox"
+            id="useActivities"
+            name="useActivities"
+            checked={formData.calculate_nutritions_from_activity_level}
+            onChange={(e) => setFormData(prev => ({...prev, calculate_nutritions_from_activity_level: e.target.checked}))}
+            style={{ transform: "scale(1.5)", marginRight: "20px", cursor: "pointer" }} 
+          />
+          <label className="form-check-label text-white" htmlFor="doneSwitch">
+            {formData.calculate_nutritions_from_activity_level ? "Use activity level" : "Use logged activities"}
+          </label>
+        </div>
+
 
       <h5 className="m-1 text-white">Body info</h5>
 

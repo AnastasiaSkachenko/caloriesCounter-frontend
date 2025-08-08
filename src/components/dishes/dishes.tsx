@@ -74,7 +74,7 @@ const Dishes: React.FC = () => {
 
 
    return (
-		<div className="bg-dark test-dark p-2 min-vh-100 " > 
+		<div className="bg-dark test-dark p-3 min-vh-100 " > 
       <Header active="dishes" />
       <h2 className="text-white ps-2">Dishes</h2>
       {auth.user ? (

@@ -1,15 +1,65 @@
 import { useState, useEffect } from "react";
 import { RadialBarChart, RadialBar, PolarAngleAxis } from "recharts";
-import { DiaryRecord, User } from "../interfaces";
+import { DiaryRecord, Goal, User } from "../interfaces";
+import { useActivity } from "../../utils/activity";
+import { fetchDailyGoal } from "../../utils/diary";
+import { useQuery } from "@tanstack/react-query";
 
 interface NutritionProgressProps {
   user: User;
   filteredRecords: DiaryRecord[];
+  date: string,
 }
 
-const NutritionProgress: React.FC<NutritionProgressProps> = ({ user, filteredRecords }) => {
+
+
+
+
+
+const NutritionProgress: React.FC<NutritionProgressProps> = ({ user, filteredRecords, date }) => {
   const [chartSize, setChartSize] = useState(120); // Default chart size
   const [itemsPerRow, setItemsPerRow] = useState(4); // Default to 4 items in a row
+
+  const [goal, setGoal] = useState<Goal | null>(null);
+
+  useEffect(() => {
+    const getCurrentGoal = async () => {
+      const currentGoal = await fetchDailyGoal(date);
+      setGoal(currentGoal);
+    };
+
+    getCurrentGoal();
+  }, [date]);
+
+  const { fetchActivityRecords } = useActivity()
+
+  function getFallback(user: User, calories: number) {
+
+  //later implement adjustments for different goals
+
+  const weight = user.weight ?? 70;
+
+  const protein = Math.round(weight * (1.6));
+  const proteinCalories = protein * 4;
+
+  const fatCalories = calories * (0.25);
+  const fats = Math.round(fatCalories / 9);
+
+  const remainingCalories = Math.max(calories - (proteinCalories + fatCalories), 0);
+  const carbs = Math.round(remainingCalories / 4);
+
+  return {
+    calories,
+    protein,
+    fats,
+    carbs,
+    sugars: Math.round((calories * 0.10) / 4),
+    fiber: Math.round((calories / 1000) * 14),
+    caffeine: user?.caffeine_d ?? 400
+  };
+}
+
+  
 
   // Adjust chart size & items per row based on screen width
   useEffect(() => {
@@ -39,7 +89,33 @@ const NutritionProgress: React.FC<NutritionProgressProps> = ({ user, filteredRec
     return () => window.removeEventListener("resize", updateLayout);
   }, []);
 
-  console.log(filteredRecords)
+
+  const {
+    data: activities
+  } = useQuery({
+    queryKey: ['activityRecords', date], 
+    queryFn: () =>  fetchActivityRecords(date), 
+  });
+
+
+
+  const calories = user.calculate_nutritions_from_activity_level 
+    ? user.calories_d 
+    : (user.bmr ?? 0) + ( //change later fallback value to 1250
+      activities?.reduce((acc, record) => acc + (record.calories_burned ?? 0), 0) ?? 0
+  );  
+
+  const fallback = getFallback(user, calories)
+
+
+
+  const goalCalories = goal?.calories_intake_goal ?? fallback.calories ?? 1;
+  const goalProtein = goal?.protein_goal ?? fallback.protein ?? 1;
+  const goalCarbs = goal?.carbs_goal ?? fallback.carbs ?? 1;
+  const goalFats = goal?.fat_goal ?? fallback.fats ?? 1;
+  const goalFiber = goal?.fiber_goal ?? fallback.fiber ?? 1
+  const goalSugars = goal?.sugars_goal ?? fallback.sugars ?? 1
+  const goalCaffeine = goal?.caffeine_goal ?? fallback.caffeine ?? 1
 
   const totalCalories = Math.round(filteredRecords?.reduce((acc, record) => acc + record.calories, 0) || 0);
   const totalProtein = Math.round(filteredRecords?.reduce((acc, record) => acc + (record.protein ? Number(record.protein) : 0), 0) || 0);
@@ -48,16 +124,9 @@ const NutritionProgress: React.FC<NutritionProgressProps> = ({ user, filteredRec
   const totalFiber = Math.round(filteredRecords?.reduce((acc, record) => acc + (record.fiber ? Number(record.fiber) : 0), 0));
   const totalSugars = Math.round(filteredRecords?.reduce((acc, record) => acc + (record.sugars ? Number(record.sugars) : 0), 0));
   const totalCaffeine = Math.round(filteredRecords?.reduce((acc, record) => acc + (record.caffeine ? Number(record.caffeine) : 0), 0));
-  
-   
-  const goalCalories = user.calories_d || 1;
-  const goalProtein = user.protein_d || 1;
-  const goalCarbs = user.carbs_d || 1;
-  const goalFats = user.fat_d || 1;
-  const goalFiber = user.fiber_d || 1;
-  const goalSugars = user.sugars_d || 1;
-  const goalCaffeine = user.caffeine_d || 1;
 
+  console.log(filteredRecords)
+  
   const calculateColor = (percentage: number) => {
     if (percentage > 120 || percentage < 80) return "#FF4500"; // More than 20% over goal → Red
     if (percentage >= 80 && percentage <= 120) return "#FFD700"; // 5-20% to goal → Yellow

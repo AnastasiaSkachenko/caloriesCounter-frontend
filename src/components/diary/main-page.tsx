@@ -113,7 +113,13 @@ const CaloriesCounter: React.FC = () => {
         <div className="w-50 text-white border rounded mx-2 p-3 bg-dark"  >
           <h5 >Summary for {date}:</h5>
           <hr />
-          {auth.user && filteredRecords && <NutritionProgress user={auth.user} filteredRecords={filteredRecords} />}
+          {auth.user && filteredRecords && 
+            <NutritionProgress 
+              user={auth.user} 
+              filteredRecords={filteredRecords} 
+              date={date}
+            />
+          }
         </div>
       </div>
   

@@ -8,6 +8,7 @@ import ActivityForm from './ActivityForm';
 import Button from '../../customComponents/Button';
 import RecordComponent from './Record';
 import { Values } from '../interfaces';
+import Header from '../header';
 
 const Activity = () => {
   const { auth } = useAuth()
@@ -40,7 +41,8 @@ const Activity = () => {
   if (status === 'error') return <h1>{JSON.stringify(error)}</h1>;
 
   return (
-    <div className='bg-dark p-5' style={{minHeight: "100vh"}}>
+    <div className='bg-dark p-3' style={{minHeight: "100vh"}}>
+        <Header active='activity' />
         <h2 className='text-white font-bold text-3xl mb-3'>Activity Diary</h2>
         {/* Add Modal */}
         <Modal id="modalAdd" title="Add Activity">

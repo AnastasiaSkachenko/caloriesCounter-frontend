@@ -144,7 +144,9 @@ export interface User {
   gender: 'male' | 'female';
   goal: 'maintain' | 'gain' | 'lose' | 'active_lose' | 'active_gain',
   balance: number,
-  image?: string | File
+  image?: string | File,
+  calculate_nutritions_from_activity_level?: boolean,
+  bmr?: number
 }
 
 export interface ModifyUser {
@@ -328,6 +330,29 @@ export function buildActivityPayload(values: Values, userWeight: number, userId:
     default:
       throw new Error('Unsupported activity type');
   }
+}
+
+export interface Goal {
+  id?: string;
+  date: string,
+  name: string;
+  calories_intake: number,
+  calories_intake_goal: number,
+  protein_goal: number;
+  carbs_goal: number;
+  fat_goal: number; 
+  fiber_goal: number;
+  sugars_goal: number;
+  caffeine_goal: number;
+  calories: number;
+  protein: number;
+  carbs: number;
+  fiber: number;
+  fat: number;
+  sugars: number;
+  caffeine: number;
+  calories_burned: number,
+  calories_burned_goal: number
 }
 
   

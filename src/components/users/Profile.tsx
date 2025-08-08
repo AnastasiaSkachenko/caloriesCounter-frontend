@@ -66,7 +66,7 @@ const Profile = () => {
               ): (
                 <div className="align-items-center justify-content-center mt-5">
                   <MediaScroller media={[user.image ?? 'media/cat-user.jpeg']} name="user" width={600} height={200} bg="transparent" className="rounded-full" /> 
-                  <h5 className="text-center text-white">Calories balance: {user.balance} <button className="btn bg-transparent p-1 m-0" data-bs-toggle='modal' data-bs-target='#editCaloriesBalance'><i className="fa fa-pen text-white"></i></button></h5>
+                  <h5 className="text-center text-white mt-5">Calories balance: {user.balance} <button className="btn bg-transparent p-1 m-0" data-bs-toggle='modal' data-bs-target='#editCaloriesBalance'><i className="fa fa-pen text-white"></i></button></h5>
                   <p className="text-white text-center" >Think of your calories like a bank account—if you save some, you'll have more to use later. 
                     The same principle applies here: if you overeat one day, simply reduce your intake over the following 
                     days to balance it out and stay on track with your goal.  
@@ -85,11 +85,15 @@ const Profile = () => {
                   </div>
 
                   <div className="text-center d-flex flex-row justify-content-center align-items-center gap-1">
-                    <h4 className="text-white">Macros Info  for a day</h4>
+                    <h4 className="text-white w">Macros Info  for a day:</h4>
                     <button className="btn bg-transparent p-1 pe-0 m-0" data-bs-toggle='modal' data-bs-target='#editMacros'>
                       <i className="fa fa-pen text-white"></i>
                     </button><span className="text-white">:</span>
                   </div>
+                  {!user.calculate_nutritions_from_activity_level && (
+                    <p className="text-white text-center">(based on activities over the last week)</p>
+                  )}
+
                   <div className="d-flex flex-wrap">
                     {nutritions.map((nutrition, index) => (
                       <p key={index} className={`${index + 1 == nutritions.length ? "w-100" : "w-50"} text-center text-white mb-1`}>{nutrition.title}: {user[nutrition.value]}</p>

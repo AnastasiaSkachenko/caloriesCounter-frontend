@@ -111,6 +111,7 @@ export const convertObjectToFormData = async <T extends HasMedia>(
   // Append all other fields except media
   for (const key in object) {
     if (key === 'media') continue; // skip media (already handled)
+    if (key === 'image') continue; // skip media (already handled)
 
     const value = object[key];
     if (value === null || value === undefined) continue;
