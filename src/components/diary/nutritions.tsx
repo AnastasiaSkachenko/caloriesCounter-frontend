@@ -12,10 +12,6 @@ interface NutritionProgressProps {
 }
 
 
-
-
-
-
 const NutritionProgress: React.FC<NutritionProgressProps> = ({ user, filteredRecords, date }) => {
   const [chartSize, setChartSize] = useState(120); // Default chart size
   const [itemsPerRow, setItemsPerRow] = useState(4); // Default to 4 items in a row

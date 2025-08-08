@@ -10,6 +10,7 @@ import { AuthProvider } from "./context/AuthProvider";
 import ResetPassword from "./components/users/changePassword";
 import DishPage from "./components/dishes/DishPage";
 import Activity from "./components/activity/activity";
+import StatisticsPage from "./components/statistic/statistics";
 
 
 function App() {
@@ -21,6 +22,7 @@ function App() {
           <Route path="/dish/:id" element={<DishPage />} />
           <Route path="/products" element={<CaloriesCounterProducts/>}/>
           <Route path="/activity" element={<Activity/>} />
+          <Route path="/statistics" element={<StatisticsPage/>} />
           <Route path="/" element={<CaloriesCounter/>}/>
           <Route path="/register" element={<RegisterPage/>}/>
           <Route path="/login" element={<LoginPage/>}/>

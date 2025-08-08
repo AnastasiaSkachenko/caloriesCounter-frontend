@@ -356,3 +356,25 @@ export interface Goal {
 }
 
   
+export type Nutrient = 'calories_intake' | 'protein' | 'carbs' | 'fat' | 'sugars' | 'fiber' | 'caffeine'
+
+
+
+export type Feedback = Record<Nutrient, string>;
+
+export interface Suggestion {
+  message: string;
+  dishes: SuggestionDish[]
+}
+
+export interface SuggestionDish {
+  name: string;
+  id: string;
+  type: "custom" | "pre_made";
+  fat?: number;
+  carbs?: number;
+  protein?: number;
+  fiber?: number;
+  sugar?: number;
+  caffeine?: number;
+}
