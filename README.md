@@ -22,3 +22,5 @@ Built with **React + TypeScript**, and connected to a Django REST API backend.
 - **Chart.js / Recharts**
 - **Axios** for API calls
 
+
+## More about the project https://github.com/AnastasiaSkachenko/NutriTrack
