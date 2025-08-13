@@ -1,4 +1,4 @@
- export interface Base {
+ export interface BaseOLd {
   id: number,
   calories: number,
   protein: number,
@@ -6,7 +6,7 @@
   fat: number
 }
 
-export interface BaseNew {
+export interface Base {
   id: string,
   name: string,
   calories: number,
@@ -18,7 +18,14 @@ export interface BaseNew {
   sugars: number
 }
 
-export interface Product extends BaseNew  {
+export type MacroNutrient = 'calories' | 'protein' | 'carbs' | 'fat' | 'sugars' | 'fiber' | 'caffeine' 
+export type MacroNutrientUser = 'calories_d' | 'protein_d' | 'carbs_d' | 'fat_d' | 'sugars_d' | 'fiber_d' | 'caffeine_d' 
+export type MacroNutrientDish100 =  'calories_100' | 'protein_100' | 'carbs_100' | 'fat_100' | 'sugars_100' | 'fiber_100' | 'caffeine_100' 
+
+
+//                                                                                                                      Product
+//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+export interface Product extends Base  {
   media?: (File | string)[],
   user: number,
   media_to_delete?: string[]
@@ -28,17 +35,15 @@ export interface Product extends BaseNew  {
 export interface ProductInput {
   product: FormData,
 }
+
 export interface ProductEditInput {
   product: FormData,
   id?: number
 }
 
-export interface PopInput {
-  id: number
-}
 
- 
-
+//                                                                                                                      Ingredient
+//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 export interface Ingredient {
   id: string,
@@ -59,8 +64,11 @@ export interface Ingredient {
 export interface IngredientInput {
   ingredient: Ingredient
 }
-//not finished
-export interface Dish extends BaseNew  {
+
+
+//                                                                                                                      Dish
+//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+export interface Dish extends Base  {
   media?: (File | string)[],
   calories_100: number,
   protein_100: number,
@@ -101,6 +109,8 @@ export interface DishFormProps {
 }
 
 
+//                                                                                                                      Diary Record
+//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 export interface DiaryRecord  {
   id: string,
   name: string,
@@ -123,7 +133,8 @@ export interface DiaryRecordInput {
   diaryRecord: DiaryRecord
 }
 
-
+//                                                                                                                      User
+//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 export interface User {
   id: number;
   name: string;
@@ -159,15 +170,9 @@ export interface ModifyUser {
   caffeine_d: number,
 }
 
-export type MacroNitrient = 'calories' | 'protein' | 'carbs' | 'fat' | 'sugars' | 'fiber' | 'caffeine' 
-export type MacroNitrientUser = 'calories_d' | 'protein_d' | 'carbs_d' | 'fat_d' | 'sugars_d' | 'fiber_d' | 'caffeine_d' 
-export type MacroNutrientDish100 =  'calories_100' | 'protein_100' | 'carbs_100' | 'fat_100' | 'sugars_100' | 'fiber_100' | 'caffeine_100' 
 
-
-
-
-
-
+//                                                                                                                      Activities
+//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 type ActivitySpecificFields = {
   walk_time: { duration_minutes: number };
@@ -332,6 +337,9 @@ export function buildActivityPayload(values: Values, userWeight: number, userId:
   }
 }
 
+
+//                                                                                                                      Goal
+//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 export interface Goal {
   id?: string;
   date: string,
@@ -355,10 +363,11 @@ export interface Goal {
   calories_burned_goal: number
 }
 
-  
+//                                                                                                                      Statistics
+//%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
 export type Nutrient = 'calories_intake' | 'protein' | 'carbs' | 'fat' | 'sugars' | 'fiber' | 'caffeine'
-
-
 
 export type Feedback = Record<Nutrient, string>;
 

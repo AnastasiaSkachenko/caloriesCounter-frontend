@@ -1,14 +1,15 @@
 import React, { useState, useEffect, useRef } from 'react'; 
-import { MacroNitrient, Product } from '../interfaces';
+import { MacroNutrient, Product } from '../interfaces';
 import {  usePutProduct, useSetProduct } from '../../hooks/caloriesCounter';
 import useAuth from '../../hooks/useAuth';
-import { convertObjectToFormData, useHandleKeyDown, useModalFocus } from '../../utils/utils';
+import { convertObjectToFormData, useModalFocus } from '../../utils/utils';
 import { useProductSchema } from '../../utils/validation schemes';
 import { v4 as uuidv4 } from 'uuid';
 import Button from '../../customComponents/Button';
 import MediaPicker from '../mediaPicker';
+import Input from '../Input';
 
-const nutritions: { title: string; value: MacroNitrient }[] = [
+const nutritions: { title: string; value: MacroNutrient }[] = [
   {title: "Calories", value: "calories"},
   {title: "Protein", value: "protein"},
   {title: "Carbs", value: "carbs"},
@@ -18,20 +19,18 @@ const nutritions: { title: string; value: MacroNitrient }[] = [
   {title: "Caffeine", value: "caffeine"}
 ]
 
-
 interface ProductFormProps {
   onSubmitSuccess?: (product: Product) => void;
   onCancel?: () => void;  
   onError?: (errorMessage: string) => void;
   product?: Product,
   productName?: string,
- }
-///////////////////////// now use carbs instead of carbohydrate
+}
+
 const ProductForm: React.FC<ProductFormProps> = ({ onSubmitSuccess, onCancel, product, productName, onError}) => {
   const { auth } = useAuth()
-  console.log(auth.user, 'auth')
 
-  const [formState, setFormState] = useState<Product>(product ??{
+  const [formState, setFormState] = useState<Product>(product ?? {
     id: uuidv4() , name: productName ?? '', calories: 0, protein: 0, carbs: 0,fat: 0, user: auth.user?.id ?? 0, sugars: 0, fiber: 0, caffeine: 0
   });
   const [validation, setValidation] = useState<{message: string | undefined, valid: boolean}>({message: undefined, valid: false})
@@ -48,11 +47,8 @@ const ProductForm: React.FC<ProductFormProps> = ({ onSubmitSuccess, onCancel, pr
 
   const { setProduct } = useSetProduct()
   const { putProduct } = usePutProduct()
-  const { handleKeyDown } = useHandleKeyDown()
+
   const validationSchema = useProductSchema(product && product.name)
-
-
-  
  
   const [inputRefs] = useState([
     useRef<HTMLInputElement>(null),
@@ -65,13 +61,14 @@ const ProductForm: React.FC<ProductFormProps> = ({ onSubmitSuccess, onCancel, pr
     useRef<HTMLInputElement>(null),
   ]);
 
+  // ensure that if edit mode correct data is pasted to form state
   useEffect(() => {
     if (product) {
       setFormState(product);
     }
   }, [product]);
 
-  
+  // ensures that when form is open first field is focused  
   useEffect(() => {
     if (productName) {
       if (inputRefs[1].current) {
@@ -91,16 +88,15 @@ const ProductForm: React.FC<ProductFormProps> = ({ onSubmitSuccess, onCancel, pr
       .catch((err) => setValidation({ valid: false, message: err.message }));
   }, [formState, product, validationSchema]);
     
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>, name?: string) => {
     const { name: fieldName, value } = e.target;
-  
   
     setFormState(prevState => ({
       ...prevState,
       [fieldName]: name ? value.charAt(0).toUpperCase() + value.slice(1) : value,
     }));
   };
- 
 
   const createProduct = async () => {
     const formData = await convertObjectToFormData(formState, "product")
@@ -124,9 +120,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ onSubmitSuccess, onCancel, pr
       return;
     }
     resetForm();
-
   };
-  
   
   const resetForm = () => {
     setFormState({
@@ -142,8 +136,6 @@ const ProductForm: React.FC<ProductFormProps> = ({ onSubmitSuccess, onCancel, pr
       caffeine: 0
     });
   };
-
-  
 
   const handleSubmit = async () => {
     try {
@@ -164,19 +156,32 @@ const ProductForm: React.FC<ProductFormProps> = ({ onSubmitSuccess, onCancel, pr
 
   return (
     <div className='modal-body'>
-      <label className='form-label full-length-label my-2'> 
-        Product Name:
-      <input className='form-control full-length-input form-control-sm my-2' maxLength={149} ref={inputRefs[0]} type="text"  name="name" value={formState.name} required  
+      <Input
+        title='Product Name:'
+        maxLength={149}
+        inputClassName='w-75'
+        refObj={inputRefs[0]}
+        type='text'
+        name='name'
+        value={formState.name}
+        required
         onChange={(e) => handleInputChange(e, e.target.value)}
-        onKeyDown={(e) => handleKeyDown(e, inputRefs[1])}/>
-      </label>
+        refObjNext={inputRefs[1]}
+      />
       <MediaPicker media={formState.media} mediaChange={(media) => setFormState(prev => ({...prev, media}))} setMediaToDelete={(media) => setFormState(prev => ({...prev, media_to_delete: media}))} /> 
       {nutritions.map((nutrition, index) => (
-        <label key={index} className='d-flex justify-content-between align-items-center mt-2' >{nutrition.title} for 100 g:
-          <input className='input border border-light rounded p-1 w-25' ref={inputRefs[index + 1]} type="number" step="1" name={nutrition.value} value={formState[nutrition.value]} required onFocus={(e) => e.target.select()}
-            onChange={(e) => handleInputChange(e)}
-            onKeyDown={(e) => handleKeyDown(e, index == nutritions.length - 1 ? addProductButtonRef : inputRefs[index + 2])}/>
-        </label>
+        <Input
+          key={index}
+          title={`${nutrition.title} for 100 g:`}
+          refObj={inputRefs[index + 1]}
+          type='number'
+          step='1'
+          name={nutrition.value}
+          value={formState[nutrition.value]}
+          onChange={(e) => handleInputChange(e)}
+          refObjNext={index == nutritions.length - 1 ? addProductButtonRef : inputRefs[index + 2]}
+          required
+        />
       ))}
       
       {!validation.valid && (
@@ -189,10 +194,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ onSubmitSuccess, onCancel, pr
         <Button text='Submit' variant='submit' ref={addProductButtonRef} data-bs-dismiss={productName? '' : 'modal'} data-bs-target={product ? '#modalEdit' : '#modal'} type="button" onClick={handleSubmit} disabled={!validation.valid}/>
         <Button text='Cancel' variant='cancel' data-bs-dismiss= { productName ? '':'modal'} data-bs-target={product ? '#modalEdit' : '#modal'} type='button' onClick={handleCancel}/>
       </div>
-    
     </div>
- 
-
   );
 };
 

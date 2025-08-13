@@ -27,6 +27,7 @@ const CaloriesCounter: React.FC = () => {
     queryFn: () =>  fetchDiaryRecords(), 
   });
 
+
   records?.forEach((record) => {
     record.date = record.date?.slice(0, 16).replace('T', ' ');
   })

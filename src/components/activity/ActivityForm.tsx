@@ -7,7 +7,7 @@ import { activitySchema } from '../../utils/validation schemes';
 import { activityTypes } from '../../assets/activityTypes';
 import { descriptions } from '../../assets/activityIntencity';
 import Button from '../../customComponents/Button';
-import CustomInput from '../CustomInput';
+import Input from '../Input';
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 
@@ -113,7 +113,7 @@ const ActivityForm = ({ onExit, activityData }: { onExit: () => void, activityDa
   return (
     <div className='bg-mainBG rounded-xl'>
       <div className="p-4 gap-3">
-        <CustomInput
+        <Input
           type='select'
           title='Activity Type:'
           name='activity_type'
@@ -124,11 +124,11 @@ const ActivityForm = ({ onExit, activityData }: { onExit: () => void, activityDa
           {activityTypes.map((type) => (
             <option key={type.type} label={type.label} value={type.type} />
           ))}     
-        </CustomInput>
+        </Input>
 
         {inputFields.map(({ show, ...props }) =>
           show && (
-            <CustomInput
+            <Input
               key={props.name}
               {...props}
               onChange={ handleChange}
@@ -136,7 +136,7 @@ const ActivityForm = ({ onExit, activityData }: { onExit: () => void, activityDa
           )
         )}
 
-        <CustomInput
+        <Input
           title={`Intensity: ${formState.intensity}`}
           type='select'
           onChange={handleChange}
@@ -147,7 +147,7 @@ const ActivityForm = ({ onExit, activityData }: { onExit: () => void, activityDa
             <option key={intensity} label={intensity.toString()} value={intensity} />
           ))}     
 
-        </CustomInput>
+        </Input>
 
         {formState.activity_type in descriptions && (
           <p>

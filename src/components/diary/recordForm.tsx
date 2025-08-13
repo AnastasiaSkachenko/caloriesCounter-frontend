@@ -138,7 +138,10 @@ const RecordForm: React.FC<RecordFormProps> = ({onSuccess, onCancel, recordData}
               protein: parseFloat((weight * currentDish.protein_100 / 100).toFixed(1)),
               carbs: parseFloat((weight * currentDish.carbs_100 / 100).toFixed(1)),
               fat: parseFloat((weight * currentDish.fat_100 / 100).toFixed(1)),
-                          };  
+              fiber: parseFloat((weight * currentDish.fiber_100 / 100).toFixed(1)),
+              sugars: parseFloat((weight * currentDish.sugars_100 / 100).toFixed(1)),
+              caffeine: parseFloat((weight * currentDish.caffeine_100 / 100).toFixed(1)),              
+              };  
           } else {
             return {
               ...prevRecord,
