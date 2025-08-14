@@ -3,7 +3,7 @@ import { Dish, DishFormProps, MacroNutrientDish100 } from '../interfaces';
 import { usePutDish, useSetDish} from '../../hooks/caloriesCounter';
 import '../../index.css'
 import '../../style.css' ;
-import { usePreMadeDishSchema } from '../../utils/validation schemes';
+import { usePreMadeDishSchema } from '../../utils/validationSchemes';
 import { convertObjectToFormData, useHandleKeyDown } from '../../utils/utils';
 import { v4 as uuidv4 } from 'uuid';
 import Button from '../../customComponents/Button';

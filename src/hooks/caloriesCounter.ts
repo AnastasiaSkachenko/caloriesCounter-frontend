@@ -1,105 +1,12 @@
 import { useQueryClient, useMutation } from "@tanstack/react-query"
-import {  DiaryRecordInput, DishEditInput, DishInput, Ingredient, IngredientInput, Product, ProductInput } from "../components/interfaces"
-import { deleteProduct, editProduct, fetchProducts, saveProduct } from "../utils/product"
+import {  DiaryRecordInput, DishEditInput, DishInput, Ingredient, IngredientInput } from "../components/interfaces"
 import { deleteIngredient, editIngredient, saveIngredient } from "../utils/ingredients"
 import { deleteDish, editDish, saveDish, toggleFavorite } from "../utils/dish"
 import { deleteDiaryRecord, editDiaryRecord } from "../utils/diary"
-import { useInfiniteQuery } from "@tanstack/react-query";
-import { useDebounce } from "../utils/utils"
 import useAuth from "./useAuth"
 import useAxiosPrivate from "./useAxiosPrivate"
 
 
-// useProducts.ts
-
-interface UseProductsParams {
-  searchQuery: string;
-}
-
-export const useProducts = ({ searchQuery }: UseProductsParams) => {
-  const debouncedSearchQuery = useDebounce(searchQuery, 500); // Debounced search query
-
-  const {
-    status,
-    data,
-    fetchNextPage,
-    isFetchingNextPage,
-    hasNextPage,
-  } = useInfiniteQuery({
-    queryKey: ["products", debouncedSearchQuery], // Use debounced query
-    queryFn: fetchProducts,
-    initialPageParam: 1,
-    getNextPageParam: (lastPage, allPages) =>
-      lastPage.hasMore ? allPages.length + 1 : undefined,
-    staleTime: 500, // Prevents excessive refetching
-  });
-
-  const products = data?.pages?.flatMap((page) => page.products || []) || [];
-  let message = "";
-
-  // Find any page with an error
-  const errorPage = data?.pages.find((page) => page.error);
-  if (errorPage) {
-    message = errorPage.error || "";
-  }
-
-  // If no products and no error, show "No products found"
-  if (products.length === 0 && !message) {
-    message = "No products found";
-  }  
-  return {
-    message,
-    status,
-    products,
-    fetchNextPage,
-    isFetchingNextPage,
-    hasNextPage,
-  };
-};
-
-
-
-//                                                                                                                                        for product
-export const useSetProduct = () => {
-    const queryClient = useQueryClient()
-    const {mutateAsync: setProduct} = useMutation<Product | string, Error, ProductInput>({
-        mutationFn: saveProduct,
-        onSuccess: () => { 
-            queryClient.invalidateQueries({queryKey: ['products']})
-            queryClient.invalidateQueries({queryKey: ['productNames']})
-        }
-    })
-    return {setProduct,}
-}
-
-export const usePutProduct = () => {
-    const queryClient = useQueryClient()
-    const {mutateAsync: putProduct} = useMutation<void | string, Error, {product: FormData, id: string}>({
-        mutationFn: editProduct,
-        onSuccess: () => { 
-            queryClient.invalidateQueries({queryKey: ['products']})
-            queryClient.invalidateQueries({queryKey: ['productNames']})
-        }
-    })
-    return {putProduct,}
-}
-
-export const usePopProduct = () => {
-    const queryClient = useQueryClient()
-    const {mutateAsync: popProduct} = useMutation<string | void, Error, {id: string}>({
-        mutationFn: deleteProduct,
-        onSuccess: () => { 
-            queryClient.invalidateQueries({queryKey: ['products']})
-            queryClient.invalidateQueries({queryKey: ['productNames']})
-
-        }
-    })
-
-    return {popProduct,}
-}
-
-
-//                                                                                                                                        for ingredients
 
 export const useSetIngredient = () => {
     const queryClient = useQueryClient()

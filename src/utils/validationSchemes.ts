@@ -3,7 +3,6 @@ import { IsNameUnique } from './dish';
 import { useMemo } from 'react';
 
 		
-
 export const useProductSchema = (editingName?: string) => {
   return useMemo(() => {
     return Yup.object({
@@ -47,10 +46,9 @@ export const useProductSchema = (editingName?: string) => {
         .min(0, 'Caffeine must be zero or greater')
         .required('Caffeine is required'),
     });
-  }, [editingName]); // schema updates only when editingName changes
+  }, [editingName]);
 };
 
-  
 
 export const IngredientSchema = Yup.object({
 	name: Yup.string().required('Ingredient name is required'),
@@ -92,6 +90,7 @@ export const usePreMadeDishSchema = (editingName?: string) => {
     });
   }, [editingName]); // Schema updates only when editingName changes
 };
+
 
 export const useCustomDishSchema = (editingName?: string) => {
   return useMemo(() => {

@@ -5,13 +5,13 @@ import '../../index.css'
 import 'bootstrap-icons/font/bootstrap-icons.css';
 import BoughtDishForm from "./PreMadeDishForm";
 import OwnDishForm from "./CustomDishForm";
-import Modal from "../Modal";
+import Modal from "../general/Modal";
 import DishGrid from "./dishesGrid";
-import NotLoggedIn from "../notLoggedIn";
+import NotLoggedIn from "../general/notLoggedIn";
 import useAuth from "../../hooks/useAuth";
 import { Popover } from "bootstrap";
-import Header from "../header";
 import Button from "../../customComponents/Button";
+import Header from "../general/header";
 
 const Dishes: React.FC = () => {
   const [query, setQuery] = useState<string>('')

@@ -1,13 +1,14 @@
 import React, { useState, useEffect, useRef } from 'react'; 
 import { MacroNutrient, Product } from '../interfaces';
-import {  usePutProduct, useSetProduct } from '../../hooks/caloriesCounter';
 import useAuth from '../../hooks/useAuth';
 import { convertObjectToFormData, useModalFocus } from '../../utils/utils';
-import { useProductSchema } from '../../utils/validation schemes';
+import { useProductSchema } from '../../utils/validationSchemes';
 import { v4 as uuidv4 } from 'uuid';
 import Button from '../../customComponents/Button';
-import MediaPicker from '../mediaPicker';
-import Input from '../Input';
+import Input from '../general/Input';
+import { ProductFormProps } from '../props';
+import MediaPicker from '../general/mediaPicker';
+import { useProductMutations } from '../../hooks/mutations/products';
 
 const nutritions: { title: string; value: MacroNutrient }[] = [
   {title: "Calories", value: "calories"},
@@ -19,13 +20,6 @@ const nutritions: { title: string; value: MacroNutrient }[] = [
   {title: "Caffeine", value: "caffeine"}
 ]
 
-interface ProductFormProps {
-  onSubmitSuccess?: (product: Product) => void;
-  onCancel?: () => void;  
-  onError?: (errorMessage: string) => void;
-  product?: Product,
-  productName?: string,
-}
 
 const ProductForm: React.FC<ProductFormProps> = ({ onSubmitSuccess, onCancel, product, productName, onError}) => {
   const { auth } = useAuth()
@@ -45,8 +39,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ onSubmitSuccess, onCancel, pr
     }
   }, [auth.user, product]);
 
-  const { setProduct } = useSetProduct()
-  const { putProduct } = usePutProduct()
+  const { setProduct, putProduct } = useProductMutations()
 
   const validationSchema = useProductSchema(product && product.name)
  

@@ -14,7 +14,6 @@ export const axiosPublic = axios.create({
 	},
 });
   
-  
 export const axiosPrivate = axios.create({
 	baseURL: baseUrl,
 	withCredentials: true,

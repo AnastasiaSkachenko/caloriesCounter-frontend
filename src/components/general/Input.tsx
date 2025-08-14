@@ -1,5 +1,5 @@
 import React, { InputHTMLAttributes, RefObject } from "react";
-import { useHandleKeyDown } from "../utils/utils";
+import { useHandleKeyDown } from "../../utils/utils";
 
 interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   title: string;

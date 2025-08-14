@@ -1,28 +1,13 @@
 import { useState } from "react";
 import Button from "../../customComponents/Button";
-import { MacroNitrient, Product } from "../interfaces"
 import MediaScroller from "./MediaScroller"
-
-const nutritions: { title: string; value: MacroNitrient }[] = [
-  {title: "Calories", value: "calories"},
-  {title: "Protein", value: "protein"},
-  {title: "Carbs", value: "carbs"},
-  {title: "Fat", value: "fat"},
-  {title: "Fiber", value: "fiber"},
-  {title: "Sugars", value: "sugars"},
-  {title: "Caffeine", value: "caffeine"}
-]
-
-interface ProductCardProps {
-  setEditProduct: (product: Product) => void;
-  deleteProduct: (id: string) => void;
-  currentUser: number;
-  product: Product
-}
+import { nutritionsProduct as nutritions } from "../../assets/constants/nutritions";
+import { ProductCardProps } from "../props";
 
 
-const Card = ({product, setEditProduct, deleteProduct, currentUser}: ProductCardProps) => {
+const Card:React.FC<ProductCardProps> = ({ product, setEditProduct, deleteProduct, currentUser }) => {
   const [viewNutrition, setViewNutrition] = useState(false)
+  
   return (
     <div className="bg-dark border border-2 border-primary-light p-2 rounded-3" >
       <div className="card-img-container d-flex justify-content-center" >

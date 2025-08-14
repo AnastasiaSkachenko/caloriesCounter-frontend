@@ -1,29 +1,20 @@
 import { useInView } from "react-intersection-observer";
-import { Product } from "../interfaces";
-import { useProducts } from "../../hooks/caloriesCounter";
 import { useEffect } from "react";
 import Card from "./Card";
-
-interface ProductGrid {
-  searchQuery: string;
-  setEditProduct: (product: Product) => void;
-  deleteProduct: (id: string) => void;
-  currentUser: number;
-}
+import { ProductGridProps } from "../props";
+import { useProducts } from "../../hooks/mutations/products";
 
 
-const ProductsGrid: React.FC<ProductGrid> = ({ searchQuery, setEditProduct, deleteProduct, currentUser }) => {
+const ProductsGrid: React.FC<ProductGridProps> = ({ searchQuery, setEditProduct, deleteProduct, currentUser }) => {
   const { ref, inView } = useInView();
   
-
   // Call the custom hook to fetch products
   const { status, products, fetchNextPage, isFetchingNextPage, hasNextPage, message } = useProducts({
     searchQuery
   });
 
 
-
-  // Fetch more products when in view
+  // Fetch more products when trigger point is in view
   useEffect(() => {
     if (inView && hasNextPage && !isFetchingNextPage) {
       fetchNextPage();

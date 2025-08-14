@@ -5,7 +5,7 @@ import EditProfile from "./editProfile";
 import { useLogout } from "../../utils/userUtils";
 import useAuth from "../../hooks/useAuth";
 import EditMacros from "./editMarcos";
-import Modal from "../Modal";
+import Modal from "../general/Modal";
 import Header from "../header";
 import MediaScroller from "../products/MediaScroller";
 import { MacroNitrientUser } from "../interfaces";

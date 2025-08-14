@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Dish, DishFormProps, Ingredient } from '../interfaces';
 import { usePopIngredient, usePutDish, usePutIngredient, useSetDish, useSetIngredient } from '../../hooks/caloriesCounter';
 import IngredientForm from '../ingredients/ingredientForm';
-import { useCustomDishSchema } from '../../utils/validation schemes';
+import { useCustomDishSchema } from '../../utils/validationSchemes';
 import { convertObjectToFormData, useHandleKeyDown } from '../../utils/utils';
 import { v4 as uuidv4 } from 'uuid';
 import MediaPicker from '../mediaPicker';

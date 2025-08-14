@@ -5,7 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import '../../style.css';
 import '../../index.css'
 import { DiaryRecord } from "../interfaces";
-import Modal from "../Modal";
+import Modal from "../general/Modal";
 import useAuth from "../../hooks/useAuth";
 import NutritionProgress from "./nutritions";
 import RecordComponent from "./recordElement";

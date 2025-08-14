@@ -1,14 +1,7 @@
 import React from "react";
 import { baseImageUrl } from "../../utils/production";
+import { MediaScrollerProps } from "../props";
 
-interface MediaScrollerProps {
-  media?: (File | string)[];
-  name: string;
-  className?: string;
-  width: number;
-  height: number;
-  bg: string
-}
 
 const MediaScroller: React.FC<MediaScrollerProps> = ({ media, name, className, width, height, bg }) => {
   if (!media || media.length === 0) {
@@ -83,7 +76,6 @@ const MediaScroller: React.FC<MediaScrollerProps> = ({ media, name, className, w
           );
         })}
       </div>
-
     </div>
   );
 };

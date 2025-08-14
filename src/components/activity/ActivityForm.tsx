@@ -3,11 +3,11 @@ import useAuth from '../../hooks/useAuth';
 import { useActivityMutations } from '../../hooks/activity';
 import { v4 as uuidv4 } from 'uuid';
 import { ActivityType, buildActivityPayload, Values } from '../interfaces';
-import { activitySchema } from '../../utils/validation schemes';
+import { activitySchema } from '../../utils/validationSchemes';
 import { activityTypes } from '../../assets/activityTypes';
 import { descriptions } from '../../assets/activityIntencity';
 import Button from '../../customComponents/Button';
-import Input from '../Input';
+import Input from '../general/Input';
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 

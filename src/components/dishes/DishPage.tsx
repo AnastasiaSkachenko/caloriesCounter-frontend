@@ -6,7 +6,7 @@ import { Popover } from "bootstrap";
 import { useNavigate, useParams } from "react-router-dom";
 import { fetchDish } from "../../utils/dish";
 import { v4 as uuidv4 } from 'uuid';
-import Modal from "../Modal";
+import Modal from "../general/Modal";
 import BoughtDishForm from "./PreMadeDishForm";
 import OwnDishForm from "./CustomDishForm";
 import MediaScroller from "../products/MediaScroller";

@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {  useQuery } from '@tanstack/react-query';  
 import { Product, Ingredient } from '../interfaces';
-import {  fetchProducts, getProductNames } from '../../utils/product'
+import {  fetchProducts, getProductNames } from '../../requests/product'
 import ProductForm from '../products/ProductForm';
 import { useHandleKeyDown } from '../../utils/utils';
-import { IngredientSchema } from '../../utils/validation schemes';
+import { IngredientSchema } from '../../utils/validationSchemes';
 import { v4 as uuidv4 } from 'uuid';
 import Button from '../../customComponents/Button';
 

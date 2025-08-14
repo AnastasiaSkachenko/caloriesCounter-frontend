@@ -3,7 +3,7 @@ import useAuth from '../../hooks/useAuth';
 import { getCurrentDate } from '../../utils/utils';
 import { useQuery } from '@tanstack/react-query';
 import { useActivity } from '../../utils/activity';
-import Modal from '../Modal';
+import Modal from '../general/Modal';
 import ActivityForm from './ActivityForm';
 import Button from '../../customComponents/Button';
 import RecordComponent from './Record';

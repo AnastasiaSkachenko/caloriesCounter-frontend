@@ -1,24 +1,24 @@
 import {  useEffect, useState } from "react";
-import { usePopProduct } from "../../hooks/caloriesCounter";
 import { Product } from "../interfaces";
 import ProductForm from "./ProductForm";
-import Modal from "../Modal";
+import Modal from "../general/Modal";
 import ProductsGrid from "./productsGrid";
 import useAuth from "../../hooks/useAuth";
 import { Popover } from "bootstrap";
-import Header from "../header";
 import Button from "../../customComponents/Button";
+import Header from "../general/header";
+import { useProductMutations } from "../../hooks/mutations/products";
 
 
-const Products: React.FC = () => {
+const Products = () => {
   const [searchQuery, setSearchQuery] = useState<string>('');  
  	const [editProduct, setEditProduct] = useState<Product | null>(null);
 	const [error, setError] = useState<string | null>(null)
 
 	const { auth } = useAuth()
-	const { popProduct } = usePopProduct();
+	const { popProduct } = useProductMutations();
 
-
+	// if user is not authenticated create popover element that warns that some functionality is unavailable for anonymous users
   useEffect(() => {
     if (!auth.user) {
       const popoverTriggerList = document.querySelectorAll('[data-bs-toggle="popover"]');
@@ -28,8 +28,7 @@ const Products: React.FC = () => {
     }
   }, [auth.user]);
 
-
-
+	//timer for the popover error
 	useEffect(() => {
 		if (error) {
 			const timer = setTimeout(() => {
@@ -39,17 +38,12 @@ const Products: React.FC = () => {
 		}
 	}, [error])
 	
-
  	const handleDeleteProduct = async (id: string) => {
-
 		const responseError = await  popProduct({ id });
 		if (responseError) {
 			setError(responseError)
 		}
-	   
 	};
-
-	console.log(editProduct, 'edit product')
   
  
 	return (
@@ -73,7 +67,6 @@ const Products: React.FC = () => {
 				</span>
 			)}
 
-
 			<Modal id="modal" title="Create new product">
 				<ProductForm onSubmitSuccess={() => setEditProduct(null)} onCancel={() => setEditProduct(null)} onError={(errorMessage) => setError(errorMessage)}/>
 			</Modal>
@@ -83,19 +76,19 @@ const Products: React.FC = () => {
 				<ProductForm onSubmitSuccess={() => setEditProduct(null)} onCancel={() => setEditProduct(null)} product={editProduct} onError={(errorMessage) => setError(errorMessage)}/>
 				)}
 			</Modal>
+
 			{error && (
-					<div className="alert alert-danger fixed-top end-0 m-3 mt-4" role="alert">
-							{error}
-					</div>
+				<div className="alert alert-danger fixed-top end-0 m-3 mt-4" role="alert">
+						{error}
+				</div>
 			)}
+
  			<div className="d-flex justify-content-center">
 	  		<input className="form-control py-2 my-3" style={{'maxWidth': '40em'}} type="text" placeholder="Search products..." 
 						value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)}/>
 			</div>
 
 			<ProductsGrid  searchQuery={searchQuery} setEditProduct={(product) => setEditProduct(product)} deleteProduct={(id) => handleDeleteProduct(id)} currentUser={auth.user?.id ?? 0}/>
-			
- 
 		</div>
 	)
 }
