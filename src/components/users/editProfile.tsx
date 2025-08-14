@@ -1,14 +1,14 @@
 import useAuth  from "../../hooks/useAuth";
 import { useState } from "react";
 import { User } from "../interfaces";
-import { useModify } from "../../utils/userUtils";
 import { convertObjectToFormData } from "../../utils/utils";
 import Button from "../../customComponents/Button";
+import SwitchInput from "../general/SwitchInput";
+import { useModify } from "../../requests/user";
 
 interface EditProfile  {
   onExit: () => void
 }
-
 
 
 const EditProfile: React.FC<EditProfile> = ({onExit}) => {
@@ -23,9 +23,6 @@ const EditProfile: React.FC<EditProfile> = ({onExit}) => {
   const [recalculateMacros, setRecalculateMacros] = useState(true)
   const { modify } = useModify()
 
-
-
-  // Handle change in form fields
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData({
@@ -45,17 +42,13 @@ const EditProfile: React.FC<EditProfile> = ({onExit}) => {
 
   const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>, field: 'activity_level' | 'gender' | 'goal') => {
     setFormData(prevData =>  {
-      console.log(field, e.target.value)
       return {
         ...prevData,
         [field]: field == 'activity_level' ? Number(e.target.value) : e.target.value,
       };
-  
-      })
+    })
   };
-
  
-  // Handle form submission
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -69,7 +62,6 @@ const EditProfile: React.FC<EditProfile> = ({onExit}) => {
     onExit()
   };
 
-  
   
   return (
     <form onSubmit={handleSubmit} >
@@ -101,36 +93,26 @@ const EditProfile: React.FC<EditProfile> = ({onExit}) => {
           />
         </div>
       </div>
-      {(auth.user?.calories_d && auth.user?.calories_d > 0 ) ? (
-        <div className="form-check form-switch">
-          <input 
-            className="form-check-input" 
-            type="checkbox" 
-            onChange={(e) => setRecalculateMacros(e.target.checked)} 
-            role="switch" 
-            id="flexSwitchCheckDefault" 
-            checked={recalculateMacros}
-            style={{ transform: "scale(1.5)", marginRight: "20px", cursor: "pointer" }} 
-            />
-          <label className="form-check-label text-white">Calculate macros</label>
-        </div>
-      ): (<></>)}
 
-        <div className="form-check form-switch mt-3">
-          <input
-            className="form-check-input"
-            type="checkbox"
-            id="useActivities"
-            name="useActivities"
-            checked={formData.calculate_nutritions_from_activity_level}
-            onChange={(e) => setFormData(prev => ({...prev, calculate_nutritions_from_activity_level: e.target.checked}))}
-            style={{ transform: "scale(1.5)", marginRight: "20px", cursor: "pointer" }} 
-          />
-          <label className="form-check-label text-white" htmlFor="doneSwitch">
-            {formData.calculate_nutritions_from_activity_level ? "Use activity level" : "Use logged activities"}
-          </label>
-        </div>
+      {(auth.user?.calories_d && auth.user?.calories_d > 0 ) && (
+        <SwitchInput
+          title="Calculate Macros"
+          onChange={(e) => setRecalculateMacros(e.target.checked)} 
+          id="flexSwitchCheckDefault" 
+          checked={recalculateMacros}
+          style={{ transform: "scale(1.5)", marginRight: "20px", cursor: "pointer" }} 
+          name="calculateMacros"
+        />
+      )}
 
+      <SwitchInput
+        title={formData.calculate_nutritions_from_activity_level ? "Use activity level" : "Use logged activities"}
+        checked={formData.calculate_nutritions_from_activity_level}
+        onChange={(e) => setFormData(prev => ({...prev, calculate_nutritions_from_activity_level: e.target.checked}))}
+        id="useActivities" 
+        style={{ transform: "scale(1.5)", marginRight: "20px", cursor: "pointer" }} 
+        name="useActivities"
+      />
 
       <h5 className="m-1 text-white">Body info</h5>
 
@@ -183,7 +165,6 @@ const EditProfile: React.FC<EditProfile> = ({onExit}) => {
           <option value="male">Man</option>
         </select>
       </div>
-
 
       <div className="input-group m-2" >
         <div className="input-group-text">

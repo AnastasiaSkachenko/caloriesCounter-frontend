@@ -16,7 +16,7 @@ interface MacronutrientChartProps {
   nutrient: Nutrient;
 }
 
-const MacronutrientChart: React.FC<MacronutrientChartProps> = ({ data, nutrient }) => {
+const MacroNutrientChart: React.FC<MacronutrientChartProps> = ({ data, nutrient }) => {
   // Transform data for recharts
   const chartData = data.map(item => ({
     day: new Date(item.date).getDate().toString(),
@@ -55,4 +55,4 @@ const MacronutrientChart: React.FC<MacronutrientChartProps> = ({ data, nutrient 
   );
 };
 
-export default MacronutrientChart;
+export default MacroNutrientChart;

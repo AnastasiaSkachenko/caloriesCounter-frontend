@@ -1,24 +1,18 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Dish, DishFormProps, MacroNutrientDish100 } from '../interfaces';
-import { usePutDish, useSetDish} from '../../hooks/caloriesCounter';
+import { Dish } from '../interfaces';
 import '../../index.css'
 import '../../style.css' ;
 import { usePreMadeDishSchema } from '../../utils/validationSchemes';
 import { convertObjectToFormData, useHandleKeyDown } from '../../utils/utils';
 import { v4 as uuidv4 } from 'uuid';
 import Button from '../../customComponents/Button';
-import MediaPicker from '../mediaPicker';
 import useAuth from '../../hooks/useAuth';
-
-const nutritions: { title: string; value: MacroNutrientDish100 }[] = [
-  {title: "Calories", value: "calories_100"},
-  {title: "Protein", value: "protein_100"},
-  {title: "Carbs", value: "carbs_100"},
-  {title: "Fat", value: "fat_100"},
-  {title: "Fiber", value: "fiber_100"},
-  {title: "Sugars", value: "sugars_100"},
-  {title: "Caffeine", value: "caffeine_100"}
-]
+import { useDishMutations } from '../../hooks/mutations/dishes';
+import MediaPicker from '../general/mediaPicker';
+import SwitchInput from '../general/SwitchInput';
+import { nutritionsDish } from '../../assets/constants/nutritions';
+import Input from '../general/Input';
+import { DishFormProps } from '../props';
 
 const PreMadeDishForm: React.FC<DishFormProps> = ({ onSuccess, onCancel, dishToEdit }) => {
   const { auth } = useAuth()
@@ -33,6 +27,7 @@ const PreMadeDishForm: React.FC<DishFormProps> = ({ onSuccess, onCancel, dishToE
   const {handleKeyDown} = useHandleKeyDown()
   const validationSchema = usePreMadeDishSchema(dishToEdit && dishToEdit.name)
 
+  const { putDish, setDish } = useDishMutations()
 
   useEffect(() => {
     if (auth?.user && !dishToEdit && auth.user.id > 0) {
@@ -42,7 +37,6 @@ const PreMadeDishForm: React.FC<DishFormProps> = ({ onSuccess, onCancel, dishToE
       }));
     }
   }, [auth.user, dishToEdit]);
-  
 
   useEffect(() => {
     if (dishToEdit ) {
@@ -86,15 +80,11 @@ const PreMadeDishForm: React.FC<DishFormProps> = ({ onSuccess, onCancel, dishToE
   }, [dishToEdit, inputRefs]);
 
 
-  const { putDish } = usePutDish();
-  const { setDish } = useSetDish();
-
   useEffect(() => {
     validationSchema.validate(form)
       .then(() => setValidation({ valid: true, message: undefined }))
       .catch((err) => setValidation({ valid: false, message: err.message }));
   }, [form, dishToEdit, validationSchema]);
-    
  
   const handleDishChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>, field: 'name' |  'drink' | 'calories_100' | 'protein_100' | 'carbs_100' | 'fat_100' | 'portion' | 'type' | 'fiber_100' | 'sugars_100' | 'caffeine_100' | 'media') => {
     const newValue = e.target.value;
@@ -108,16 +98,13 @@ const PreMadeDishForm: React.FC<DishFormProps> = ({ onSuccess, onCancel, dishToE
     }
   };
 
-
   const handleSubmit = async () => {
-    console.log(form, 'form')
     if (typeof form.portion != 'number' || form.portion == null ||  form.portion < 1) {
       setValidation({message: 'Weight of portion cannot be less than 1g', valid: false})
       return
     }
 
     const formData = await convertObjectToFormData(form, "dish")
-
 
     if (dishToEdit) {
       putDish({ dish: formData, id: form.id});
@@ -130,7 +117,6 @@ const PreMadeDishForm: React.FC<DishFormProps> = ({ onSuccess, onCancel, dishToE
 
     resetForm()
     setValidation({ message: undefined, valid: true });
-
 
     if (onSuccess) onSuccess();
   };
@@ -151,23 +137,32 @@ const PreMadeDishForm: React.FC<DishFormProps> = ({ onSuccess, onCancel, dishToE
 
       <MediaPicker media={form.media} mediaChange={(media) => setForm((prevDish) => ({ ...prevDish, media }))} setMediaToDelete={(media_to_delete) => setForm(prev => ({...prev, media_to_delete}))}/>
 
-      <label className="form-check form-switch">
-        <input className="form-check-input" type="checkbox" role="switch" checked={form.drink}
-          onChange={(e) => setForm((prevDish) => ({ ...prevDish, drink: e.target.checked }))} />
-        {form.drink ? " Drink" : " Dish"}
-      </label>
+      <SwitchInput
+        title={form.drink ? " Drink" : " Dish"}
+        onChange={(e) => setForm((prevDish) => ({ ...prevDish, drink: e.target.checked }))}
+        checked={form.drink}
+        name='drink'
+      />
 
-      {nutritions.map((nutrient, index) => (
-        <label key={index} className='d-flex justify-content-between align-items-center mt-2'>
-          {nutrient.title} for 100g:
-          <input className='input border border-light rounded p-1 w-25' type="number" value={form[nutrient.value]} ref={inputRefs[index + 1]} onChange={(e) => handleDishChange(e, nutrient.value)} onKeyDown={(e) => handleKeyDown(e, inputRefs[index + 2])}   onFocus={(e) => e.target.select()} />
-        </label>
+      {nutritionsDish.map((nutrient, index) => (
+        <Input
+          key={index}
+          title={`${nutrient.title} for 100g:`}
+          type="number" 
+          value={form[nutrient.value]} 
+          refObj={inputRefs[index + 1]} 
+          onChange={(e) => handleDishChange(e, nutrient.value)}
+          refObjNext={inputRefs[index + 2]}
+        />
       ))}
 
-      <label className='d-flex justify-content-between align-items-center mt-2'>
-        Weight of 1 portion (g):
-        <input className='input' value={form.portion} onChange={(e) => handleDishChange(e, 'portion')} ref={inputRefs[8]} onKeyDown={(e) => handleKeyDown(e, addDishButtonRef, true)} />
-      </label>
+      <Input
+        title='Weight of 1 portion (g):'
+        value={form.portion}
+        onChange={(e) => handleDishChange(e, 'portion')} 
+        refObj={inputRefs[8]} 
+        refObjNext={addDishButtonRef}
+      />
 
       {!validation.valid && (
         <div className="alert alert-dark text-black mt-2 p-1 text-center" role="alert">
@@ -182,7 +177,5 @@ const PreMadeDishForm: React.FC<DishFormProps> = ({ onSuccess, onCancel, dishToE
     </div>
   );
 };
-
- 
 
 export default PreMadeDishForm; 

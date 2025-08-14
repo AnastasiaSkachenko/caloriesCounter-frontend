@@ -1,23 +1,12 @@
 import { useState, useEffect, useRef } from 'react'; 
-import { MacroNitrientUser, ModifyUser } from '../interfaces';
+import {  ModifyUser } from '../interfaces';
 import '../../style.css';
 import '../../index.css'
 import useAuth from '../../hooks/useAuth';
-import { useModify } from '../../utils/userUtils';
-import { useHandleKeyDown } from '../../utils/utils';
 import Button from '../../customComponents/Button';
-
-
-const nutritions: { title: string; value: MacroNitrientUser }[] = [
-  {title: "Calories", value: "calories_d"},
-  {title: "Protein", value: "protein_d"},
-  {title: "Carbs", value: "carbs_d"},
-  {title: "Fat", value: "fat_d"},
-  {title: "Fiber", value: "fiber_d"},
-  {title: "Sugars", value: "sugars_d"},
-  {title: "Caffeine", value: "caffeine_d"}
-]
-
+import { nutritionsUser } from '../../assets/constants/nutritions';
+import Input from '../general/Input';
+import { useModify } from '../../requests/user';
 
 
 const EditMacros = () => {
@@ -34,8 +23,6 @@ const EditMacros = () => {
   });
 
   const { modify } = useModify()
-  const { handleKeyDown } = useHandleKeyDown()
-
   const saveChangesButtonRef = useRef<HTMLButtonElement>(null)
  
   const [inputRefs] = useState([
@@ -48,9 +35,6 @@ const EditMacros = () => {
     useRef<HTMLInputElement>(null),
   ]);
   
- 
- 
-
   useEffect(() => {
     const modalElement = document.getElementById('editMacros');
     modalElement?.addEventListener('shown.bs.modal', () => {
@@ -67,9 +51,6 @@ const EditMacros = () => {
       });
     };
   }, [inputRefs]);
-      
-   
-
 
   const handleSubmit = async () => {
     const formData = new FormData();
@@ -93,26 +74,29 @@ const EditMacros = () => {
       caffeine_d: auth.user?.caffeine_d || 0
     })
   }
- 
 
   return (
     <div className='modal-body'>
-      {nutritions.map((nutrition, index) => (
-        <label key={index} className='d-flex justify-content-between align-items-center mt-2' >{nutrition.title} for a day:
-          <input className='input' ref={inputRefs[index]} type="number" step="1" name={nutrition.value} value={formState[nutrition.value]} required onFocus={(e) => e.target.select()}
-            onChange={(e) => setFormState(prev => ({...prev, [nutrition.value]: Number(e.target.value)}))}
-            onKeyDown={(e) => handleKeyDown(e, index + 1 == nutritions.length ? saveChangesButtonRef : inputRefs[index + 1])}/>
-        </label>
+      {nutritionsUser.map((nutrition, index) => (
+        <Input
+          key={index}
+          title={`${nutrition.title} for a day:`}
+          onChange={(e) => setFormState(prev => ({...prev, [nutrition.value]: Number(e.target.value)}))}
+          refObj={inputRefs[index]} 
+          type="number" 
+          step="1" 
+          name={nutrition.value} 
+          value={formState[nutrition.value]} 
+          refObjNext={nutritionsUser.length ? saveChangesButtonRef : inputRefs[index + 1]}
+          required
+        />
       ))}
-    
+
       <div className='d-flex justify-content-center gap-2'>
         <Button text="Submit" variant='submit' ref={saveChangesButtonRef}  data-bs-dismiss='modal' data-bs-target={'#editMacros'} type="button" onClick={handleSubmit} />
         <Button text="Cancel" variant='cancel'  data-bs-dismiss= 'modal' data-bs-target={'#editMacros'} type='button' onClick={handleCancel}/>
       </div>
-    
     </div>
- 
-
   );
 };
 

@@ -1,8 +1,5 @@
-import {  Dish, DishEditInput, DishInput } from "../components/interfaces";
-import Cookies from "universal-cookie"; 
-import { axiosPrivate, axiosPublic } from "./axios";
-
-const cookies = new Cookies();
+import {  Dish } from "../components/interfaces";
+import { axiosPrivate, axiosPublic } from "../utils/axios";
 
 
 
@@ -20,19 +17,12 @@ export const fetchDishes = async ({ pageParam = 1, query = "", onlyNoProduct = f
 
 
 export const getDishNames = async (): Promise<string[]> => {
-  const response = await axiosPublic.get(`dishes/names/`, {
-    headers: {
-      "X-CSRFToken": cookies.get("csrftoken"),
-    },
-  });
-
+  const response = await axiosPublic.get(`dishes/names/`);
 
   const data = await response.data
   return  data.dishes || []
-
 }
 
- 
 
 export const IsNameUnique = async (name: string, editingName?: string) => {
   try {
@@ -45,23 +35,14 @@ export const IsNameUnique = async (name: string, editingName?: string) => {
         ? 'Dish with this name already exists.'
         : undefined
     };
-  } catch (error) {
-    console.error(error);
+  } catch {
     return { unique: false, message: 'Error checking name uniqueness.' };
   }
 };
 
 
-
-
-
 export const fetchDish = async (id:string)  => { 
-  const response = await axiosPublic.get(`/get-dish-by-id/${id}`, {
-      headers: {
-        "Content-Type": "application/json",
-        'X-CSRFToken': cookies.get("csrftoken")
-      },
-  });
+  const response = await axiosPublic.get(`/get-dish-by-id/${id}`);
 
   const data = await response.data
   const dish:Dish = data
@@ -69,31 +50,22 @@ export const fetchDish = async (id:string)  => {
 };
 
   
-export const saveDish = async ({dish}: DishInput): Promise<string> => {
+export const saveDish = async ({dish}: {dish: FormData}): Promise<string> => {
   const response = await axiosPublic.post(`dishes/`, dish);
 
   const data = await response.data
-
-
   return  data.id
-
 }
+
   
-export const editDish = async ({dish, id}: DishEditInput): Promise<void> => {
-  console.log(dish, 'in edit dish')
+export const editDish = async ({dish, id}: {dish: FormData, id: string}): Promise<void> => {
   await axiosPublic.put(`dishes/?id=${id}`, dish, {
     headers: { "Content-Type": "multipart/form-data" }
   });
-
 }
   
 export const deleteDish = async ({id}: {id: string}): Promise<string | void> => {
-  const response = await axiosPublic.delete(`dishes/?id=${id}`, {
-    headers: {
-      "Content-Type": "application/json",
-      "X-CSRFToken": cookies.get("csrftoken"),
-    }, 
-  });
+  const response = await axiosPublic.delete(`dishes/?id=${id}`);
 
   if (response.data.error) {
     const errorData = await response.data.error  
@@ -105,5 +77,3 @@ export const toggleFavorite = async (dishId: string) => {
   const response = await axiosPrivate.patch(`dish/${dishId}/favorite/`)
   return response.data.favorite;
 };
-
-

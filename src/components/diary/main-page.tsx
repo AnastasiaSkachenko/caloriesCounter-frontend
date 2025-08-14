@@ -11,22 +11,20 @@ import NutritionProgress from "./nutritions";
 import RecordComponent from "./recordElement";
 import useAxiosPrivate from "../../hooks/useAxiosPrivate";
 import Button from "../../customComponents/Button";
-import Header from "../header";
-
+import Header from "../general/header";
 
 
 const CaloriesCounter: React.FC = () => {
   const { auth } = useAuth()
   const { fetchDiaryRecords } = useAxiosPrivate()
   const navigate = useNavigate()
-  console.log(auth.access, 'access')
+
   const {
     status: status, error: error, isLoading,data: records,  
   } = useQuery({
     queryKey: ['diaryRecords'], 
     queryFn: () =>  fetchDiaryRecords(), 
   });
-
 
   records?.forEach((record) => {
     record.date = record.date?.slice(0, 16).replace('T', ' ');
@@ -51,7 +49,6 @@ const CaloriesCounter: React.FC = () => {
     return `${year}-${month}-${day}`;
   };
 
-
   const [date, setDate] = useState(getCurrentDate)
   const [editRecord, setEditRecord] = useState<DiaryRecord | null>()
 
@@ -59,7 +56,6 @@ const CaloriesCounter: React.FC = () => {
   ? records?.filter((record) => record.date.slice(0,10) === date) // Exact match
   : records
 
-  
 
   if (!auth.user || ! auth.access) {
     return <div className="d-flex ps-4 pt-2 vh-100 bg-secondary"><h3><i className="fa fa-spinner"></i>Loading...</h3></div>; 
@@ -123,9 +119,8 @@ const CaloriesCounter: React.FC = () => {
           }
         </div>
       </div>
-  
     </div>
   );
-  }
+}
 
 export default CaloriesCounter

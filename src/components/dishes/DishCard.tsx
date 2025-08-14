@@ -1,19 +1,14 @@
 import React, { useEffect }  from "react";
-import { Dish } from "../interfaces";
-import { usePopDish, useToggleFavorite } from "../../hooks/caloriesCounter";
 import useAuth from "../../hooks/useAuth";
 import { Popover } from "bootstrap";
 import MediaScroller from "../products/MediaScroller";
 import Button from "../../customComponents/Button";
 import { useNavigate } from "react-router-dom";
-
-interface DishProps {
-  dish: Dish;
-  setEditDish: (dish: Dish) => void;
-}
+import { useDishMutations } from "../../hooks/mutations/dishes";
+import { DishProps } from "../props";
 
 const DishCard: React.FC<DishProps> = ({ dish, setEditDish }) => {
-  const { popDish } = usePopDish()
+  const { popDish, toggleFavoriteDish } = useDishMutations(dish.id, dish.favorite)
   const navigate = useNavigate()
 
   const { auth } = useAuth()
@@ -25,20 +20,14 @@ const DishCard: React.FC<DishProps> = ({ dish, setEditDish }) => {
         new Popover(popoverTriggerEl);
       });
     }
-
   }, [auth.user]);
-
-
-  const mutation = useToggleFavorite(dish.id, dish.favorite);
 
 
   const handleFavoriteToggle = () => {
     if (auth.user) {
-      mutation.mutate();
+      toggleFavoriteDish.mutate();
     } 
   };
-
-
 
   const handleDeleteDish = (id:string) => {
     const response = window.confirm('Are you sure you want to delete this dish?');
@@ -47,14 +36,13 @@ const DishCard: React.FC<DishProps> = ({ dish, setEditDish }) => {
     }
   }
 
- 
   return (
     <div className=" d-flex flex-column bg-light border rounded p-3 ">
       <MediaScroller name={dish.name} media={dish.media} bg="dark" width={400} height={250} />
       <div className="d-flex justify-content-between mt-4">
         <p className="text-secondary my-1" > {dish.user == auth.user?.id ? 'Own dish': 'Other creator'}</p>
         {auth.user ? (
-          <button  type="button"  onClick={handleFavoriteToggle} disabled={mutation.isPending} className="bg-transparent p-0 m-0 transparent-btn"><i className={`fa-${ auth.favoriteDishes?.includes(dish.id) ? "solid":'regular'} fa-star fa-xl`} style={{color: '#ffc800'}}></i></button>
+          <button  type="button"  onClick={handleFavoriteToggle} disabled={toggleFavoriteDish.isPending} className="bg-transparent p-0 m-0 transparent-btn"><i className={`fa-${ auth.favoriteDishes?.includes(dish.id) ? "solid":'regular'} fa-star fa-xl`} style={{color: '#ffc800'}}></i></button>
         ): (
           <span className="d-inline-block" tabIndex={0} data-bs-toggle= "popover" data-bs-trigger="hover focus" title="Login required" data-bs-placement="top" data-bs-content="You need to log it to save this dish." data-bs-custom-class="custom-popover">
             <button  type="button"   disabled  className="bg-transparent p-0 m-0 transparent-btn" ><i className={`fa-${ auth.favoriteDishes?.includes(dish.id) ? "solid":'regular'} fa-star fa-xl`} style={{color: '#ffc800'}}></i></button>

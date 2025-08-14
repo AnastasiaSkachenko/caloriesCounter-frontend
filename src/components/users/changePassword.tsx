@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { sendVerificationCode, verifyCode, resetPassword } from "../../utils/userUtils";
 import { useNavigate } from "react-router-dom";
 import useAuth from "../../hooks/useAuth";
+import { sendVerificationCode, verifyCode, resetPassword } from "../../requests/user";
 
 const ResetPassword = () => {
   const [email, setEmail] = useState("");
@@ -13,37 +13,37 @@ const ResetPassword = () => {
   const { auth } = useAuth()
 
   const handleSendCode = async () => {
-      try {
-          await sendVerificationCode(email);
-          setMessage("A verification code has been sent to your email.");
-          setStep(2);
-      } catch  {
-          setMessage("Failed to send code. Please try again.");
-      }
+    try {
+      await sendVerificationCode(email);
+      setMessage("A verification code has been sent to your email.");
+      setStep(2);
+    } catch  {
+      setMessage("Failed to send code. Please try again.");
+    }
   };
 
   const handleVerifyCode = async () => {
-      try {
-          await verifyCode(email, code);
-          setMessage("Email verified! Now you can reset your password.");
-          setStep(3);
-      } catch  {
-          setMessage("Invalid code. Please try again.");
-      }
+    try {
+      await verifyCode(email, code);
+      setMessage("Email verified! Now you can reset your password.");
+      setStep(3);
+    } catch  {
+      setMessage("Invalid code. Please try again.");
+    }
   };
 
   const handleResetPassword = async () => {
-      try {
-          await resetPassword(email, newPassword);
-          setMessage("Password reset successful! You can now log in.");
-          if (auth.user) {
-            navigate('/profile')
-          } else {
-            navigate('/login')
-          }
-      } catch  {
-          setMessage("Failed to reset password. Try again.");
+    try {
+      await resetPassword(email, newPassword);
+      setMessage("Password reset successful! You can now log in.");
+      if (auth.user) {
+        navigate('/profile')
+      } else {
+        navigate('/login')
       }
+    } catch  {
+      setMessage("Failed to reset password. Try again.");
+    }
   };
 
   return (
@@ -78,10 +78,8 @@ const ResetPassword = () => {
             </div>
           </>
         )}
-
         {message && <p className="mt-3 text-red-500">{message}</p>}
       </div>
-
     </div>
   );
 };

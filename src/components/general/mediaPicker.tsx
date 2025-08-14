@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
-import Button from '../customComponents/Button';
-import { baseImageUrl } from '../utils/production';
+import { baseImageUrl } from '../../utils/production';
+import Button from '../../customComponents/Button';
 
 interface MediaPickerProps {
   media?: (File | string)[],

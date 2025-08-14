@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom'; // If you're using react-router
 import { User } from '../interfaces';
-import { useRegister } from '../../utils/userUtils';
+import { useRegister } from '../../requests/user';
 
 const RegisterPage = () => {
   const [formData, setFormData] = useState<User>({

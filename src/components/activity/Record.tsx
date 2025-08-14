@@ -1,16 +1,11 @@
 import { useEffect } from "react";
-import { ActivityRecordPayload } from "../interfaces";
 import { activityTypes } from "../../assets/activityTypes";
 import Button from "../../customComponents/Button";
-import { useActivityMutations } from "../../hooks/activity";
+import { useActivityMutations } from "../../hooks/mutations/activity";
+import { ActivityRecordComponentProps } from "../props";
 
 
-interface RecordComponentProps {
-  record: ActivityRecordPayload;
-  editRecord: () => void;
-}
-
-const RecordComponent: React.FC<RecordComponentProps> = ({ record, editRecord }) => {
+const RecordComponent: React.FC<ActivityRecordComponentProps> = ({ record, editRecord }) => {
   const { popActivityRecord, putActivityRecord } = useActivityMutations();
 
   const toggleDone = (value: boolean) => {
@@ -31,14 +26,14 @@ const RecordComponent: React.FC<RecordComponentProps> = ({ record, editRecord })
   };
 
   useEffect(() => {
-    if (record.done) return; // ✅ Already done — skip
+    if (record.done) return; 
 
     const now = new Date();
     const target = new Date(record.timestamp);
     const diff = target.getTime() - now.getTime();
 
     if (diff <= 0) {
-      toggleDone(true); // ✅ Auto-mark as done if past timestamp and not done yet
+      toggleDone(true); 
       return;
     }
 

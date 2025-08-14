@@ -99,16 +99,6 @@ export interface DishEditInput {
   id: string,
 }
 
-export interface DishFormProps { 
-  onSuccess?: () => void,
-  onSubmit?: (dish:Dish) => void,
-  onSuccessEdit?: (modifiedDish: Dish) => void,
-  onCancel?: () => void;  
-  dishToEdit?: Dish;
-  ingredientsData?: Ingredient[]
-}
-
-
 //                                                                                                                      Diary Record
 //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 export interface DiaryRecord  {
@@ -186,6 +176,7 @@ type ActivitySpecificFields = {
   jumping: { duration_minutes: number };
   stretching: { duration_minutes: number };
   home_chores: { duration_minutes: number };
+  work_bk: { duration_minutes: number };
 };
 
 
@@ -209,7 +200,8 @@ export type ActivityType =
   | 'volleyball'  
   | 'jumping'
   | 'stretching' 
-  | 'home_chores' ;
+  | 'home_chores'
+  | "work_bk" ;
 
 export interface BaseActivityRecord {
   id: string,
@@ -329,6 +321,13 @@ export function buildActivityPayload(values: Values, userWeight: number, userId:
       return {
         ...base,
         activity_type: 'home_chores',
+        duration_minutes: values.duration_minutes,
+      };
+
+    case 'work_bk':
+      return {
+        ...base,
+        activity_type: 'work_bk',
         duration_minutes: values.duration_minutes,
       };
 

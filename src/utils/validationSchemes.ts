@@ -1,5 +1,5 @@
 import * as Yup from 'yup';
-import { IsNameUnique } from './dish';
+import { IsNameUnique } from '../requests/dish';
 import { useMemo } from 'react';
 
 		
@@ -142,7 +142,8 @@ export const activitySchema = Yup.object({
     'volleyball',
     'jumping',
     'stretching',
-    'home_chores'
+    'home_chores',
+    "work_bk"
     ])
     .required('Please select a valid activity type'), // Custom error message
   

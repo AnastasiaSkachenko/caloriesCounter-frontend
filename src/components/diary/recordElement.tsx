@@ -1,15 +1,10 @@
 import Button from "../../customComponents/Button"
-import { usePopDiaryRecord } from "../../hooks/caloriesCounter"
-import { DiaryRecord } from "../interfaces"
-
-interface  RecordComponentProps {
-  record: DiaryRecord,
-  editRecord: (record: DiaryRecord) => void,
-}
+import { useDiaryMutation } from "../../hooks/mutations/diary"
+import { RecordComponentProps } from "../props"
 
 
 const RecordComponent: React.FC<RecordComponentProps> = ({record, editRecord}) => {
-  const { popDiaryRecord } = usePopDiaryRecord()
+  const { popDiaryRecord } = useDiaryMutation()
 
   return (
     <div className="border border-secondary-light rounded p-3 me-2 mb-4" >
@@ -41,7 +36,6 @@ const RecordComponent: React.FC<RecordComponentProps> = ({record, editRecord}) =
         <p className="text-danger">This dish was deleted by its creator. You no longer can modify this record.</p>
       )}
     </div>
-
   )
 }
 

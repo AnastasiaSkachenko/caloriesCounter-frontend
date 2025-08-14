@@ -1,22 +1,16 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';  
 import {  DiaryRecord, Dish } from '../interfaces';
-import { fetchDishes, getDishNames } from '../../utils/dish';
-import { usePutDiaryRecord, useSetDiaryRecord } from '../../hooks/caloriesCounter';
-import { useHandleKeyDown } from '../../utils/utils';
+import { fetchDishes, getDishNames } from '../../requests/dish';
 import { v4 as uuidv4 } from 'uuid';
 import useAuth from '../../hooks/useAuth';
 import Button from '../../customComponents/Button';
+import { useDiaryMutation } from '../../hooks/mutations/diary';
+import Input from '../general/Input';
+import { RecordFormProps } from '../props';
 
-
-interface RecordFormProps {
-  onSuccess?: () => void
-  onCancel?: () => void,
-  recordData?: DiaryRecord,
-}
 
 const RecordForm: React.FC<RecordFormProps> = ({onSuccess, onCancel, recordData}) => { 
-
   const {
       status, error, isLoading,data: dishNames
   } = useQuery({
@@ -25,7 +19,7 @@ const RecordForm: React.FC<RecordFormProps> = ({onSuccess, onCancel, recordData}
   });
 
   const { auth } = useAuth()
-
+  const { setDiaryRecord, putDiaryRecord } = useDiaryMutation()
   const [filteredSuggestions, setFilteredSuggestions] = useState<string[]>([''])
   const [validation, setValidation] = useState<{message: string | undefined, valid: boolean}>({message: undefined, valid: false})
   const [inputMode, setInputMode] = useState<"weight" | "portions">(recordData? (recordData.weight  ? 'weight': 'portions'):"weight");
@@ -35,7 +29,6 @@ const RecordForm: React.FC<RecordFormProps> = ({onSuccess, onCancel, recordData}
   });
   const [currentDish, setCurrentDish] = useState<Dish | null>()
   const addRecordButtonRef = useRef<HTMLButtonElement>(null);
-  const { handleKeyDown } = useHandleKeyDown()
 
   const getDish = async (dishName:string) => {
     const dishNameExists = dishNames?.find(dish => dish === dishName);
@@ -52,11 +45,8 @@ const RecordForm: React.FC<RecordFormProps> = ({onSuccess, onCancel, recordData}
 
       setCurrentDish(dish)
       setFilteredSuggestions([])
-
     } 
-  }
-  }
-
+  }}
   
   const [inputRefs] = useState([
     useRef<HTMLInputElement>(null),
@@ -111,7 +101,6 @@ const RecordForm: React.FC<RecordFormProps> = ({onSuccess, onCancel, recordData}
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [recordData?.name]);
   
-
  
   const toggleInputMode = () => {
     setInputMode((prevMode) => (prevMode === "weight" ? "portions" : "weight"));
@@ -195,11 +184,6 @@ const RecordForm: React.FC<RecordFormProps> = ({onSuccess, onCancel, recordData}
     }
   }, [inputMode])
 
-
-  const { setDiaryRecord } = useSetDiaryRecord()
-  const { putDiaryRecord } = usePutDiaryRecord()
-
-
   const handleRecordChange = (field: "weight" | "portions", valueRaw: string |number) => {
     console.log(Number(valueRaw), 'here')
     const value = Number(valueRaw) > 0 ?  Number(valueRaw) : valueRaw;
@@ -209,12 +193,8 @@ const RecordForm: React.FC<RecordFormProps> = ({onSuccess, onCancel, recordData}
       ...prevRecord,
       [field]: value,
     }));
-   };
+  };
 
- 
-  
-
- 
   const handleDishNameChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value.charAt(0).toUpperCase() + e.target.value.slice(1);
      setRecordInfo((prevRecord) => ({
@@ -236,17 +216,13 @@ const RecordForm: React.FC<RecordFormProps> = ({onSuccess, onCancel, recordData}
  
     getDish(value) 
   };
- 
+
 
   const handleSubmit = async () => {  
 
     if (recordData) {
-      console.log('edit mode, data sent', record)
       putDiaryRecord({diaryRecord:record})
     } else {
-      console.log( record)
-      console.log(inputMode)
-  
       setDiaryRecord({diaryRecord:record})
     }
 
@@ -255,18 +231,13 @@ const RecordForm: React.FC<RecordFormProps> = ({onSuccess, onCancel, recordData}
     setCurrentDish(null)
   
     if (onSuccess) onSuccess()
-
   }
  
- 
-
   const handleOnCancel = () => {
     setRecordInfo({
       id: uuidv4(), name: '', image: '', weight: 100, calories: 0, protein: 0, carbs: 0, fat: 0, dish: '', date: '', portions: 1, fiber: 0, sugars: 0, caffeine: 0, user: auth.user?.id ?? 2})
     if (onCancel) onCancel()
   }
-
- 
  
   if (isLoading) return <h1>Loading...</h1>;
   if (status=== 'error') return <h1>{JSON.stringify(error)}</h1>;
@@ -285,36 +256,27 @@ const RecordForm: React.FC<RecordFormProps> = ({onSuccess, onCancel, recordData}
         </label>   
         <div>
           <div>
-            <label className='full-length'>
-              {inputMode === "weight" ? "Weight (g):" : (currentDish ? `Portions (in one portion ${currentDish?.portion}g):`: 'Choose dish first to see weight of portion:')}
-              <div className='d-flex align-items-center justify-content-between '>
-                <input
-                  type="number"
-                  className='input border border-light rounded p-1 w-75'
-                  value={inputMode === "weight" ? record.weight : record.portions }
-                  ref={inputRefs[1]}
-                  onChange={(e) =>
-                    handleRecordChange(inputMode,e.target.value)
-                  }
-                  onKeyDown={(e) => handleKeyDown(e, addRecordButtonRef, true)}
-                  onFocus={(e) => e.target.select()}
-                  disabled={!currentDish}
-                  />
-                  <Button
-                    text={inputMode === "weight" ? "Portions" : "Weight"}
-                    onClick={toggleInputMode}
-                    type="button"
-                    size='sm'
-                    variant="secondary"
-                  />
-              </div>
+            <Input
+              labelClassName='ful-length'
+              title={inputMode === "weight" ? "Weight (g):" : (currentDish ? `Portions (in one portion ${currentDish?.portion}g):`: 'Choose dish first to see weight of portion:')}
+              type='number'
+              value={inputMode === "weight" ? record.weight : record.portions }
+              refObj={inputRefs[1]}
+              onChange={(e) =>handleRecordChange(inputMode,e.target.value)}
+              refObjNext={addRecordButtonRef}
+              disabled={!currentDish}
+            />
 
-            </label>
-          </div>            
-        <br/>
-
-        <p>Calories: {record.calories}, Protein: {record.protein}, Carbs: {record.carbs}, Fat: {record.fat}, Fiber: {record.fiber}, Sugars: {record.sugars}, Caffeine: {record.caffeine} </p>
-
+            <Button
+              text={inputMode === "weight" ? "Portions" : "Weight"}
+              onClick={toggleInputMode}
+              type="button"
+              size='sm'
+              variant="secondary"
+            />
+          </div>
+          <br/>
+          <p>Calories: {record.calories}, Protein: {record.protein}, Carbs: {record.carbs}, Fat: {record.fat}, Fiber: {record.fiber}, Sugars: {record.sugars}, Caffeine: {record.caffeine} </p>
         </div>
       </div>  
 

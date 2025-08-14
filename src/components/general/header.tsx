@@ -1,9 +1,9 @@
-import Button from "../customComponents/Button"
+import Button from "../../customComponents/Button"
 
 const Header = ({active}: {active:string}) =>{
   return (
     <div className="d-flex flex-row gap-2 border-bottom border-secondary-light p-2 mb-3">
-        <Button 
+        <Button
           variant={active == "diary" ? "activeLink" : "link"}
           text="Diary"
           link="/"

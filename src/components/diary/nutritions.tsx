@@ -1,15 +1,10 @@
 import { useState, useEffect } from "react";
 import { RadialBarChart, RadialBar, PolarAngleAxis } from "recharts";
-import { DiaryRecord, Goal, User } from "../interfaces";
-import { useActivity } from "../../utils/activity";
-import { fetchDailyGoal } from "../../utils/diary";
+import { Goal, User } from "../interfaces";
+import { useActivity } from "../../requests/activity";
 import { useQuery } from "@tanstack/react-query";
-
-interface NutritionProgressProps {
-  user: User;
-  filteredRecords: DiaryRecord[];
-  date: string,
-}
+import { fetchDailyGoal } from "../../requests/diary";
+import { NutritionProgressProps } from "../props";
 
 
 const NutritionProgress: React.FC<NutritionProgressProps> = ({ user, filteredRecords, date }) => {
@@ -31,31 +26,27 @@ const NutritionProgress: React.FC<NutritionProgressProps> = ({ user, filteredRec
 
   function getFallback(user: User, calories: number) {
 
-  //later implement adjustments for different goals
+    const weight = user.weight ?? 70;
 
-  const weight = user.weight ?? 70;
+    const protein = Math.round(weight * (1.6));
+    const proteinCalories = protein * 4;
 
-  const protein = Math.round(weight * (1.6));
-  const proteinCalories = protein * 4;
+    const fatCalories = calories * (0.25);
+    const fats = Math.round(fatCalories / 9);
 
-  const fatCalories = calories * (0.25);
-  const fats = Math.round(fatCalories / 9);
+    const remainingCalories = Math.max(calories - (proteinCalories + fatCalories), 0);
+    const carbs = Math.round(remainingCalories / 4);
 
-  const remainingCalories = Math.max(calories - (proteinCalories + fatCalories), 0);
-  const carbs = Math.round(remainingCalories / 4);
-
-  return {
-    calories,
-    protein,
-    fats,
-    carbs,
-    sugars: Math.round((calories * 0.10) / 4),
-    fiber: Math.round((calories / 1000) * 14),
-    caffeine: user?.caffeine_d ?? 400
-  };
-}
-
-  
+    return {
+      calories,
+      protein,
+      fats,
+      carbs,
+      sugars: Math.round((calories * 0.10) / 4),
+      fiber: Math.round((calories / 1000) * 14),
+      caffeine: user?.caffeine_d ?? 400
+    };
+  }
 
   // Adjust chart size & items per row based on screen width
   useEffect(() => {
@@ -85,7 +76,6 @@ const NutritionProgress: React.FC<NutritionProgressProps> = ({ user, filteredRec
     return () => window.removeEventListener("resize", updateLayout);
   }, []);
 
-
   const {
     data: activities
   } = useQuery({
@@ -93,17 +83,13 @@ const NutritionProgress: React.FC<NutritionProgressProps> = ({ user, filteredRec
     queryFn: () =>  fetchActivityRecords(date), 
   });
 
-
-
   const calories = user.calculate_nutritions_from_activity_level 
     ? user.calories_d 
-    : (user.bmr ?? 0) + ( //change later fallback value to 1250
+    : (user.bmr ?? 0) + (
       activities?.reduce((acc, record) => acc + (record.calories_burned ?? 0), 0) ?? 0
   );  
 
   const fallback = getFallback(user, calories)
-
-
 
   const goalCalories = goal?.calories_intake_goal ?? fallback.calories ?? 1;
   const goalProtein = goal?.protein_goal ?? fallback.protein ?? 1;
@@ -121,7 +107,6 @@ const NutritionProgress: React.FC<NutritionProgressProps> = ({ user, filteredRec
   const totalSugars = Math.round(filteredRecords?.reduce((acc, record) => acc + (record.sugars ? Number(record.sugars) : 0), 0));
   const totalCaffeine = Math.round(filteredRecords?.reduce((acc, record) => acc + (record.caffeine ? Number(record.caffeine) : 0), 0));
 
-  console.log(filteredRecords)
   
   const calculateColor = (percentage: number) => {
     if (percentage > 120 || percentage < 80) return "#FF4500"; // More than 20% over goal → Red

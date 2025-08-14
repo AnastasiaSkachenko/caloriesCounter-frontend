@@ -1,12 +1,8 @@
 import { useState } from "react";
-import { axiosPrivate, axiosPublic } from "./axios";
 import useAuth from "../hooks/useAuth";
 import useAxiosPrivate from "../hooks/useAxiosPrivate";
+import { axiosPrivate, axiosPublic } from "../utils/axios";
 
-
-
- 
- 
  
 export const useRegister = () => {
   const [loading, setLoading] = useState(false);
@@ -88,8 +84,6 @@ export const useModify = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { setAuth } = useAuth()
-
-
 
   const modify = async (user: FormData, recalculate: boolean) => {
     setLoading(true);  // Start loading

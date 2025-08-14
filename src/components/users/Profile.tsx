@@ -2,25 +2,15 @@ import { useNavigate } from "react-router-dom";
 import '../../style.css';
 import { useEffect, useState } from "react";
 import EditProfile from "./editProfile";
-import { useLogout } from "../../utils/userUtils";
 import useAuth from "../../hooks/useAuth";
 import EditMacros from "./editMarcos";
 import Modal from "../general/Modal";
-import Header from "../header";
 import MediaScroller from "../products/MediaScroller";
-import { MacroNitrientUser } from "../interfaces";
 import Button from "../../customComponents/Button";
 import EditCaloriesBalance from "./editCaloriesBalance";
-
-const nutritions: { title: string; value: MacroNitrientUser }[] = [
-  {title: "Calories", value: "calories_d"},
-  {title: "Protein", value: "protein_d"},
-  {title: "Carbs", value: "carbs_d"},
-  {title: "Fat", value: "fat_d"},
-  {title: "Fiber", value: "fiber_d"},
-  {title: "Sugars", value: "sugars_d"},
-  {title: "Caffeine", value: "caffeine_d"}
-]
+import { nutritionsUser } from "../../assets/constants/nutritions";
+import Header from "../general/header";
+import { useLogout } from "../../requests/user";
 
 
 const Profile = () => {
@@ -28,7 +18,6 @@ const Profile = () => {
   const user = auth.user
   const navigate = useNavigate()
   const { logout } = useLogout()
-
   const [editProfile, setEditProfile] = useState(false)
 
   useEffect(() => {
@@ -40,9 +29,7 @@ const Profile = () => {
 
       return () => clearTimeout(timeout);
     }
-  }, [auth.user, navigate]); // Add dependencies to prevent unnecessary re-renders
-  
-
+  }, [auth.user, navigate]); 
 
   return (
     <div className="bg-dark p-3" style={{minHeight: '100vh'}}>
@@ -90,15 +77,17 @@ const Profile = () => {
                       <i className="fa fa-pen text-white"></i>
                     </button><span className="text-white">:</span>
                   </div>
+
                   {!user.calculate_nutritions_from_activity_level && (
                     <p className="text-white text-center">(based on activities over the last week)</p>
                   )}
 
                   <div className="d-flex flex-wrap">
-                    {nutritions.map((nutrition, index) => (
-                      <p key={index} className={`${index + 1 == nutritions.length ? "w-100" : "w-50"} text-center text-white mb-1`}>{nutrition.title}: {user[nutrition.value]}</p>
+                    {nutritionsUser.map((nutrition, index) => (
+                      <p key={index} className={`${index + 1 == nutritionsUser.length ? "w-100" : "w-50"} text-center text-white mb-1`}>{nutrition.title}: {user[nutrition.value]}</p>
                     ))}
                   </div>
+
                   <div className="d-flex justify-content-center">
                     <Button text="Log out" className="px-5 mt-3" variant="delete" onClick={() => logout()}/>
                   </div>

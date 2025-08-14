@@ -1,19 +1,12 @@
 import React, { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
-import { useStatisticsRequests } from "../../utils/statistics";
+import { useStatisticsRequests } from "../../requests/statistics";
 import {  Nutrient, Suggestion, SuggestionDish } from "../interfaces";
-import MacronutrientChart from "./MacroNutrient";
-import Header from "../header";
+import MacroNutrientChart from "./MacroNutrient";
+import Header from "../general/header";
+import { labelKeyNutriment } from "../../assets/constants/nutritions";
 
-const labelKeyNutriment = [
-  { key: "protein", label: "Protein" },
-  { key: "fat", label: "Fat" },
-  { key: "carbs", label: "Carbs" },
-  { key: "fiber", label: "Fiber" },
-  { key: "sugars", label: "Sugar" },
-  { key: "caffeine", label: "Caffeine" },
-];
 
 const StatisticsPage: React.FC = () => {
   const { getStatistics } = useStatisticsRequests();
@@ -50,8 +43,6 @@ const StatisticsPage: React.FC = () => {
 
       <h3 className="text-white">Statistics</h3>
 
-
-      {/* Suggestions */}
       <div className="p-3 mb-5 bg-white/20 rounded-md">
         <h5 className="text-xl text-white font-semibold">
           Information to consider following month:
@@ -83,7 +74,6 @@ const StatisticsPage: React.FC = () => {
         ))}
       </div>
 
-      {/* Nutrient charts */}
       {nutrients.map((nutrient: Nutrient, index) => {
         const upperCase = nutrient.charAt(0).toUpperCase() + nutrient.slice(1);
         const title = upperCase.includes("_")
@@ -95,7 +85,7 @@ const StatisticsPage: React.FC = () => {
             <h3 className="text-lg font-semibold text-white">
               {title}: Intake vs Goal
             </h3>
-            <MacronutrientChart
+            <MacroNutrientChart
               data={statistics?.goals ?? []}
               nutrient={nutrient}
             />

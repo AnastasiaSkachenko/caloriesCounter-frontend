@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useActivity } from "../utils/activity";
-import { ActivityRecordPayload } from "../components/interfaces";
+import { useActivity } from "../../requests/activity";
+import { ActivityRecordPayload } from "../../components/interfaces";
 
 export const useActivityMutations = () => {
   const queryClient = useQueryClient();

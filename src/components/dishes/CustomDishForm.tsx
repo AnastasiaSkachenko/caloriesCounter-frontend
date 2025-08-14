@@ -1,14 +1,15 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Dish, DishFormProps, Ingredient } from '../interfaces';
-import { usePopIngredient, usePutDish, usePutIngredient, useSetDish, useSetIngredient } from '../../hooks/caloriesCounter';
+import { Dish, Ingredient } from '../interfaces';
 import IngredientForm from '../ingredients/ingredientForm';
 import { useCustomDishSchema } from '../../utils/validationSchemes';
 import { convertObjectToFormData, useHandleKeyDown } from '../../utils/utils';
 import { v4 as uuidv4 } from 'uuid';
-import MediaPicker from '../mediaPicker';
 import Button from '../../customComponents/Button';
 import useAuth from '../../hooks/useAuth';
-
+import { useDishMutations } from '../../hooks/mutations/dishes';
+import { useIngredientMutations } from '../../hooks/mutations/ingredients';
+import MediaPicker from '../general/mediaPicker';
+import { DishFormProps } from '../props';
 
 
 const CustomDishForm: React.FC<DishFormProps> = ({onSuccess, onCancel, dishToEdit, ingredientsData}) => {
@@ -27,6 +28,9 @@ const CustomDishForm: React.FC<DishFormProps> = ({onSuccess, onCancel, dishToEdi
   const [createIngredient, setCreateIngredient] = useState<boolean>(false) 
   const addDishButtonRef = useRef<HTMLButtonElement>(null);
   const description = useRef<HTMLTextAreaElement>(null)
+
+  const { setDish, putDish } = useDishMutations()
+  const { setIngredient, putIngredient, popIngredient } = useIngredientMutations()
 
   useEffect(() => {
     if (auth.user && !dishToEdit && auth.user.id > 0) {
@@ -47,11 +51,6 @@ const CustomDishForm: React.FC<DishFormProps> = ({onSuccess, onCancel, dishToEdi
     })
   }
 
-  const { setDish } = useSetDish()
-  const { setIngredient } = useSetIngredient()
-  const { putDish } = usePutDish()
-  const { putIngredient } = usePutIngredient()
-  const { popIngredient } = usePopIngredient()
   const { handleKeyDown } = useHandleKeyDown()
   const validationScheme = useCustomDishSchema(dishToEdit && dishToEdit.name)
 
@@ -101,7 +100,6 @@ const CustomDishForm: React.FC<DishFormProps> = ({onSuccess, onCancel, dishToEdi
       });
     };
   }, [dishToEdit, inputRefs]);
-      
 
   const handleDishChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>, field: 'name'| 'image' | 'drink' | 'portions' | 'type' | 'description' | 'weight_of_ready_product') => {
     setSuccessMessage(null)
@@ -114,7 +112,6 @@ const CustomDishForm: React.FC<DishFormProps> = ({onSuccess, onCancel, dishToEdi
       setForm((prevDish) => ({ ...prevDish, [field]: newValue })); 
     }
   };
-
 
   useEffect(() => {
     const recalculateForm = (ingredients: Ingredient[]) => {
@@ -141,7 +138,6 @@ const CustomDishForm: React.FC<DishFormProps> = ({onSuccess, onCancel, dishToEdi
     setIngredientEdit(null);
     updatedIngredient.edited = true
 
-  
     setIngredients((prevIngredients) => {
       const updatedIngredients = [...prevIngredients];
   
@@ -191,7 +187,6 @@ const CustomDishForm: React.FC<DishFormProps> = ({onSuccess, onCancel, dishToEdi
     console.log("dish form before sending", form)
 
     if (dishToEdit) {
-      // Update dish
       await putDish({ dish: formData, id: form.id });
 
       // New ingredients (added by the user)
@@ -238,19 +233,13 @@ const CustomDishForm: React.FC<DishFormProps> = ({onSuccess, onCancel, dishToEdi
         ingredient.dish = dishID
         setIngredient({ingredient})
       });
-
-      console.log(ingredients, 'when submiting')
     }  
   
     resetForm()
     setValidation({message: undefined, valid: false})
     setIngredients([])
-
  
-    if (onSuccess) {
-      onSuccess()
-    }
-
+    if (onSuccess)  onSuccess()
   };
 
   const handleCancel = () => {
@@ -337,7 +326,6 @@ const CustomDishForm: React.FC<DishFormProps> = ({onSuccess, onCancel, dishToEdi
       </div>
       {successMessage && <p>{successMessage}</p>}
     </div>
- 
   );
 };
 

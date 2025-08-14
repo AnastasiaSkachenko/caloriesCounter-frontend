@@ -14,7 +14,6 @@ export const useActivity = () => {
     }
   };
 
-
   const saveActivityRecord = async ({ activity }: { activity: unknown }): Promise<{message :"Success" | "Error", calories_burned?: number}> => {
     try {
       const response = await axiosPrivate.post("/activityRecords/", activity);

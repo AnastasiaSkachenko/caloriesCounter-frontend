@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import useAuth from '../../hooks/useAuth';
-import { useActivityMutations } from '../../hooks/activity';
 import { v4 as uuidv4 } from 'uuid';
 import { ActivityType, buildActivityPayload, Values } from '../interfaces';
 import { activitySchema } from '../../utils/validationSchemes';
@@ -10,6 +9,8 @@ import Button from '../../customComponents/Button';
 import Input from '../general/Input';
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import { useActivityMutations } from '../../hooks/mutations/activity';
+import SelectInput from '../general/SelectInput';
 
 
 const ActivityForm = ({ onExit, activityData }: { onExit: () => void, activityData?: Values }) => {
@@ -65,7 +66,6 @@ const ActivityForm = ({ onExit, activityData }: { onExit: () => void, activityDa
 
   const validationSchema = activitySchema
 
-
   useEffect(() => {
     validationSchema.validate(formState)
       .then(() => setValidation({ valid: true, message: undefined }))
@@ -100,7 +100,6 @@ const ActivityForm = ({ onExit, activityData }: { onExit: () => void, activityDa
       formState.done = true
     }
 
-
     if (activityData) {
       await putActivityRecord.mutateAsync({activity: activityRecord})
     } else {
@@ -113,8 +112,7 @@ const ActivityForm = ({ onExit, activityData }: { onExit: () => void, activityDa
   return (
     <div className='bg-mainBG rounded-xl'>
       <div className="p-4 gap-3">
-        <Input
-          type='select'
+        <SelectInput
           title='Activity Type:'
           name='activity_type'
           value={formState.activity_type}
@@ -124,7 +122,7 @@ const ActivityForm = ({ onExit, activityData }: { onExit: () => void, activityDa
           {activityTypes.map((type) => (
             <option key={type.type} label={type.label} value={type.type} />
           ))}     
-        </Input>
+        </SelectInput>
 
         {inputFields.map(({ show, ...props }) =>
           show && (
@@ -136,9 +134,8 @@ const ActivityForm = ({ onExit, activityData }: { onExit: () => void, activityDa
           )
         )}
 
-        <Input
+        <SelectInput
           title={`Intensity: ${formState.intensity}`}
-          type='select'
           onChange={handleChange}
           value={formState.intensity}
           name='intensity'
@@ -146,8 +143,7 @@ const ActivityForm = ({ onExit, activityData }: { onExit: () => void, activityDa
           {[1,2,3,4,5].map((intensity) => (
             <option key={intensity} label={intensity.toString()} value={intensity} />
           ))}     
-
-        </Input>
+        </SelectInput>
 
         {formState.activity_type in descriptions && (
           <p>
@@ -169,8 +165,6 @@ const ActivityForm = ({ onExit, activityData }: { onExit: () => void, activityDa
             {formState.done ? "Activity completed" : "Plan Activity"}
           </label>
         </div>
-
-      
 
         {!formState.done && (
           <DatePicker

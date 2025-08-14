@@ -2,13 +2,14 @@ import {  useMemo,useState } from 'react';
 import useAuth from '../../hooks/useAuth';
 import { getCurrentDate } from '../../utils/utils';
 import { useQuery } from '@tanstack/react-query';
-import { useActivity } from '../../utils/activity';
+import { useActivity } from '../../requests/activity';
 import Modal from '../general/Modal';
 import ActivityForm from './ActivityForm';
 import Button from '../../customComponents/Button';
 import RecordComponent from './Record';
 import { Values } from '../interfaces';
-import Header from '../header';
+import Header from '../general/header';
+
 
 const Activity = () => {
   const { auth } = useAuth()
@@ -22,7 +23,6 @@ const Activity = () => {
     queryKey: ['activityRecords', date], 
     queryFn: () =>  fetchActivityRecords(date), 
   });
-
   
   const filteredRecords = useMemo(() => {
     if (!records || !date) return [];
@@ -31,12 +31,9 @@ const Activity = () => {
     );
   }, [records, date]);
 
-  console.log("records", records)
-
   if (!auth.user ) {
     return <p>Loading...</p>
   }
-
 
   if (status === 'error') return <h1>{JSON.stringify(error)}</h1>;
 
@@ -44,21 +41,19 @@ const Activity = () => {
     <div className='bg-dark p-3' style={{minHeight: "100vh"}}>
         <Header active='activity' />
         <h2 className='text-white font-bold text-3xl mb-3'>Activity Diary</h2>
-        {/* Add Modal */}
+
         <Modal id="modalAdd" title="Add Activity">
             <ActivityForm
               onExit={() => {}}
             />
         </Modal>
 
-        {/* Edit Modal */}
         <Modal id="modalEdit" title="Edit Activity">
           {editActivity &&
             <ActivityForm
               onExit={() => setEditActivity(undefined)}
               activityData={editActivity}
             />
-
           }
         </Modal>
 
@@ -97,7 +92,6 @@ const Activity = () => {
             filteredRecords?.reduce((acc, record) => acc + (record.calories_burned || 0), 0) || 0
           }
         </h5>
-
     </div>
   );
 };

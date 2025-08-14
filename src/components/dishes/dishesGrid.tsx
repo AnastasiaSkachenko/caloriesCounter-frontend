@@ -1,32 +1,17 @@
 import { useEffect } from "react"; 
-import { fetchDishes } from "../../utils/dish";
-import { Dish } from "../interfaces";
 import '../../style.css';
 import '../../index.css' 
 import 'bootstrap-icons/font/bootstrap-icons.css';
-import { useInfiniteQuery } from "@tanstack/react-query";
 import { useInView } from "react-intersection-observer";
 import DishCard from "./DishCard";
+import { DishGridProps } from "../props";
+import { useDishes } from "../../hooks/mutations/dishes";
 
 
-interface DishGridQuery {
-  query: string,
-  setEditDish: (dish: Dish) => void,
-  filter: string[]
-}
-
-const DishGrid: React.FC<DishGridQuery> = ({query, setEditDish, filter}) => {
- 
-  const {
-    status, error, data, fetchNextPage
-  } = useInfiniteQuery({
-    queryKey: ["dishes", query, true, filter],
-    queryFn: ({ pageParam }) => fetchDishes({ pageParam, query, onlyNoProduct: true, filterKey: filter }),
-    initialPageParam: 1,
-    getNextPageParam: (lastPage, allPages) => {
-        return lastPage.has_more ? allPages.length + 1 : undefined;
-    },
-});
+const DishGrid: React.FC<DishGridProps> = ({query, setEditDish, filter}) => {
+  const { status, dishes, fetchNextPage } = useDishes({
+    searchQuery: query, filter
+  });
 
 	const { ref, inView} = useInView()
 
@@ -36,23 +21,9 @@ const DishGrid: React.FC<DishGridQuery> = ({query, setEditDish, filter}) => {
 		}
 	}, [inView, fetchNextPage])
 
-
-	const dishes = data?.pages.flatMap((page) => page.dishes) || [];
-
- 
- /// !!!!!!!!!!!!!!!!!!!!!!! will not work from now on
- 
-  const dishNames: string[] = []
-  dishes?.map((dish: Dish) => {
-    dishNames.push(dish.name.toLowerCase())
-  })
-  
-
- 
   if (status == 'pending') return <div className="d-flex justify-content-center text-white pt-4"><h3><i className="fa fa-spinner"></i>Loading...</h3></div>;
-  if (status === 'error') return <h1>{JSON.stringify(error)}</h1>;
 
-   return (
+  return (
     <div className="row  gy-4 p-0 px-sm-5 py-sm-4">
       {dishes.length === 0  ? (
           <p className="text-center text-white">No dish match your search.</p>
@@ -65,7 +36,6 @@ const DishGrid: React.FC<DishGridQuery> = ({query, setEditDish, filter}) => {
       )}
     <div ref={ref}></div>
     </div>
-  
   );
 }
 

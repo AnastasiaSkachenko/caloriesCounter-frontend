@@ -1,7 +1,6 @@
 import { useState } from "react"
 import Button from "../../customComponents/Button"
-import { useModify } from "../../utils/userUtils"
-
+import { useModify } from "../../requests/user"
 
 
 const EditCaloriesBalance = ({caloriesBalanceInitial}: {caloriesBalanceInitial: number}) => {
@@ -10,9 +9,7 @@ const EditCaloriesBalance = ({caloriesBalanceInitial}: {caloriesBalanceInitial: 
 
   const handleSave = () => {
     const formData = new FormData()
-
     formData.append('balance', caloriesBalance.toString())
-
     modify(formData, false)
   }
   

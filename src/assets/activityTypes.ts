@@ -11,5 +11,6 @@ export const activityTypes: {type: ActivityType, label: string}[] = [
   { type: 'volleyball', label: 'Volleyball' },
   { type: 'jumping', label: 'Jumping' },
   { type: 'stretching', label: 'Stretching' },
-  { type: 'home_chores', label: 'Home chores'}
+  { type: 'home_chores', label: 'Home chores'},
+  { type: "work_bk", label: "Work (BK)"}
 ] as const;
